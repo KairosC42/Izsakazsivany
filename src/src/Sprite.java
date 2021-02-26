@@ -8,8 +8,8 @@ public class Sprite
 {
     protected int x=0;
     protected int y=0;
-    protected const int width=0;
-    protected const int height=0;
+    protected int  width=0;
+    protected int height=0;
     protected Image image=null;
 
     Sprite(int x, int y, int width, int height, Image image)
