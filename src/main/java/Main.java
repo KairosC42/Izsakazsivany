@@ -4,5 +4,6 @@ public class Main
     {
         System.out.println("Hello World!");
         System.out.println("Bird try hello");
+        MainWindow gui = new MainWindow();
     }
 }
