@@ -7,7 +7,7 @@ public class MainWindow
 
 
     public MainWindow() {
-        frame = new JFrame("Labyrinth");
+        frame = new JFrame("Izsák A Zsivány");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.setPreferredSize(new Dimension(800, 850));
