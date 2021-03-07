@@ -10,6 +10,11 @@ public class Sprite
     protected int height=0;
     protected Image image=null;
 
+    Sprite()
+    {
+
+    }
+
     Sprite(int x, int y, int width, int height, Image image)
     {
         this.x = x;
@@ -57,5 +62,20 @@ public class Sprite
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public void setHeight(int height)
+    {
+        this.height = height;
+    }
+
+    public void setWidth(int width)
+    {
+        this.width = width;
+    }
+
+    public void setImage(Image image)
+    {
+        this.image = image;
     }
 }
