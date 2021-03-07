@@ -124,11 +124,11 @@ public class Renderer extends JPanel
         newFrameTimer.start();
     }
 
-    //Elementek létrehozása.
+    //Kezdő állapotban lévő elemenk létrehozása.
     public void init()
     {
         //File playerPic = new File( "/player.png" );
-        Image playerImage = new ImageIcon(this.getClass().getResource("player.png")).getImage();
+        Image playerImage = new ImageIcon(this.getClass().getResource("playerFront.png")).getImage();
         player = new Player(450,100,player_width, player_height, playerImage);
     }
 

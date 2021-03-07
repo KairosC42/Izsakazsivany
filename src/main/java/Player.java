@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.Image;
 
 public class Player extends Sprite
@@ -18,16 +19,32 @@ public class Player extends Sprite
 
     public void moveX()
     {
-        if ((velx < 0 && x > 0) || (velx > 0 && x + width <= 800))
+        if ((velx < 0 && x > 0) || (velx > 0 && x + width <= 900))
         {
+            if(velx>0)
+            {
+                this.image= new ImageIcon(this.getClass().getResource("playerRight.png")).getImage();
+            }
+            else if(velx<0)
+            {
+                this.image = new ImageIcon(this.getClass().getResource("playerLeft.png")).getImage();
+            }
             x += velx;
         }
     }
 
     public void moveY()
     {
-        if ((vely < 0 && y > 0) || (vely > 0 && y + height <= 540))
+        if ((vely < 0 && y > 0) || (vely > 0 && y + height <= 600))
         {
+            if(vely>0)
+            {
+                this.image= new ImageIcon(this.getClass().getResource("playerFront.png")).getImage();
+            }
+            else if(vely<0)
+            {
+                this.image = new ImageIcon(this.getClass().getResource("playerBack.png")).getImage();
+            }
             y += vely;
         }
     }
