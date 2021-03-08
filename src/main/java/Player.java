@@ -11,10 +11,21 @@ public class Player extends Sprite
     private int vely;
     private int money;
     //vector<Item> EquippesItems;
+    int walkingTime;
+    Image playerImages[];
 
-    public Player(int x, int y, int width, int height, Image image)
+    public Player(int x, int y, int width, int height, Image playerImages[])
     {
-        super(x, y, width, height, image);
+        this.x = x;
+        this.y = y;
+        this.width=width;
+        this.height= height;
+        this.playerImages = playerImages;
+        this.image = playerImages[0];
+    }
+
+    public void update(float deltaTime){
+        walkingTime += deltaTime ;
     }
 
     public void moveX()
@@ -23,11 +34,13 @@ public class Player extends Sprite
         {
             if(velx>0)
             {
-                this.image= new ImageIcon(this.getClass().getResource("playerRight.png")).getImage();
+                //jobbra
+                this.image = playerImages[12];
             }
             else if(velx<0)
             {
-                this.image = new ImageIcon(this.getClass().getResource("playerLeft.png")).getImage();
+                //balra
+                this.image = playerImages[9];
             }
             x += velx;
         }
@@ -39,11 +52,13 @@ public class Player extends Sprite
         {
             if(vely>0)
             {
-                this.image= new ImageIcon(this.getClass().getResource("playerFront.png")).getImage();
+                //előre
+                this.image=this.image = playerImages[0];
             }
             else if(vely<0)
             {
-                this.image = new ImageIcon(this.getClass().getResource("playerBack.png")).getImage();
+                //hátra
+                this.image=this.image = playerImages[4];
             }
             y += vely;
         }

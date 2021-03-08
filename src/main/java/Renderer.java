@@ -8,8 +8,9 @@ import java.awt.event.KeyEvent;
 //import java.sql.SQLException;
 //import java.util.ArrayList;
 //import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
+//import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
@@ -21,6 +22,12 @@ import javax.swing.JFrame;
 //import javax.swing.JLabel;
 //import java.util.Random;
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+//import java.io.File;
+import java.io.IOException;
+//import java.sql.Time;
+//import java.time.Duration;
+//import java.time.Instant;
 //import java.awt.Font;
 
 public class Renderer extends JPanel
@@ -30,11 +37,15 @@ public class Renderer extends JPanel
     private final int window_w;
     private final int window_h;
     private Timer newFrameTimer;
+    //private Timer animationTimer;
     private final int FPS = 240;
-    private Image background;
+    //private Image background;
     private Player player;
     private final int player_width = 40;
     private final int player_height = 40;
+    long last_time = System.nanoTime();
+    int delta_time = 0;
+    long time;
 
     public Renderer(int height, int width, JFrame frame)
     {
@@ -43,6 +54,16 @@ public class Renderer extends JPanel
         this.window_w = width;
         this.frame = frame;
 
+        handleInputs();
+
+        init();
+        newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
+        newFrameTimer.start();
+
+    }
+
+    public void handleInputs()
+    {
         //input kezelések
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "pressed up");
         this.getActionMap().put("pressed up", new AbstractAction()
@@ -50,7 +71,10 @@ public class Renderer extends JPanel
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                player.setVelY(-player.getMoveSpeed());
+                if(player.getVelX() == 0)
+                {
+                    player.setVelY(-player.getMoveSpeed());
+                }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "released up");
@@ -69,7 +93,10 @@ public class Renderer extends JPanel
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                player.setVelX(-player.getMoveSpeed());
+                if(player.getVelY() == 0)
+                {
+                    player.setVelX(-player.getMoveSpeed());
+                }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "released left");
@@ -86,8 +113,12 @@ public class Renderer extends JPanel
         this.getActionMap().put("pressed down", new AbstractAction()
         {
             @Override
-            public void actionPerformed(ActionEvent ae) {
-                player.setVelY(player.getMoveSpeed());
+            public void actionPerformed(ActionEvent ae)
+            {
+                if(player.getVelX() == 0)
+                {
+                    player.setVelY(player.getMoveSpeed());
+                }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "released down");
@@ -101,11 +132,15 @@ public class Renderer extends JPanel
         });
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "pressed right");
-        this.getActionMap().put("pressed right", new AbstractAction() {
+        this.getActionMap().put("pressed right", new AbstractAction()
+        {
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                player.setVelX(player.getMoveSpeed());
+                if(player.getVelY() == 0)
+                {
+                    player.setVelX(player.getMoveSpeed());
+                }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "released right");
@@ -117,23 +152,58 @@ public class Renderer extends JPanel
                 player.setVelX(0);
             }
         });
-
-
-        init();
-        newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
-        newFrameTimer.start();
     }
 
     //Kezdő állapotban lévő elemenk létrehozása.
-    public void init()
-    {
-        //File playerPic = new File( "/player.png" );
-        Image playerImage = new ImageIcon(this.getClass().getResource("playerFront.png")).getImage();
-        player = new Player(450,100,player_width, player_height, playerImage);
+    public void init(){
+        try {
+            //player képeinek betöltése
+            Image playerImages[] = getImages(300,450,100,150,
+                    4,4,100,50,"player.png");
+            player = new Player(450,100,player_width, player_height, playerImages);
+
+
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+
     }
 
 
+    //egy képmátrix felbontására szolgáló függvény
+    /*
+    width - egy képrészlet szélessége
+    height - egy képrészlet magassága
+    width_margin - két képrészlet közti távolság egy sorban
+    width_hieght - két képrészlet közti távolság egy sorban
+    starter-height - a legfelső oszlop távolsága a nagy kép szélétől
+    starter-width - a legbaloldalabb lévő oszlop távolsága a nagy kép szélétől
+    fileName- a nagy kép amit fel akarunk bontani
+    images[] - a tömb amiben szeretnénk tárolni a képeket.
+     */
+    public Image[] getImages(int width, int height, int width_margin,
+                          int height_margin, int rows, int cols, int starter_height, int starter_width,String fileName)
+            throws IOException
+    {
+        BufferedImage bigImg = ImageIO.read(this.getClass().getResource(fileName));
 
+        Image images[] = new Image[rows * cols];
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                images[(i * cols) + j] = bigImg.getSubimage(
+                        starter_width + (j * (width+width_margin)),
+                        starter_height+ (i * (height+height_margin)),
+                        width,
+                        height
+                );
+            }
+        }
+        return images;
+    }
 
     //Minden element kirajzolására szolgáló függvény
     @Override
@@ -142,7 +212,9 @@ public class Renderer extends JPanel
         grphcs.setColor(Color.darkGray);
         super.paintComponent(grphcs);
         grphcs.fillRect(0,0,900,600);
+
         player.draw(grphcs);
+
     }
 
 
@@ -155,6 +227,15 @@ public class Renderer extends JPanel
         {
             player.moveX();
             player.moveY();
+
+            //TODO animilás
+            /*animate(delta_time);
+            time = System.nanoTime();
+            delta_time = (int) ((time - last_time) / 1000000);
+            last_time = time;
+             */
+
+
             repaint();
         }
     }
