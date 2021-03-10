@@ -1,8 +1,10 @@
 package levelLayoutGeneration;
 import org.jgrapht.*;
 import org.jgrapht.graph.Multigraph;
+import rooms.Room;
 
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class RoomNode
@@ -10,10 +12,8 @@ public class RoomNode
     protected Coordinate coordinate;
     protected int bias;
     protected int distanceFromStart;
-    protected Coordinate north=null;
-    protected Coordinate east=null;
-    protected Coordinate south=null;
-    protected Coordinate west=null;
+    protected Room room;
+
 
 
 
@@ -28,5 +28,40 @@ public class RoomNode
     {
         this.coordinate=cord;
         this.bias = bias;
+    }
+
+    public Coordinate getCoordinate()
+    {
+        return coordinate;
+    }
+
+    public int getDistanceFromStart()
+    {
+        return distanceFromStart;
+    }
+
+    public void setDistanceFromStart(int distanceFromStart)
+    {
+        this.distanceFromStart = distanceFromStart;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoomNode roomNode = (RoomNode) o;
+        return coordinate.equals(roomNode.coordinate);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(coordinate);
+    }
+
+    public void setRoom(Room room)
+    {
+        this.room = room;
     }
 }
