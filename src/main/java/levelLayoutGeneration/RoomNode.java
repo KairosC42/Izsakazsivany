@@ -23,4 +23,10 @@ public class RoomNode
         this.coordinate=new Coordinate(i,j);
         this.bias = bias;
     }
+
+    public RoomNode(Coordinate cord,int bias)
+    {
+        this.coordinate=cord;
+        this.bias = bias;
+    }
 }
