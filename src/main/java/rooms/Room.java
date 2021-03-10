@@ -1,3 +1,8 @@
+package rooms;
+
+import entity.Enemy;
+import entity.Sprite;
+
 import java.util.Vector;
 
 public abstract class Room
@@ -20,8 +25,8 @@ public abstract class Room
         {
             for(int j=0;j<M;++j)
             {
-                if (i==0||j==0||i==N-1||j==M-1)layout[i][j]=Tile.WALL;
-                else layout[i][j]=Tile.FLOOR;
+                if (i==0||j==0||i==N-1||j==M-1)layout[i][j]= Tile.WALL;
+                else layout[i][j]= Tile.FLOOR;
                 //NOTE: rooms should also have doors, but those are placed by generateLevel() found in Level
             }
         }

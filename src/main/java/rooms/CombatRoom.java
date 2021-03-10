@@ -1,5 +1,8 @@
+package rooms;
+
+import rooms.Room;
+
 import java.util.Random;
-import java.util.Vector;
 
 public class CombatRoom extends Room
 {

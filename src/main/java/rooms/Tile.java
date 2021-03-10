@@ -1,3 +1,5 @@
+package rooms;
+
 public enum Tile
 {
  WALL, FLOOR, DOOR_CLOSED, DOOR_OPEN, TRAPDOOR_CLOSED, TRAPDOOR_OPEN

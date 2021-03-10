@@ -1,3 +1,7 @@
+package entity;
+
+import entity.Sprite;
+
 import java.awt.*;
 
 public class Item extends Sprite

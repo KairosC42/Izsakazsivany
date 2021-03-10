@@ -1,3 +1,5 @@
+package gui;
+
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -29,6 +31,7 @@ import java.io.IOException;
 //import java.time.Duration;
 //import java.time.Instant;
 //import java.awt.Font;
+import entity.Player;
 
 public class Renderer extends JPanel
 {
@@ -187,7 +190,9 @@ public class Renderer extends JPanel
                           int height_margin, int rows, int cols, int starter_height, int starter_width,String fileName)
             throws IOException
     {
-        BufferedImage bigImg = ImageIO.read(this.getClass().getResource(fileName));
+
+        // packagek előtt:  BufferedImage bigImg = ImageIO.read(this.getClass().getResource(fileName));
+        BufferedImage bigImg = ImageIO.read(this.getClass().getClassLoader().getResource(fileName));
 
         Image images[] = new Image[rows * cols];
         for (int i = 0; i < rows; i++)

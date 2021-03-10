@@ -1,11 +1,11 @@
 package levelLayoutGeneration;
 
-public class Pair
+public class Coordinate
 {
     public final int i;
     public final int j;
 
-    public Pair(int i, int j) {
+    public Coordinate(int i, int j) {
         this.i = i;
         this.j = j;
     }

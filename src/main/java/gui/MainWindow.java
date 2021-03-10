@@ -1,3 +1,7 @@
+package gui;
+
+import gui.Renderer;
+
 import javax.swing.JFrame;
 import java.awt.Dimension;
 

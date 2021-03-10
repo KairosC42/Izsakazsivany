@@ -1,4 +1,7 @@
-import javax.swing.*;
+package entity;
+
+import entity.Sprite;
+
 import java.awt.Image;
 
 public class Player extends Sprite
@@ -10,7 +13,7 @@ public class Player extends Sprite
     private int velx;
     private int vely;
     private int money;
-    //vector<Item> EquippesItems;
+    //vector<entity.Item> EquippesItems;
     int walkingTime;
     Image playerImages[];
 

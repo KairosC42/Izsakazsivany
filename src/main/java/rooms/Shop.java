@@ -1,3 +1,8 @@
+package rooms;
+
+import entity.Item;
+import rooms.Room;
+
 import java.util.Random;
 import java.util.Vector;
 

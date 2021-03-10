@@ -1,4 +1,6 @@
-import java.awt.*;
+package entity;
+
+import entity.Sprite;
 
 public class Enemy extends Sprite
 {
