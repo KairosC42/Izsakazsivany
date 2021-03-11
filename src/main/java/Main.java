@@ -9,9 +9,8 @@ public class Main
 
         MainWindow gui = new MainWindow();
 
-        Level level=new Level();
-        level.generateLevel(1,true);
-
+        Level level=new Level(1);
+        level.printLevel();
 
 
     }

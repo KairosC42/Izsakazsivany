@@ -1,33 +1,52 @@
 package levelLayoutGeneration;
-import org.jgrapht.*;
-import org.jgrapht.graph.Multigraph;
+
 import rooms.Room;
-
-
+import rooms.RoomType;
+import java.util.Comparator;
 import java.util.Objects;
-import java.util.function.Supplier;
 
-public class RoomNode
+/**
+ * RoomNode is a class which store the necessary information about the Rooms for the Level generation algorithm
+ * For out of package use you will only need the getter for the Room, RoomType, Coordinate fields
+ *
+ * @author Kovács Máté
+ */
+
+
+public class RoomNode implements Comparator<RoomNode>
 {
     protected Coordinate coordinate;
     protected int bias;
     protected int distanceFromStart;
     protected Room room;
+    protected RoomType roomType;
 
+    public RoomType getRoomType()
+    {
+        return roomType;
+    }
 
-
+    protected void setRoomType(RoomType roomType)
+    {
+        this.roomType = roomType;
+    }
 
     //bias is between 0 and 4
-    public RoomNode(int i, int j,int bias)
+    protected RoomNode(int i, int j,int bias)
     {
         this.coordinate=new Coordinate(i,j);
         this.bias = bias;
     }
 
-    public RoomNode(Coordinate cord,int bias)
+    protected RoomNode(Coordinate cord,int bias)
     {
         this.coordinate=cord;
         this.bias = bias;
+    }
+
+    public RoomNode()
+    {
+
     }
 
     public Coordinate getCoordinate()
@@ -46,6 +65,12 @@ public class RoomNode
     }
 
     @Override
+    public int compare(RoomNode o1, RoomNode o2)
+    {
+        return o2.distanceFromStart-o1.distanceFromStart;
+    }
+
+    @Override
     public boolean equals(Object o)
     {
         if (this == o) return true;
@@ -60,8 +85,6 @@ public class RoomNode
         return Objects.hash(coordinate);
     }
 
-    public void setRoom(Room room)
-    {
-        this.room = room;
-    }
+
+
 }

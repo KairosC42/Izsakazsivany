@@ -6,6 +6,13 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
 
+/**
+ * Modification of the following algorithm: https://www.geeksforgeeks.org/shortest-distance-two-cells-matrix-grid/
+ *
+ * @author Kovács Máté
+ */
+
+
 public class Bfs
 {
     public static void minDistance(RoomNode[][] grid, Vector<RoomNode> roomVector, RoomNode startingRoom)

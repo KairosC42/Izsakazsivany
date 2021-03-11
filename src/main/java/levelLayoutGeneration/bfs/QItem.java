@@ -1,5 +1,6 @@
 package levelLayoutGeneration.bfs;
 
+
 public class QItem {
     int row;
     int col;

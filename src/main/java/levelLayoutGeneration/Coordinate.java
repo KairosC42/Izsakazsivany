@@ -2,6 +2,15 @@ package levelLayoutGeneration;
 
 import java.util.Objects;
 
+/**
+ *
+ * Coordinate class
+ * Stores two integer, and help easily compare two Coordinate types
+ *
+ * @author Kovács Máté
+ *
+ */
+
 public class Coordinate
 {
     public final int i;
