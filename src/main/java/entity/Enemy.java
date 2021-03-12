@@ -21,6 +21,10 @@ public class Enemy extends Sprite
   private float moveSpeed;
   private int attackRange;
   private float damage;
+  private String name;
+  private int velx;
+  private int vely;
+
 
     //todo this functions
   public void behaviour(){
@@ -34,5 +38,33 @@ public class Enemy extends Sprite
 
   }
 
+  //Getterek az enemyhez
 
+    public int getHealthPoints() {
+        return healthPoints;
+    }
+
+    public float getMoveSpeed() {
+        return moveSpeed;
+    }
+
+    public int getAttackRange() {
+        return attackRange;
+    }
+
+    public float getDamage() {
+        return damage;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getVelx() {
+        return velx;
+    }
+
+    public int getVely() {
+        return vely;
+    }
 }
