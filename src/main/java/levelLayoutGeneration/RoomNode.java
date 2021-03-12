@@ -21,19 +21,15 @@ public class RoomNode implements Comparator<RoomNode>
     protected Room room;
     protected RoomType roomType;
 
-    public RoomType getRoomType()
+    public Room getRoom()
     {
-        return roomType;
-    }
-
-    protected void setRoomType(RoomType roomType)
-    {
-        this.roomType = roomType;
+        return room;
     }
 
     //bias is between 0 and 4
     protected RoomNode(int i, int j,int bias)
     {
+        this.roomType=RoomType.NONE;
         this.coordinate=new Coordinate(i,j);
         this.bias = bias;
     }
@@ -47,6 +43,16 @@ public class RoomNode implements Comparator<RoomNode>
     public RoomNode()
     {
 
+    }
+
+    public RoomType getRoomType()
+    {
+        return roomType;
+    }
+
+    protected void setRoomType(RoomType roomType)
+    {
+        this.roomType = roomType;
     }
 
     public Coordinate getCoordinate()
@@ -84,7 +90,6 @@ public class RoomNode implements Comparator<RoomNode>
     {
         return Objects.hash(coordinate);
     }
-
 
 
 }
