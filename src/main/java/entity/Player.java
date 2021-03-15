@@ -13,6 +13,13 @@ public class Player extends Sprite
     private int velx;
     private int vely;
     private int money;
+    private int attackRange=100;
+    private int attackDamage=20;
+    private int attackSpeed=1;
+    private float attackRangeMultiplier=1.0f;
+    private float attackDamageMultiplier = 1.0f;
+    private float attackSpeedMultiplier = 1.0f;
+    private float speedMultiplier =1.0f;
     //vector<entity.Item> EquippesItems;
     int walkingTime;
     Image playerImages[];
@@ -66,6 +73,15 @@ public class Player extends Sprite
             y += vely;
         }
     }
+
+    //attack doesn't exist yet
+    /*
+    public Attack attack()
+    {
+        int damage = this.attackDamage*this.attackDamageMultiplier
+    }
+    */
+    //getters
     public int getHealth()
     {
         return this.healthPoints;
@@ -81,6 +97,8 @@ public class Player extends Sprite
         return this.vely;
     }
 
+
+    //setters
     public void setHealth(int health)
     {
         this.healthPoints = health;

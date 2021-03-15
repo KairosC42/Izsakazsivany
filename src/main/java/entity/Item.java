@@ -2,12 +2,17 @@ package entity;
 
 import entity.Sprite;
 
-import java.awt.*;
+import java.awt.Image;
 
 public class Item extends Sprite
 {
-    private int price;
-    private String name;
+    int price;
+    String name;
+
+    Item()
+    {
+
+    }
 
     Item(int x, int y, int width, int height, Image image, int price, String name)
     {

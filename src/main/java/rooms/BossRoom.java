@@ -11,7 +11,7 @@ public class BossRoom extends CombatRoom
     {
         Random rand = new Random();
         int n= rand.nextInt(N-3)+1;
-        int m=rand.nextInt(N-3)+1;
+        int m=rand.nextInt(M-3)+1;
         //layout[N][..] is out of bounds
         //layout[N-1] is a wall, shouldn't overwrite that
         //layout[0] is also a wall, so random has to start at 1 (: reason for +1)
