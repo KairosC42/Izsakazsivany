@@ -80,11 +80,74 @@ public class Level
             currentNumberOfRooms--;
         }
 
+
+
         Bfs.minDistance(roomMatrix,roomVector,startingRoom);
         placeSpecialRooms();
 
 
+        for(RoomNode room : roomVector )
+        {
+            int i = room.getCoordinate().i;
+            int j = room.getCoordinate().j;
 
+            Tile[][] layout;
+            int N = room.getRoom().getN();
+            int M = room.getRoom().getM();
+
+            //northern neighbour:
+            try
+            {
+                if(roomMatrix[i-1][j]!=null)
+                {
+
+                    layout=room.getRoom().getLayout();
+                    layout[0][M/2-1] = Tile.DOOR_OPEN;
+                    room.getRoom().setLayout(layout);
+                }
+            }
+            catch(IndexOutOfBoundsException e){}
+
+            //southern neighbour
+            try
+            {
+                if(roomMatrix[i+1][j]!=null)
+                {
+
+                    layout=room.getRoom().getLayout();
+                    layout[N-1][M/2-1] = Tile.DOOR_OPEN;
+                    room.getRoom().setLayout(layout);
+                }
+            }
+            catch(IndexOutOfBoundsException e){}
+
+            //eastern neighbour
+            try
+            {
+                if(roomMatrix[i][j+1]!=null)
+                {
+
+                    layout=room.getRoom().getLayout();
+                    layout[N/2-1][M-1] = Tile.DOOR_OPEN;
+                    room.getRoom().setLayout(layout);
+                }
+            }
+            catch(IndexOutOfBoundsException e){}
+
+            //western neighbour
+            try
+            {
+                if(roomMatrix[i][j-1]!=null)
+                {
+
+                    layout=room.getRoom().getLayout();
+                    layout[N/2-1][0] = Tile.DOOR_OPEN;
+                    room.getRoom().setLayout(layout);
+                }
+            }
+            catch(IndexOutOfBoundsException e){}
+
+        }
     }
 
     private void placeRoom(Coordinate newRoomCoordinate)
