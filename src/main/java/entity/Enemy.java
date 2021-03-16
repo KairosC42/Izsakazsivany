@@ -2,9 +2,19 @@ package entity;
 
 import entity.Sprite;
 
+import java.awt.*;
+
 public class Enemy extends Sprite
 {
-
+    private int healthPoints;
+    private float moveSpeed;
+    private int attackRange;
+    private float damage;
+    private String name;
+    private int velx;
+    private int vely;
+    int walkingTime;
+    Image EnemyImage[];
 
     public Enemy(int x, int y, int width, int height)
     {
@@ -12,18 +22,10 @@ public class Enemy extends Sprite
         this.y = y;
         this.width=width;
         this.height= height;
-      //  this.enemyImages = enemyImages;
-    //    this.image = enemyImages[0];
+
     }
 
 
-  private int healthPoints;
-  private float moveSpeed;
-  private int attackRange;
-  private float damage;
-  private String name;
-  private int velx;
-  private int vely;
 
 
     //todo this functions
@@ -32,10 +34,13 @@ public class Enemy extends Sprite
   }
 
  public void move(){
-
+//random mászkáljon
+     //sdsdh
   }
   public void attack(){
-
+    //player.
+      //attack enemy olyan mint mint a player
+      //sprite collide overload
   }
 
   //Getterek az enemyhez
