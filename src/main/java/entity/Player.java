@@ -8,18 +8,13 @@ public class Player extends Sprite
 {
     private int healthPoints;
     private int experince;
+    private Directions direction = Directions.Down;
     //private Inventory inventory;
     private int moveSpeed = 4;
     private int velx;
     private int vely;
     private int money;
-    private int attackRange=100;
-    private int attackDamage=20;
-    private int attackSpeed=1;
-    private float attackRangeMultiplier=1.0f;
-    private float attackDamageMultiplier = 1.0f;
-    private float attackSpeedMultiplier = 1.0f;
-    private float speedMultiplier =1.0f;
+    private int range = 60;
     //vector<entity.Item> EquippesItems;
     int walkingTime;
     Image playerImages[];
@@ -46,11 +41,13 @@ public class Player extends Sprite
             {
                 //jobbra
                 this.image = playerImages[12];
+                direction = Directions.Right;
             }
             else if(velx<0)
             {
                 //balra
                 this.image = playerImages[9];
+                direction = Directions.Left;
             }
             x += velx;
         }
@@ -64,24 +61,17 @@ public class Player extends Sprite
             {
                 //előre
                 this.image=this.image = playerImages[0];
+                direction = Directions.Down;
             }
             else if(vely<0)
             {
                 //hátra
                 this.image=this.image = playerImages[4];
+                direction = Directions.Up;
             }
             y += vely;
         }
     }
-
-    //attack doesn't exist yet
-    /*
-    public Attack attack()
-    {
-        int damage = this.attackDamage*this.attackDamageMultiplier
-    }
-    */
-    //getters
     public int getHealth()
     {
         return this.healthPoints;
@@ -97,8 +87,6 @@ public class Player extends Sprite
         return this.vely;
     }
 
-
-    //setters
     public void setHealth(int health)
     {
         this.healthPoints = health;
@@ -122,5 +110,12 @@ public class Player extends Sprite
     public void setMoveSpeed(int moveSpeed)
     {
         this.moveSpeed = moveSpeed;
+    }
+    public Directions getDirection() {
+        return direction;
+    }
+
+    public int getRange() {
+        return range;
     }
 }

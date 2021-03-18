@@ -27,10 +27,13 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 //import java.io.File;
 import java.io.IOException;
+import java.util.Vector;
 //import java.sql.Time;
 //import java.time.Duration;
 //import java.time.Instant;
 //import java.awt.Font;
+import entity.Attack;
+import entity.Enemy;
 import entity.Player;
 
 public class Renderer extends JPanel
@@ -44,11 +47,15 @@ public class Renderer extends JPanel
     private final int FPS = 240;
     //private Image background;
     private Player player;
+    private Enemy enemies[];
     private final int player_width = 40;
     private final int player_height = 40;
     long last_time = System.nanoTime();
     int delta_time = 0;
     long time;
+    private Image attackImg;
+    Vector<Attack> cuttentAttacks = new Vector<Attack>();
+    Graphics grphcs;
 
     public Renderer(int height, int width, JFrame frame)
     {
@@ -155,6 +162,17 @@ public class Renderer extends JPanel
                 player.setVelX(0);
             }
         });
+
+
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), "pressed space");
+        this.getActionMap().put("pressed space", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                Attack attack = new Attack(player.getX(), player.getY(), 10,50, attackImg , player, enemies, player.getDirection(), player.getRange());
+                cuttentAttacks.add(attack);
+            }
+        });
     }
 
     //Kezdő állapotban lévő elemenk létrehozása.
@@ -164,6 +182,7 @@ public class Renderer extends JPanel
             Image playerImages[] = getImages(300,450,100,150,
                     4,4,100,50,"player.png");
             player = new Player(450,100,player_width, player_height, playerImages);
+            attackImg = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
 
 
         }
@@ -217,7 +236,9 @@ public class Renderer extends JPanel
         grphcs.setColor(Color.darkGray);
         super.paintComponent(grphcs);
         grphcs.fillRect(0,0,900,600);
-
+        for (Attack att:cuttentAttacks
+             ) { att.draw(grphcs);
+        }
         player.draw(grphcs);
 
     }
@@ -232,7 +253,15 @@ public class Renderer extends JPanel
         {
             player.moveX();
             player.moveY();
+            if(cuttentAttacks.size()>0)
+            {
+                for (Attack attack : cuttentAttacks)
+                {
+                    attack.cast();
+                }
+            }
 
+            clearAttacks();
             //TODO animilás
             /*animate(delta_time);
             time = System.nanoTime();
@@ -242,6 +271,17 @@ public class Renderer extends JPanel
 
 
             repaint();
+        }
+
+        void clearAttacks()
+        {
+            for(int i = 0; i < cuttentAttacks.size(); i++)
+            {
+                if(cuttentAttacks.get(i).isEnded() == true)
+                {
+                    cuttentAttacks.remove(cuttentAttacks.get(i));
+                }
+            }
         }
     }
 }
