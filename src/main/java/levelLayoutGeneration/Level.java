@@ -86,12 +86,24 @@ public class Level
         placeSpecialRooms();
 
 
+
+        //A base room layout contains no doors, as that depends on the level layout
+        //which a room cannot access from within itself, so doors are created here
+        /*
+            process:
+                -iterate roomVector
+                -for every room in roomVector assign a door based on type of room its next to, or nothing in case of null.
+                -checking the type of adjacent room is done via the switch-cases
+            sadly contains a lot of duped code, but it's not worth making it a function as its single use
+            for now at least xd
+         */
         for(RoomNode room : roomVector )
         {
             int i = room.getCoordinate().i;
             int j = room.getCoordinate().j;
 
             Tile[][] layout;
+            Tile type = Tile.DOOR_OPEN;
             int N = room.getRoom().getN();
             int M = room.getRoom().getM();
 
@@ -100,9 +112,24 @@ public class Level
             {
                 if(roomMatrix[i-1][j]!=null)
                 {
-
+                    switch (roomMatrix[i-1][j].getRoomType())
+                    {
+                        case BOSSROOM:
+                            type = Tile.BOSSDOOR_OPEN;
+                            break;
+                        case SHOP:
+                            type = Tile.SHOPDOOR_OPEN;
+                            break;
+                        case ITEMROOM:
+                            type = Tile.ITEMDOOR_OPEN;
+                            break;
+                        default:
+                            type = Tile.DOOR_OPEN;
+                            break;
+                    }
                     layout=room.getRoom().getLayout();
-                    layout[0][M/2-1] = Tile.DOOR_OPEN;
+                    layout[0][M/2-1] = type;
+                    roomMatrix[i][j].getRoom().setLayout(layout);
                     room.getRoom().setLayout(layout);
                 }
             }
@@ -113,9 +140,25 @@ public class Level
             {
                 if(roomMatrix[i+1][j]!=null)
                 {
+                    switch (roomMatrix[i+1][j].getRoomType())
+                    {
+                        case BOSSROOM:
+                            type = Tile.BOSSDOOR_OPEN;
+                            break;
+                        case SHOP:
+                            type = Tile.SHOPDOOR_OPEN;
+                            break;
+                        case ITEMROOM:
+                            type = Tile.ITEMDOOR_OPEN;
+                            break;
+                        default:
+                            type = Tile.DOOR_OPEN;
+                            break;
+                    }
 
                     layout=room.getRoom().getLayout();
-                    layout[N-1][M/2-1] = Tile.DOOR_OPEN;
+                    layout[N-1][M/2-1] = type;
+                    roomMatrix[i][j].getRoom().setLayout(layout);
                     room.getRoom().setLayout(layout);
                 }
             }
@@ -126,9 +169,24 @@ public class Level
             {
                 if(roomMatrix[i][j+1]!=null)
                 {
-
+                    switch (roomMatrix[i][j+1].getRoomType())
+                    {
+                        case BOSSROOM:
+                            type = Tile.BOSSDOOR_OPEN;
+                            break;
+                        case SHOP:
+                            type = Tile.SHOPDOOR_OPEN;
+                            break;
+                        case ITEMROOM:
+                            type = Tile.ITEMDOOR_OPEN;
+                            break;
+                        default:
+                            type = Tile.DOOR_OPEN;
+                            break;
+                    }
                     layout=room.getRoom().getLayout();
-                    layout[N/2-1][M-1] = Tile.DOOR_OPEN;
+                    layout[N/2-1][M-1] = type;
+                    roomMatrix[i][j].getRoom().setLayout(layout);
                     room.getRoom().setLayout(layout);
                 }
             }
@@ -139,9 +197,24 @@ public class Level
             {
                 if(roomMatrix[i][j-1]!=null)
                 {
-
+                    switch (roomMatrix[i][j-1].getRoomType())
+                    {
+                        case BOSSROOM:
+                            type = Tile.BOSSDOOR_OPEN;
+                            break;
+                        case SHOP:
+                            type = Tile.SHOPDOOR_OPEN;
+                            break;
+                        case ITEMROOM:
+                            type = Tile.ITEMDOOR_OPEN;
+                            break;
+                        default:
+                            type = Tile.DOOR_OPEN;
+                            break;
+                    }
                     layout=room.getRoom().getLayout();
-                    layout[N/2-1][0] = Tile.DOOR_OPEN;
+                    layout[N/2-1][0] = type;
+                    roomMatrix[i][j].getRoom().setLayout(layout);
                     room.getRoom().setLayout(layout);
                 }
             }
