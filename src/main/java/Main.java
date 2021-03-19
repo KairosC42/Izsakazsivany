@@ -10,7 +10,9 @@ public class Main
         MainWindow gui = new MainWindow();
 
         Level level=new Level(1);
+        level.getStartingRoom().getRoom().printRoom();
         level.printLevel();
+
         //level.getRoomMatrix()[level.getStartingRoom().getCoordinate().i][level.getStartingRoom().getCoordinate().i].getRoom();
 
 
