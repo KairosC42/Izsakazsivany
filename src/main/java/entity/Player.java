@@ -72,7 +72,7 @@ public class Player extends Sprite
 
     public void moveY()
     {
-        if ((vely < 0 && y > 0) || (vely > 0 && y + height <= 600))
+        if ((vely < 0 && y > 0) || (vely > 0 && y + height <= 900))
         {
             if (vely > 0)
             {
