@@ -88,11 +88,32 @@ public abstract class Room
                     case DOOR_OPEN:
                         line+="A ";
                         break;
+                    case BOSSDOOR_CLOSED:
+                        line+="BC";
+                        break;
+                    case SHOPDOOR_CLOSED:
+                        line+="SC";
+                        break;
+                    case ITEMDOOR_CLOSED:
+                        line+="IC";
+                        break;
+                    case BOSSDOOR_OPEN:
+                        line+="BO";
+                        break;
+                    case SHOPDOOR_OPEN:
+                        line+="SO";
+                        break;
+                    case ITEMDOOR_OPEN:
+                        line+="IO";
+                        break;
                     case TRAPDOOR_CLOSED:
                         line+="x ";
                         break;
                     case TRAPDOOR_OPEN:
-                        line+="o ";
+                        line+="O ";
+                        break;
+                    default:
+                        line+="T ";
                         break;
                 }
 

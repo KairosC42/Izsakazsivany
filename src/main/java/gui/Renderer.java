@@ -69,9 +69,12 @@ public class Renderer extends JPanel {
     private Image floorTexture;
     private Image openDoorTexture;
     private Image closedDoorTexture;
-    private Image shopDoorTexture;
-    private Image itemDoorTexture;
-    private Image bossDoorTexture;
+    private Image shopDoorOpenTexture;
+    private Image shopDoorClosedTexture;
+    private Image itemDoorOpenTexture;
+    private Image itemDoorClosedTexture;
+    private Image bossDoorOpenTexture;
+    private Image bossDoorClosedTexture;
 
     //private Vector<Enemy> enemies = new Vector<Enemy>(); //ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
     private Enemy enemies[];
@@ -194,9 +197,12 @@ public class Renderer extends JPanel {
             floorTexture = ImageIO.read(this.getClass().getClassLoader().getResource("floor.png"));
             openDoorTexture = ImageIO.read(this.getClass().getClassLoader().getResource("door_open.png"));
             closedDoorTexture = ImageIO.read(this.getClass().getClassLoader().getResource("door_closed.png"));
-            shopDoorTexture = ImageIO.read(this.getClass().getClassLoader().getResource("shop_door.png"));
-            itemDoorTexture = ImageIO.read(this.getClass().getClassLoader().getResource("item_door.png"));
-            bossDoorTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door.png"));
+            shopDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("shop_door_open.png"));
+            shopDoorClosedTexture = ImageIO.read(this.getClass().getClassLoader().getResource("shop_door_closed.png"));
+            itemDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("item_door_open.png"));
+            itemDoorClosedTexture = ImageIO.read(this.getClass().getClassLoader().getResource("item_door_closed.png"));
+            bossDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door_open.png"));
+            bossDoorClosedTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door_closed.png"));
 
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < m; j++) {
@@ -220,17 +226,29 @@ public class Renderer extends JPanel {
                             actImage = closedDoorTexture;
                             type = Tile.DOOR_CLOSED;
                             break;
-                        case BOSSDOOR:
-                            actImage = bossDoorTexture;
-                            type = Tile.BOSSDOOR;
+                        case BOSSDOOR_OPEN:
+                            actImage = bossDoorOpenTexture;
+                            type = Tile.BOSSDOOR_OPEN;
                             break;
-                        case ITEMDOOR:
-                            actImage = itemDoorTexture;
-                            type = Tile.ITEMDOOR;
+                        case BOSSDOOR_CLOSED:
+                            actImage = bossDoorClosedTexture;
+                            type = Tile.BOSSDOOR_CLOSED;
                             break;
-                        case SHOPDOOR:
-                            actImage = shopDoorTexture;
-                            type = Tile.SHOPDOOR;
+                        case ITEMDOOR_OPEN:
+                            actImage = itemDoorOpenTexture;
+                            type = Tile.ITEMDOOR_OPEN;
+                            break;
+                        case ITEMDOOR_CLOSED:
+                            actImage = bossDoorClosedTexture;
+                            type = Tile.ITEMDOOR_CLOSED;
+                            break;
+                        case SHOPDOOR_OPEN:
+                            actImage = shopDoorOpenTexture;
+                            type = Tile.SHOPDOOR_OPEN;
+                            break;
+                        case SHOPDOOR_CLOSED:
+                            actImage = bossDoorClosedTexture;
+                            type = Tile.SHOPDOOR_CLOSED;
                             break;
                         //todo trapdoor
 
@@ -324,19 +342,31 @@ public class Renderer extends JPanel {
                     {
                         //transition()
                     }
+                    if(tiles[i][j].getType()==Tile.ITEMDOOR_CLOSED)
+                    {
+                        //transition()
+                    }
+                    if(tiles[i][j].getType()==Tile.SHOPDOOR_OPEN)
+                    {
+                        //transition()
+                    }
+                    if(tiles[i][j].getType()==Tile.BOSSDOOR_OPEN)
+                    {
+                        //transition()
+                    }
                     if((tiles[i][j].getType()==Tile.DOOR_CLOSED))
                     {
                         //stepback()
                     }
-                    if((tiles[i][j].getType()==Tile.BOSSDOOR))
+                    if((tiles[i][j].getType()==Tile.BOSSDOOR_CLOSED))
                     {
                         //stepback()
                     }
-                    if((tiles[i][j].getType()==Tile.ITEMDOOR))
+                    if((tiles[i][j].getType()==Tile.ITEMDOOR_CLOSED))
                     {
                         //stepback()
                     }
-                    if((tiles[i][j].getType()==Tile.SHOPDOOR))
+                    if((tiles[i][j].getType()==Tile.SHOPDOOR_CLOSED))
                     {
                         //stepback()
                     }
