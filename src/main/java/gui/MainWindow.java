@@ -17,7 +17,7 @@ public class MainWindow
         this.gameRenderer = new Renderer(900,600,frame);
         frame.getContentPane().add(gameRenderer);
 
-        frame.setPreferredSize(new Dimension(900, 650));
+        frame.setPreferredSize(new Dimension(910, 640));
         frame.setResizable(false);
         frame.pack();
         frame.setVisible(true);
