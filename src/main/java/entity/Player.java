@@ -15,9 +15,12 @@ public class Player extends Sprite
      *      -check the usage of healthPoints and replace it with healthPointsMax if necessary
      *      -revision needed for starting stats
      *      -potions as a quippedItem? or in a separate Vector?
+     *
+     *
+     *      -módosító külön
      */
-    private int healthPointsMax;
-    private int healthPoints;
+    private int healthPointsMax=100;
+    private int healthPoints=100;
     private float range = 60;
     private float attackSpeed = 1;
     private float damage = 20;
@@ -173,10 +176,7 @@ public class Player extends Sprite
 
     public void equipItem(StatItem item)
     {
-        /**
-         * TODO:
-         *      revision: should the health modifier restore health and increase max hp?
-         */
+
         healthPointsMax += item.getHealthModifier();
         healthPoints += item.getHealthModifier();
 
@@ -193,6 +193,7 @@ public class Player extends Sprite
         /**
          * TODO:
          *      -range int or float?? in Player and every item is a float, in Attack is an int, consensus needed.
+         *      -szorzat modi * stat
          */
         return ((int) range);
     }
