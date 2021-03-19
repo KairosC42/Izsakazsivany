@@ -1,6 +1,7 @@
 package rooms;
 
 import entity.Item;
+import entity.ItemGenerator;
 import entity.StatItem;
 import entity.Weapon;
 import rooms.Room;
@@ -12,11 +13,23 @@ import java.util.Random;
 import java.util.Random;
 import java.util.Vector;
 
+/**
+ * <h1>ItemRoom class</h1>
+ * Is next to spawn
+ * contains 2 items - 1 statitem and 1 weapon
+ * these have randomly generated stats scaling with levelDepth
+ * uses ItemGenerator for creating its items
+ * size is 20*30 default
+ *
+ * @author Ballai András
+ */
 public class ItemRoom extends Room
 {
-    private StatItem statItem;
+    private Item statItem;
 
-    private Weapon weapon;
+    private Item weapon;
+
+    private ItemGenerator generator;
 
     public ItemRoom()
     {
@@ -24,6 +37,7 @@ public class ItemRoom extends Room
         this.M=30;
         layout = new Tile[N][M];
         this.generateRoom();
+        this.generator= new ItemGenerator();
         this.roomSpecificGen();
     }
 
@@ -33,6 +47,7 @@ public class ItemRoom extends Room
         this.M=M;
         layout = new Tile[N][M];
         this.generateRoom();
+        this.generator=new ItemGenerator();
         this.roomSpecificGen();
     }
 
@@ -44,41 +59,9 @@ public class ItemRoom extends Room
     @Override
     public void roomSpecificGen()
     {
-        Random r = new Random();
-        //int weaponImageIndex = r.nextInt(weaponImages.size()); //idea: randomly assign texture, item texture pool isn't in place yet however.
-        //sItemIndex = r.nextInt(itemImages.size());
-        //int nameIndex = r.nextInt(itemNames.size()); //similar idea, come up with a String[] of weapon names.
+       //for actual item generation see ItemGenerator
+        this.statItem = generator.generateStatItem(levelDepth, false);
 
-        //first the statitem
-        Image i = null;
-        try{
-           i = ImageIO.read(this.getClass().getClassLoader().getResource("ruby_pendant.jpg"));
-        }
-        catch (Exception e)
-        {
-            System.out.println("Missing texture!");
-        }
-        int healthModifier=r.nextInt(25)+10;
-        float rangeModifier = (r.nextInt(15)+5)/100.f;
-        float attackSpeedModifier=(r.nextInt(10)+5)/100.f;
-        float damageModifier=(r.nextInt(8)+2)/100.f;
-        float speedModifier=(r.nextInt(8)+2)/100.f;
-
-        this.statItem=new StatItem(0,0,50,50,i,0,"pendant", healthModifier, rangeModifier, attackSpeedModifier, damageModifier, speedModifier);
-
-        //now for the weapon
-
-        int weaponRangeModifier = r.nextInt(150)+200;
-        int weaponDamageModifier = r.nextInt(10)+15 ;
-        float attackSpeedMultiplier = (r.nextInt(20)+10/100.f);
-        try{
-            i = ImageIO.read(this.getClass().getClassLoader().getResource("sword.jpg"));
-        }
-        catch (Exception e)
-        {
-            System.out.println("Missing texture!");
-        }
-        this.weapon= new Weapon(0, 0,50, 50,i,0, "sword" , weaponRangeModifier, weaponDamageModifier, attackSpeedMultiplier);
-
+        this.weapon = generator.generateWeapon(levelDepth,false);
     }
 }
