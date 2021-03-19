@@ -48,8 +48,8 @@ public class Renderer extends JPanel {
     //private Timer animationTimer;
     private final int FPS = 240;
     //private Image background;
+
     private Player player;
-    private Enemy enemies[];
     private int player_width;
     private int player_height;
     long last_time = System.nanoTime();
@@ -58,6 +58,7 @@ public class Renderer extends JPanel {
     private Image attackImg;
     Vector<Attack> currentAttack = new Vector<Attack>();
     Graphics grphcs;
+
     private int tileHeight;
     private int tileWidth;
     private Level level;
@@ -71,6 +72,9 @@ public class Renderer extends JPanel {
     private Image shopDoorTexture;
     private Image itemDoorTexture;
     private Image bossDoorTexture;
+
+    //private Vector<Enemy> enemies = new Vector<Enemy>(); //ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
+    private Enemy enemies[];
 
 
     public Renderer(int height, int width, JFrame frame) {
