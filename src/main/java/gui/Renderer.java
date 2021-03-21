@@ -31,6 +31,7 @@ public class Renderer extends JPanel {
     private Player player;
     private Enemy enemy;
 
+
     public Renderer(int height, int width, JFrame frame) {
         super();
         this.window_h = height;
@@ -125,7 +126,10 @@ public class Renderer extends JPanel {
                     4, 4, 100, 50, "player.png");
             player = new Player(450, 100, player_width, player_height, playerImages);
             Image enemyImage = new ImageIcon("src/main/resources/enemy.png").getImage();
+
             enemy = new Enemy(500, 200, enemy_width, enemy_height, enemyImage);
+
+
 
 
         } catch (IOException e) {
