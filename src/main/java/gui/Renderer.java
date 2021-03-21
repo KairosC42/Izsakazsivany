@@ -11,16 +11,12 @@ import java.awt.event.KeyEvent;
 //import java.util.ArrayList;
 //import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
+import javax.swing.*;
 //import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.Timer;
 //import java.util.Scanner;
 //import java.io.*;
 //import javax.swing.*;
 //import java.awt.EventQueue;
-import javax.swing.JFrame;
 //import javax.swing.JLabel;
 //import java.util.Random;
 import java.awt.Color;
@@ -32,6 +28,7 @@ import java.io.IOException;
 //import java.time.Instant;
 //import java.awt.Font;
 import entity.Player;
+import entity.Enemy;
 
 public class Renderer extends JPanel
 {
@@ -44,8 +41,11 @@ public class Renderer extends JPanel
     private final int FPS = 240;
     //private Image background;
     private Player player;
+    private Enemy enemy;
     private final int player_width = 40;
     private final int player_height = 40;
+    private final int  enemy_width = 40;
+    private final int enemy_height = 40;
     long last_time = System.nanoTime();
     int delta_time = 0;
     long time;
@@ -165,6 +165,10 @@ public class Renderer extends JPanel
                     4,4,100,50,"player.png");
             player = new Player(450,100,player_width, player_height, playerImages);
 
+            Image enemyImage = new ImageIcon("src/main/resources/enemy.png").getImage();
+            enemy = new Enemy(500,200,enemy_width,enemy_height,enemyImage);
+
+
 
         }
         catch(IOException e)
@@ -219,6 +223,7 @@ public class Renderer extends JPanel
         grphcs.fillRect(0,0,900,600);
 
         player.draw(grphcs);
+        enemy.draw(grphcs);
 
     }
 
