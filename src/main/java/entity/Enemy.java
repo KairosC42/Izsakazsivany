@@ -27,29 +27,30 @@ public class Enemy extends Sprite
 
 
     //todo this functions
-  public void behaviour(){
+    public void behaviour(){
 
-  }
+    }
 
- public void move(){
-     switch(direction)
-     {
-         case "up":
-             y-=speed;
-             break;
-         case "down":
-             y+=speed;
-             break;
-         case "left":
-             x-=speed;
-             break;
-         case "right":
-             x+=speed;
-             break;
-     }
-     lastMove = direction;
+    public void move(){
 
-  }
+
+        switch (direction) {
+            case "up":
+                y -= speed;
+                break;
+            case "down":
+                y += speed;
+                break;
+            case "left":
+                x -= speed;
+                break;
+            case "right":
+                x += speed;
+                break;
+        }
+        lastMove = direction;
+
+    }
 
 
     public void randDirection()
@@ -92,13 +93,13 @@ public class Enemy extends Sprite
                 break;
         }
     }
-  public void attack(){
+    public void attack(){
 
-  }
+    }
 
 
 
-  //Getterek az enemyhez
+    //Getterek az enemyhez
 
     public String getDirection() {
         return direction;

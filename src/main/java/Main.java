@@ -1,5 +1,4 @@
 import gui.MainWindow;
-import levelLayoutGeneration.Coordinate;
 import levelLayoutGeneration.Level;
 
 public class Main
