@@ -8,7 +8,7 @@ import java.util.Random;
 public class Enemy extends Sprite
 {
     private String direction ="left";
-    private int speed = 2;
+    private int speed = 5;
     private String lastMove="left";
     private int healthPoints;
     private int attackRange;
