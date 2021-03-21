@@ -2,28 +2,28 @@ package entity;
 
 import entity.Sprite;
 
+import java.awt.*;
+import java.util.Random;
+
 public class Enemy extends Sprite
 {
+    private String direction ="left";
+    private int speed = 2;
+    private String lastMove="left";
+    private int healthPoints;
+    private int attackRange;
+    private float damage;
+    private String name;
+    private int velx;
+    private int vely;
 
 
-    public Enemy(int x, int y, int width, int height)
+    public Enemy(int x, int y, int width, int height, Image image)
     {
-        this.x = x;
-        this.y = y;
-        this.width=width;
-        this.height= height;
-      //  this.enemyImages = enemyImages;
-    //    this.image = enemyImages[0];
+        super(x, y, width, height, image);
     }
 
 
-  private int healthPoints;
-  private float moveSpeed;
-  private int attackRange;
-  private float damage;
-  private String name;
-  private int velx;
-  private int vely;
 
 
     //todo this functions
@@ -32,20 +32,88 @@ public class Enemy extends Sprite
   }
 
  public void move(){
+     switch(direction)
+     {
+         case "up":
+             y-=speed;
+             break;
+         case "down":
+             y+=speed;
+             break;
+         case "left":
+             x-=speed;
+             break;
+         case "right":
+             x+=speed;
+             break;
+     }
+     lastMove = direction;
 
   }
+
+
+    public void randDirection()
+    {
+        Random rand = new Random();
+        int randD = rand.nextInt(4);
+        switch(randD){
+            case 0:
+                direction = "up";
+                break;
+            case 1:
+                direction = "down";
+                break;
+            case 2:
+                direction = "left";
+                break;
+            case 3:
+                direction = "right";
+                break;
+
+        }
+    }
+
+
+    public void moveBack()
+    {
+        switch(lastMove)
+        {
+            case "up":
+                y+=speed;
+                break;
+            case "down":
+                y-=speed;
+                break;
+            case "left":
+                x+=speed;
+                break;
+            case "right":
+                x-=speed;
+                break;
+        }
+    }
   public void attack(){
 
   }
 
+
+
   //Getterek az enemyhez
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public String getLastMove() {
+        return lastMove;
+    }
 
     public int getHealthPoints() {
         return healthPoints;
-    }
-
-    public float getMoveSpeed() {
-        return moveSpeed;
     }
 
     public int getAttackRange() {
