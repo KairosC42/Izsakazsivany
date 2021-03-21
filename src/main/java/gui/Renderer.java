@@ -235,6 +235,7 @@ public class Renderer extends JPanel
         {
             player.moveX();
             player.moveY();
+            enemy.move();
 
             //TODO animilás
             /*animate(delta_time);
