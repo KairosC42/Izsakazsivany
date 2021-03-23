@@ -31,7 +31,7 @@ public class Renderer extends JPanel {
     //private Image background;
     private Player player;
     private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
-
+    private int levelNum = 3;
 
 
     public Renderer(int height, int width, JFrame frame) {
@@ -128,10 +128,11 @@ public class Renderer extends JPanel {
                     4, 4, 100, 50, "player.png");
             player = new Player(450, 100, player_width, player_height, playerImages);
             Image enemyImage = new ImageIcon("src/main/resources/enemy.png").getImage();
-
-                      ///lvl.getNumberOfRooms()
-            for (int i = 0; i < 3; i++) {
-                enemies.add( new Enemy(500+i, 200+i, enemy_width, enemy_height, enemyImage));
+            int kk=enemy_width;
+            ///lvl.getNumberOfRooms()
+            for (int i = 0; i < levelNum; i++) {
+                kk = enemy_width+ kk;
+                enemies.add(new Enemy(500 + i + kk, 200 + i + kk, enemy_width, enemy_height, enemyImage));
             }
 
         } catch (IOException e) {
@@ -183,7 +184,7 @@ public class Renderer extends JPanel {
         player.draw(grphcs);
 
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < levelNum; i++) {
             enemies.get(i).draw(grphcs);
         }
 
@@ -197,15 +198,15 @@ public class Renderer extends JPanel {
             player.moveX();
             player.moveY();
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < levelNum; i++) {
                 if ((enemies.get(i).getX() < 0) || (enemies.get(i).getX() >= 900)
                         || (enemies.get(i).getY() < 0) || (enemies.get(i).getY() >= 600)
 
                 ) {
-                    if(enemies.get(i).getX()==0 || enemies.get(i).getX()==900){
+                    if (enemies.get(i).getX() == 0 || enemies.get(i).getX() == 900) {
                         enemies.get(i).moveBack();
                     }
-                    if(enemies.get(i).getY()==0 || enemies.get(i).getY()==600){
+                    if (enemies.get(i).getY() == 0 || enemies.get(i).getY() == 600) {
                         enemies.get(i).moveBack();
                     }
                     enemies.get(i).move();
@@ -214,13 +215,11 @@ public class Renderer extends JPanel {
                     enemies.get(i).move();
                 }
 
-                if(enemies.get(i).collides(player)){
+                if (enemies.get(i).collides(player)) {
                     player.setHealth(enemies.get(i).getDamage());
                 }
 
             }
-
-
 
 
             //TODO animilás
