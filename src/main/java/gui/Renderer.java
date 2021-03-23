@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Renderer extends JPanel {
 
@@ -29,7 +30,8 @@ public class Renderer extends JPanel {
     private Timer newFrameTimer;
     //private Image background;
     private Player player;
-    private Enemy enemy;
+    private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+
 
 
     public Renderer(int height, int width, JFrame frame) {
@@ -127,10 +129,10 @@ public class Renderer extends JPanel {
             player = new Player(450, 100, player_width, player_height, playerImages);
             Image enemyImage = new ImageIcon("src/main/resources/enemy.png").getImage();
 
-            enemy = new Enemy(500, 200, enemy_width, enemy_height, enemyImage);
-
-
-
+                      ///lvl.getNumberOfRooms()
+            for (int i = 0; i < 3; i++) {
+                enemies.add( new Enemy(500+i, 200+i, enemy_width, enemy_height, enemyImage));
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -179,7 +181,11 @@ public class Renderer extends JPanel {
         grphcs.fillRect(0, 0, 900, 600);
 
         player.draw(grphcs);
-        enemy.draw(grphcs);
+
+
+        for (int i = 0; i < 3; i++) {
+            enemies.get(i).draw(grphcs);
+        }
 
     }
 
@@ -190,19 +196,33 @@ public class Renderer extends JPanel {
         public void actionPerformed(ActionEvent ae) {
             player.moveX();
             player.moveY();
-            enemy.move();
 
-            System.out.println(enemy.getX() + " " + enemy.getY());
-            if ((enemy.getX() < 0 && enemy.getX() > 0) || (enemy.getX() > 0 && enemy.getX() <= 900)
-                    || (enemy.getY() < 0 && enemy.getY() > 0) || (enemy.getY() > 0 && enemy.getY() <= 600)
+            for (int i = 0; i < 3; i++) {
+                if ((enemies.get(i).getX() < 0) || (enemies.get(i).getX() >= 900)
+                        || (enemies.get(i).getY() < 0) || (enemies.get(i).getY() >= 600)
 
-            ) {
-                enemy.move();
-               enemy.moveBack();
-                enemy.randDirection();
-            } else {
-                enemy.move();
+                ) {
+                    if(enemies.get(i).getX()==0 || enemies.get(i).getX()==900){
+                        enemies.get(i).moveBack();
+                    }
+                    if(enemies.get(i).getY()==0 || enemies.get(i).getY()==600){
+                        enemies.get(i).moveBack();
+                    }
+                    enemies.get(i).move();
+                    enemies.get(i).randDirection();
+                } else {
+                    enemies.get(i).move();
+                }
+
+                if(enemies.get(i).collides(player)){
+                    player.setHealth(enemies.get(i).getDamage());
+                }
+
             }
+
+
+
+
             //TODO animilás
             /*animate(delta_time);
             time = System.nanoTime();

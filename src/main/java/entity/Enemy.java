@@ -8,11 +8,11 @@ import java.util.Random;
 public class Enemy extends Sprite
 {
     private String direction ="left";
-    private int speed = 5;
+    private int speed = 2;
     private String lastMove="left";
     private int healthPoints;
     private int attackRange;
-    private float damage;
+    private int damage;
     private String name;
     private int velx;
     private int vely;
@@ -99,7 +99,8 @@ public class Enemy extends Sprite
 
 
 
-    //Getterek az enemyhez
+    //Getterek és szetterek az enemyhez
+
 
     public String getDirection() {
         return direction;
@@ -121,7 +122,7 @@ public class Enemy extends Sprite
         return attackRange;
     }
 
-    public float getDamage() {
+    public int getDamage() {
         return damage;
     }
 
@@ -135,5 +136,41 @@ public class Enemy extends Sprite
 
     public int getVely() {
         return vely;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
+    public void setLastMove(String lastMove) {
+        this.lastMove = lastMove;
+    }
+
+    public void setHealthPoints(int healthPoints) {
+        this.healthPoints = healthPoints;
+    }
+
+    public void setAttackRange(int attackRange) {
+        this.attackRange = attackRange;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setVelx(int velx) {
+        this.velx = velx;
+    }
+
+    public void setVely(int vely) {
+        this.vely = vely;
     }
 }

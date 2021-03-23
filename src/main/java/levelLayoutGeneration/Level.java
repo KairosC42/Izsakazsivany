@@ -376,4 +376,7 @@ public class Level
         return startingRoom;
     }
 
+    public int getNumberOfRooms() {
+        return numberOfRooms;
+    }
 }
