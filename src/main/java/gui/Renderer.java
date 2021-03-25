@@ -1,7 +1,6 @@
 package gui;
 
-import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -23,7 +22,6 @@ import javax.swing.Timer;
 import javax.swing.JFrame;
 //import javax.swing.JLabel;
 //import java.util.Random;
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 //import java.io.File;
 import java.io.IOException;
@@ -44,6 +42,7 @@ public class Renderer extends JPanel {
     private final JFrame frame;
     private final int window_w;
     private final int window_h;
+    private int tile_size =30;
     private Timer newFrameTimer;
     //private Timer animationTimer;
     private final int FPS = 240;
@@ -82,16 +81,21 @@ public class Renderer extends JPanel {
 
     public Renderer(int height, int width, JFrame frame) {
         super();
-        this.window_h = height;
-        this.window_w = width;
+        //this.window_h = height;
+        //this.window_w = width;
         this.frame = frame;
         handleInputs();
 
         this.level = new Level(1);
-        this.n = level.getStartingRoom().getRoom().getN(); //20magas - oszlop
-        this.m = level.getStartingRoom().getRoom().getM(); //30széles - sorok száma
-        tileHeight = height / this.n;
-        tileWidth = width / this.m;
+        this.n = level.getStartingRoom().getRoom().getN();  //20magas - sorok száma
+        this.m = level.getStartingRoom().getRoom().getM();//30széles - oszlopok száma
+        System.out.println(n);
+        System.out.println(m);
+
+        this.window_h = tile_size*this.m;
+        this.window_w = tile_size*this.n;
+        tileHeight = tile_size;
+        tileWidth = tile_size;
         player_width = tileWidth;
         player_height = tileHeight;
         this.tiles = new Sprite[this.n][this.m];
@@ -190,7 +194,7 @@ public class Renderer extends JPanel {
             //player képeinek betöltése
             Image playerImages[] = getImages(300, 450, 100, 150,
                     4, 4, 100, 50, "player.png");
-            player = new Player(450, 100, player_height, player_width, playerImages);
+            player = new Player(450, 100, player_height, player_width, playerImages, this.window_h,this.window_w);
             attackImg = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
 
             wallTexture = ImageIO.read(this.getClass().getClassLoader().getResource("wall.png"));
@@ -204,12 +208,15 @@ public class Renderer extends JPanel {
             bossDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door_open.png"));
             bossDoorClosedTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door_closed.png"));
 
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) {
+            System.out.println(n);
+            System.out.println(m);
+            level.getStartingRoom().getRoom().printRoom();
+            for (int i = 0; i < m; i++) {
+                for (int j = 0; j < n; j++) {
                     Image actImage;
                     Tile type;
                     //getstarting
-                    switch (level.getStartingRoom().getRoom().getLayout()[i][j]) {
+                    switch (level.getStartingRoom().getRoom().getLayout()[j][i]) {
                         case WALL:
                             actImage = wallTexture;
                             type = Tile.WALL;
@@ -257,12 +264,13 @@ public class Renderer extends JPanel {
                             type = Tile.WALL;
 
                     }
-                    Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileHeight, tileWidth, actImage);
+                    Sprite act = new Sprite(i*tileHeight,j * tileWidth, tileWidth, tileHeight, actImage);
                     act.setType(type);
 
-                    tiles[i][j] = act;
+                    tiles[j][i] = act;
                 }
             }
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -313,7 +321,7 @@ public class Renderer extends JPanel {
     {
         grphcs.setColor(Color.darkGray);
         super.paintComponent(grphcs);
-        grphcs.fillRect(0, 0, 900, 600);
+        //grphcs.fillRect(0, 0, 900, 600);
         drawRoom(grphcs);
         player.draw(grphcs);
         for (Attack att : currentAttack)
@@ -336,7 +344,8 @@ public class Renderer extends JPanel {
                     //case-l szebb lehet ez
                     if(tiles[i][j].getType()==Tile.WALL)
                     {
-                        //stepback()
+                        player.stepBack();
+                        System.out.println("collided");
                     }
                     if(tiles[i][j].getType()==Tile.DOOR_OPEN)
                     {
@@ -356,19 +365,19 @@ public class Renderer extends JPanel {
                     }
                     if((tiles[i][j].getType()==Tile.DOOR_CLOSED))
                     {
-                        //stepback()
+                        player.stepBack();
                     }
                     if((tiles[i][j].getType()==Tile.BOSSDOOR_CLOSED))
                     {
-                        //stepback()
+                        player.stepBack();
                     }
                     if((tiles[i][j].getType()==Tile.ITEMDOOR_CLOSED))
                     {
-                        //stepback()
+                        player.stepBack();
                     }
                     if((tiles[i][j].getType()==Tile.SHOPDOOR_CLOSED))
                     {
-                        //stepback()
+                        player.stepBack();
                     }
                     if((tiles[i][j].getType()==Tile.TRAPDOOR_OPEN))
                     {
@@ -392,6 +401,12 @@ public class Renderer extends JPanel {
                 tiles[i][j].draw(grphcs);
             }
         }
+    }
+
+    public Dimension getWindowSize()
+    {
+        Dimension dim = new Dimension(window_h,window_w);
+        return dim;
     }
 
     //Maguktól mozgó dolgokat kell ebben az osztályban kezelni, illetve ha a mozgó objecktek ütköznek valamivel, azt is itt.
@@ -421,6 +436,7 @@ public class Renderer extends JPanel {
 
             repaint();
         }
+
 
         void clearAttacks()
         {

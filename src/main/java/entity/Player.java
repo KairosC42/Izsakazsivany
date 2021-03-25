@@ -35,8 +35,12 @@ public class Player extends Sprite
     Weapon equippedWeapon = new Weapon();
     int walkingTime;
     Image playerImages[];
+    private int frameHeight;
+    private int frameWidth;
 
-    public Player(int x, int y, int width, int height, Image playerImages[])
+    private boolean lastMove; //false, y-n, true- x-en
+
+    public Player(int x, int y, int width, int height, Image playerImages[],int frameHeight, int frameWidth)
     {
         this.x = x;
         this.y = y;
@@ -44,6 +48,8 @@ public class Player extends Sprite
         this.height = height;
         this.playerImages = playerImages;
         this.image = playerImages[0];
+        this.frameHeight = frameHeight;
+        this.frameWidth = frameWidth;
     }
 
     public void update(float deltaTime)
@@ -51,42 +57,55 @@ public class Player extends Sprite
         walkingTime += deltaTime;
     }
 
+    public void stepBack()
+    {
+        if(lastMove)
+        {
+            x-=velx;
+            System.out.println("x-en visszalép");
+        }
+        else if(!lastMove)
+        {
+            y-=vely;
+            System.out.println("y-on visszalép");
+        }
+    }
     public void moveX()
     {
-        if ((velx < 0 && x > 0) || (velx > 0 && x + width <= 900))
-        {
             if (velx > 0)
             {
                 //jobbra
                 this.image = playerImages[12];
                 direction = Directions.Right;
+                lastMove = true;
             } else if (velx < 0)
             {
                 //balra
                 this.image = playerImages[9];
                 direction = Directions.Left;
+                lastMove = true;
             }
             x += velx;
-        }
     }
 
     public void moveY()
     {
-        if ((vely < 0 && y > 0) || (vely > 0 && y + height <= 900))
-        {
             if (vely > 0)
             {
                 //előre
                 this.image = this.image = playerImages[0];
                 direction = Directions.Down;
+                lastMove = false;
             } else if (vely < 0)
             {
                 //hátra
                 this.image = this.image = playerImages[4];
                 direction = Directions.Up;
+                lastMove = false;
             }
             y += vely;
-        }
+
+
     }
 
     public int getHealth()
