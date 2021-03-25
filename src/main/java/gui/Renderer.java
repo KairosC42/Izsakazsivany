@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 //import java.awt.event.KeyListener;
 //import java.io.IOException;
@@ -68,7 +69,6 @@ public class Renderer extends JPanel {
     private Level level;
     private RoomNode[][] roomMatrix;
     private RoomNode currentRoomNode;
-    private boolean isTransitionOpen=true;
     private LocalTime lastTransitionTime= LocalTime.now();
     private Sprite tiles[][];
     private int n;
@@ -420,8 +420,25 @@ public class Renderer extends JPanel {
 
     private void transition(int x, int y)
     {
-        
-        if( true)
+
+        long difference=1000000;
+        try
+        {
+            SimpleDateFormat format=new SimpleDateFormat("HH:mm:ss");
+            Date date1 = format.parse(lastTransitionTime.toString());
+            Date date2 = format.parse(LocalTime.now().toString());
+            difference = date2.getTime() - date1.getTime();
+            System.out.println(date1);
+            System.out.println(date2);
+            System.out.println(difference);
+        }
+        catch (Exception e)
+        {
+            difference=1000000;
+        }
+
+
+        if( difference>=200)
         {
             //System.out.println(x +" "+ y);
             if (x == 0)
@@ -511,6 +528,7 @@ public class Renderer extends JPanel {
                     tiles[j][i] = act;
                 }
             }
+            lastTransitionTime=LocalTime.now();
         }
 
     }
