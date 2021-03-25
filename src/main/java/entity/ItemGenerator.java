@@ -79,12 +79,12 @@ public  class ItemGenerator
         if(rand.nextBoolean())
         {
             healthRestore= rand.nextInt(30)+20 +(levelDepth-1)*15 ;
-            price *= healthRestore/35;
+            price *= healthRestore/35.f;
         }
         else
         {
             grantExp = rand.nextInt(50)+30 +(levelDepth-1)*20 ;
-            price *= grantExp/55;
+            price *= grantExp/55.f;
 
         }
         Image im = null;
