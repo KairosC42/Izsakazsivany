@@ -62,12 +62,12 @@ public class Player extends Sprite
         if(lastMove)
         {
             x-=velx;
-            System.out.println("x-en visszalép");
+            //System.out.println("x-en visszalép");
         }
         else if(!lastMove)
         {
             y-=vely;
-            System.out.println("y-on visszalép");
+            //System.out.println("y-on visszalép");
         }
     }
     public void moveX()
@@ -215,5 +215,12 @@ public class Player extends Sprite
          *      -szorzat modi * stat
          */
         return ((int) range);
+    }
+
+    public void stepBackAfterLeveltransition(int x,int y)
+    {
+        this.x=x;
+        this.y=y;
+
     }
 }

@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.time.LocalTime;
 //import java.awt.event.KeyListener;
 //import java.io.IOException;
 //import java.sql.SQLException;
@@ -25,6 +26,8 @@ import javax.swing.JFrame;
 import java.awt.image.BufferedImage;
 //import java.io.File;
 import java.io.IOException;
+import java.sql.Time;
+import java.util.Date;
 import java.util.Vector;
 //import java.sql.Time;
 //import java.time.Duration;
@@ -35,6 +38,7 @@ import entity.Enemy;
 import entity.Player;
 import entity.Sprite;
 import levelLayoutGeneration.Level;
+import levelLayoutGeneration.RoomNode;
 import rooms.Tile;
 
 public class Renderer extends JPanel {
@@ -58,9 +62,14 @@ public class Renderer extends JPanel {
     Vector<Attack> currentAttack = new Vector<Attack>();
     Graphics grphcs;
 
+
     private int tileHeight;
     private int tileWidth;
     private Level level;
+    private RoomNode[][] roomMatrix;
+    private RoomNode currentRoomNode;
+    private boolean isTransitionOpen=true;
+    private LocalTime lastTransitionTime= LocalTime.now();
     private Sprite tiles[][];
     private int n;
     private int m;
@@ -85,15 +94,20 @@ public class Renderer extends JPanel {
         //this.window_w = width;
         this.frame = frame;
         handleInputs();
-
         this.level = new Level(1);
         this.n = level.getStartingRoom().getRoom().getN();  //20magas - sorok száma
         this.m = level.getStartingRoom().getRoom().getM();//30széles - oszlopok száma
+        roomMatrix=level.getRoomMatrix();
+        currentRoomNode=level.getStartingRoom();
+
         System.out.println(n);
         System.out.println(m);
 
         this.window_h = tile_size*this.m;
         this.window_w = tile_size*this.n;
+        System.out.println(window_w);
+        System.out.println(window_h);
+
         tileHeight = tile_size;
         tileWidth = tile_size;
         player_width = tileWidth;
@@ -104,6 +118,7 @@ public class Renderer extends JPanel {
 
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
         newFrameTimer.start();
+        System.out.println(newFrameTimer.getDelay());
 
     }
 
@@ -210,13 +225,15 @@ public class Renderer extends JPanel {
 
             System.out.println(n);
             System.out.println(m);
-            level.getStartingRoom().getRoom().printRoom();
+            currentRoomNode.getRoom().printRoom();
+            level.printLevel();
+
             for (int i = 0; i < m; i++) {
                 for (int j = 0; j < n; j++) {
                     Image actImage;
                     Tile type;
                     //getstarting
-                    switch (level.getStartingRoom().getRoom().getLayout()[j][i]) {
+                    switch (currentRoomNode.getRoom().getLayout()[j][i]) {
                         case WALL:
                             actImage = wallTexture;
                             type = Tile.WALL;
@@ -344,39 +361,48 @@ public class Renderer extends JPanel {
                     //case-l szebb lehet ez
                     if(tiles[i][j].getType()==Tile.WALL)
                     {
+                        //System.out.println("collided with WALL");
                         player.stepBack();
-                        System.out.println("collided");
+
                     }
                     if(tiles[i][j].getType()==Tile.DOOR_OPEN)
                     {
-                        //transition()
+                        //System.out.println("collided with DOOR_OPEN");
+                        transition(i,j);
                     }
-                    if(tiles[i][j].getType()==Tile.ITEMDOOR_CLOSED)
+                    if(tiles[i][j].getType()==Tile.ITEMDOOR_OPEN)
                     {
-                        //transition()
+                        //System.out.println("collided with ITEMDOOR_OPEN");
+                        transition(i,j);
                     }
                     if(tiles[i][j].getType()==Tile.SHOPDOOR_OPEN)
                     {
-                        //transition()
+                        //System.out.println("collided with SHOPDOOR_OPEN");
+                        transition(i,j);
                     }
                     if(tiles[i][j].getType()==Tile.BOSSDOOR_OPEN)
                     {
-                        //transition()
+                        //System.out.println("collided with BOSSDOOR_OPEN");
+                        transition(i,j);
                     }
                     if((tiles[i][j].getType()==Tile.DOOR_CLOSED))
                     {
+                        //System.out.println("collided with DOOR_CLOSED");
                         player.stepBack();
                     }
                     if((tiles[i][j].getType()==Tile.BOSSDOOR_CLOSED))
                     {
+                        //System.out.println("collided with BOSSDOOR_CLOSED");
                         player.stepBack();
                     }
                     if((tiles[i][j].getType()==Tile.ITEMDOOR_CLOSED))
                     {
+                        //System.out.println("collided with ITEMDOOR_CLOSED");
                         player.stepBack();
                     }
                     if((tiles[i][j].getType()==Tile.SHOPDOOR_CLOSED))
                     {
+                        //System.out.println("collided with SHOPDOOR_CLOSED");
                         player.stepBack();
                     }
                     if((tiles[i][j].getType()==Tile.TRAPDOOR_OPEN))
@@ -390,6 +416,103 @@ public class Renderer extends JPanel {
         /*
         végig megyünk az enemyk listáján és megnézzük, hogy nekiment-e a player
          */
+    }
+
+    private void transition(int x, int y)
+    {
+        
+        if( true)
+        {
+            //System.out.println(x +" "+ y);
+            if (x == 0)
+            {
+                currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i - 1][currentRoomNode.getCoordinate().j];
+                player.stepBackAfterLeveltransition(player.getX(), window_w / m * (m - 4));
+
+            } else if (y == 0)
+            {
+                currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i][currentRoomNode.getCoordinate().j - 1];
+                player.stepBackAfterLeveltransition(window_h / n * (n - 2), player.getY());
+
+            } else if (x == n - 1)
+            {
+                currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i + 1][currentRoomNode.getCoordinate().j];
+                player.stepBackAfterLeveltransition(player.getX(), window_w / m * 2);
+
+            } else if (y == m - 1)
+            {
+                currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i][currentRoomNode.getCoordinate().j + 1];
+                player.stepBackAfterLeveltransition(window_h / n * 2, player.getY());
+
+            }
+
+
+            level.printLevelWithPlayerPos(currentRoomNode);
+
+
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    Image actImage;
+                    Tile type;
+                    switch (currentRoomNode.getRoom().getLayout()[j][i])
+                    {
+                        case WALL:
+                            actImage = wallTexture;
+                            type = Tile.WALL;
+                            break;
+                        case FLOOR:
+                            actImage = floorTexture;
+                            type = Tile.FLOOR;
+                            break;
+                        case DOOR_OPEN:
+                            actImage = openDoorTexture;
+                            type = Tile.DOOR_OPEN;
+                            break;
+                        case DOOR_CLOSED:
+                            actImage = closedDoorTexture;
+                            type = Tile.DOOR_CLOSED;
+                            break;
+                        case BOSSDOOR_OPEN:
+                            actImage = bossDoorOpenTexture;
+                            type = Tile.BOSSDOOR_OPEN;
+                            break;
+                        case BOSSDOOR_CLOSED:
+                            actImage = bossDoorClosedTexture;
+                            type = Tile.BOSSDOOR_CLOSED;
+                            break;
+                        case ITEMDOOR_OPEN:
+                            actImage = itemDoorOpenTexture;
+                            type = Tile.ITEMDOOR_OPEN;
+                            break;
+                        case ITEMDOOR_CLOSED:
+                            actImage = bossDoorClosedTexture;
+                            type = Tile.ITEMDOOR_CLOSED;
+                            break;
+                        case SHOPDOOR_OPEN:
+                            actImage = shopDoorOpenTexture;
+                            type = Tile.SHOPDOOR_OPEN;
+                            break;
+                        case SHOPDOOR_CLOSED:
+                            actImage = bossDoorClosedTexture;
+                            type = Tile.SHOPDOOR_CLOSED;
+                            break;
+                        //todo trapdoor
+
+                        default:
+                            actImage = wallTexture;
+                            type = Tile.WALL;
+
+                    }
+                    Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileWidth, tileHeight, actImage);
+                    act.setType(type);
+
+                    tiles[j][i] = act;
+                }
+            }
+        }
+
     }
 
     public void drawRoom(Graphics grphcs)
@@ -417,6 +540,8 @@ public class Renderer extends JPanel {
         {
             player.moveX();
             player.moveY();
+            //System.out.println(player.getX());
+            //System.out.println(player.getY());
             if(currentAttack.size()>0)
             {
                 for (Attack attack : currentAttack)
