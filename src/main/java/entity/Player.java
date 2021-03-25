@@ -32,11 +32,19 @@ public class Player extends Sprite
     private int vely;
     private int money;
     Vector<StatItem> equippedItems = new Vector<>();
+    Vector<Potion> potions=new Vector<>();
     Weapon equippedWeapon = new Weapon();
     int walkingTime;
     Image playerImages[];
     private int frameHeight;
     private int frameWidth;
+
+    private int healthPointsMaxModifier=0;
+
+    private float rangeModifier=1;
+    private float attackSpeedModifier=1;
+    private float damageModifier=1;
+    private float moveSpeedModifier=1;
 
     private boolean lastMove; //false, y-n, true- x-en
 
@@ -140,7 +148,7 @@ public class Player extends Sprite
 
     public int getMoveSpeed()
     {
-        return moveSpeed;
+        return (int)(moveSpeed*moveSpeedModifier);
     }
 
     public void setMoveSpeed(int moveSpeed)
@@ -155,7 +163,7 @@ public class Player extends Sprite
 
     public int getHealthPointsMax()
     {
-        return healthPointsMax;
+        return healthPointsMax+healthPointsMaxModifier;
     }
 
     public int getHealthPoints()
@@ -165,12 +173,12 @@ public class Player extends Sprite
 
     public float getAttackSpeed()
     {
-        return attackSpeed;
+        return attackSpeed+attackSpeedModifier;
     }
 
     public float getDamage()
     {
-        return damage;
+        return damage*damageModifier;
     }
 
     public int getExperince()
@@ -180,47 +188,73 @@ public class Player extends Sprite
 
     public void equipWeapon(Weapon weapon)
     {
-        range -= equippedWeapon.rangeModifier;
-        attackSpeed -= equippedWeapon.attackSpeedModifier;
-        attackSpeed -= equippedWeapon.damageModifier;
+        rangeModifier -= equippedWeapon.rangeModifier;
+        attackSpeedModifier -= equippedWeapon.attackSpeedModifier;
+        attackSpeedModifier -= equippedWeapon.damageModifier;
 
-        range += weapon.rangeModifier;
-        attackSpeed += weapon.attackSpeedModifier;
-        attackSpeed += weapon.damageModifier;
+        rangeModifier += weapon.rangeModifier;
+        attackSpeedModifier += weapon.attackSpeedModifier;
+        attackSpeedModifier += weapon.damageModifier;
 
         equippedWeapon = weapon;
 
 
     }
 
-    public void equipItem(StatItem item)
+    public void equipItem(Item item)
     {
+        if(item instanceof StatItem)
+        {
+            StatItem statItem=(StatItem) item;
+            healthPointsMaxModifier += statItem.getHealthModifier();
+            healthPoints += statItem.getHealthModifier();
 
-        healthPointsMax += item.getHealthModifier();
-        healthPoints += item.getHealthModifier();
+            rangeModifier += statItem.getRangeModifier();
+            attackSpeedModifier += statItem.getAttackSpeedModifier();
+            damageModifier += statItem.getDamageModifier();
+            moveSpeedModifier += statItem.getSpeedModifier();
+        }
+        else if(item instanceof Potion)
+        {
+            potions.add((Potion) item);
+        }
+        else if(item instanceof Weapon)
+        {
+            Weapon weapon=(Weapon) item;
+            rangeModifier -= equippedWeapon.rangeModifier;
+            attackSpeedModifier -= equippedWeapon.attackSpeedModifier;
+            attackSpeedModifier -= equippedWeapon.damageModifier;
 
-        range *= item.getRangeModifier();
-        attackSpeed *= item.getAttackSpeedModifier();
-        damage *= item.getDamageModifier();
-        moveSpeed *= item.getSpeedModifier();
+            rangeModifier += weapon.rangeModifier;
+            attackSpeedModifier += weapon.attackSpeedModifier;
+            attackSpeedModifier += weapon.damageModifier;
+            equippedWeapon = weapon;
+
+        }
+    }
+
+    void usePotion(Potion potion)
+    {
+        experince+=potion.getGrantExp();
+        healthPoints+=potion.getHealthRestore();
+        if(healthPoints>getHealthPointsMax())
+        {
+            healthPoints=getHealthPointsMax();
+        }
+        potions.remove(potion);
     }
 
 
 
     public int getRange()
     {
-        /**
-         * TODO:
-         *      -range int or float?? in Player and every item is a float, in Attack is an int, consensus needed.
-         *      -szorzat modi * stat
-         */
-        return ((int) range);
+
+        return (int)(range*rangeModifier);
     }
 
     public void stepBackAfterLeveltransition(int x,int y)
     {
         this.x=x;
         this.y=y;
-
     }
 }
