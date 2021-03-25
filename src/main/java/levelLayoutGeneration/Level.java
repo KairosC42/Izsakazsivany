@@ -449,6 +449,50 @@ public class Level
         System.out.println("\u001B[0m");
     }
 
+    public void printLevelWithPlayerPos(RoomNode currentRoomNode)
+    {
+        System.out.println("\n\n\n");
+
+        for (int i = 0; i < mSize; i++)
+        { //this equals to the row in our matrix.
+            for (int j = 0; j < mSize; j++)
+            { //this equals to the column in each row.
+                if (roomMatrix[i][j] == null)
+                {
+                    System.out.print("\u001B[40m" + "N" + " ");
+                } else
+                {
+                    if(i == currentRoomNode.getCoordinate().i && j==currentRoomNode.getCoordinate().j)
+                    {
+                        System.out.print("\u001B[44m" + "P" + " " + "\u001B[40m");
+                    }
+                    else if (roomMatrix[i][j].roomType == RoomType.COMBATROOM)
+                    {
+                        System.out.print("\u001B[45m" + "C" + " " + "\u001B[40m");
+                    }
+                    else if(roomMatrix[i][j].roomType == RoomType.ITEMROOM)
+                    {
+                        System.out.print("\u001B[103m" + "I" + " " + "\u001B[40m");
+                    }
+                    else if(roomMatrix[i][j].roomType == RoomType.SHOP)
+                    {
+                        System.out.print("\u001B[106m" + "S" + " " + "\u001B[40m");
+                    }
+                    else if(roomMatrix[i][j].roomType == RoomType.BOSSROOM )
+                    {
+                        System.out.print("\u001B[41m" + "B" + " " + "\u001B[40m");
+                    }
+                    else if(roomMatrix[i][j].roomType == RoomType.STARTROOM)
+                    {
+                        System.out.print("\u001B[42m" + "O" + " " + "\u001B[40m");
+                    }
+
+                }
+            }
+            System.out.println(); //change line on console as row comes to end in the matrix.
+        }
+    }
+
     private void placeSpecialRooms()
     {
         roomVector.sort(new RoomNode());
