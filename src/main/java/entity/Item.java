@@ -14,7 +14,7 @@ public class Item extends Sprite
 
     }
 
-    Item(int x, int y, int width, int height, Image image, int price, String name)
+    public Item(int x, int y, int width, int height, Image image, int price, String name)
     {
         this.x = x;
         this.y = y;

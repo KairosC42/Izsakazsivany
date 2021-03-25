@@ -34,7 +34,7 @@ public  class ItemGenerator
     {
         Image i = null;
         try{
-            i = ImageIO.read(this.getClass().getClassLoader().getResource("ruby_pendant.jpg"));
+            i = ImageIO.read(this.getClass().getClassLoader().getResource("ruby_pendant.png"));
         }
         catch (Exception e)
         {
@@ -59,7 +59,7 @@ public  class ItemGenerator
         int weaponDamageModifier = rand.nextInt(10)+15 + (levelDepth-1)*8 ;
         float attackSpeedMultiplier = ((rand.nextInt(15)+10 + (levelDepth-1)*5)  /100.f);
         try{
-            i = ImageIO.read(this.getClass().getClassLoader().getResource("sword.jpg"));
+            i = ImageIO.read(this.getClass().getClassLoader().getResource("sword.png"));
         }
         catch (Exception e)
         {
@@ -89,7 +89,7 @@ public  class ItemGenerator
         }
         Image im = null;
         try{
-            im = ImageIO.read(this.getClass().getClassLoader().getResource("red_potion.jpg"));
+            im = ImageIO.read(this.getClass().getClassLoader().getResource("red_potion.png"));
         }
         catch (Exception e) {
             System.out.println("Missing texture!");

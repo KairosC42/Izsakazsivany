@@ -31,22 +31,10 @@ public class ItemRoom extends Room
 
     private ItemGenerator generator;
 
-    public ItemRoom()
-    {
-        this.N=20;
-        this.M=30;
-        layout = new Tile[N][M];
-        this.generateRoom();
-        this.generator= new ItemGenerator();
-        this.roomSpecificGen();
-    }
 
-    public ItemRoom(int N, int M, int levelDepth)
+    public ItemRoom(int levelDepth)
     {
-        this.N=N;
-        this.M=M;
-        layout = new Tile[N][M];
-        this.generateRoom();
+        super(levelDepth);
         this.generator=new ItemGenerator();
         this.roomSpecificGen();
     }

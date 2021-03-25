@@ -24,7 +24,7 @@ public class Player extends Sprite
     private float range = 60;
     private float attackSpeed = 1;
     private float damage = 20;
-    private int moveSpeed = 4;
+    private int moveSpeed = 2;
     private int experince = 0;
     private Directions direction = Directions.Down;
     //private Inventory inventory;

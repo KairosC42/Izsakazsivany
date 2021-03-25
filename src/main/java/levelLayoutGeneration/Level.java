@@ -36,6 +36,7 @@ public class Level
     private RoomNode[][] roomMatrix;
     private RoomNode startingRoom;
     private Random rand = new Random();
+    private int levelDepth;
 
 
     /**
@@ -48,6 +49,7 @@ public class Level
 
     public Level(int levelDepth)
     {
+        this.levelDepth=levelDepth;
         generateLevel(levelDepth);
     }
 
@@ -455,7 +457,7 @@ public class Level
         {
             if(!(i == 0||i == 1|| i == roomVector.size()-2|| i == roomVector.size()-1))
             {
-                CombatRoom r=new CombatRoom();
+                CombatRoom r=new CombatRoom(levelDepth);
                 roomVector.get(i).room = r;
                 roomVector.get(i).roomType=RoomType.COMBATROOM;
                 roomMatrix[roomVector.get(i).coordinate.i][roomVector.get(i).coordinate.j].room=r;
@@ -466,7 +468,7 @@ public class Level
             {
                 if (i == 0)
                 {
-                    BossRoom r = new BossRoom();
+                    BossRoom r = new BossRoom(levelDepth);
                     roomVector.get(i).room = r;
                     roomVector.get(i).roomType=RoomType.BOSSROOM;
                     roomMatrix[roomVector.get(i).coordinate.i][roomVector.get(i).coordinate.j].room = r;
@@ -474,7 +476,7 @@ public class Level
                 }
                 if (i == roomVector.size()-2)
                 {
-                    ItemRoom r = new ItemRoom();
+                    ItemRoom r = new ItemRoom(levelDepth);
                     roomVector.get(i).room = r;
                     roomVector.get(i).roomType=RoomType.ITEMROOM;
                     roomMatrix[roomVector.get(i).coordinate.i][roomVector.get(i).coordinate.j].room = r;
@@ -482,7 +484,7 @@ public class Level
                 }
                 if (i == 1)
                 {
-                    Shop r = new Shop();
+                    Shop r = new Shop(levelDepth);
                     roomVector.get(i).room = r;
                     roomVector.get(i).roomType=RoomType.SHOP;
                     roomMatrix[roomVector.get(i).coordinate.i][roomVector.get(i).coordinate.j].room = r;

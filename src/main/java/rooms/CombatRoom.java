@@ -16,23 +16,11 @@ public class CombatRoom extends Room
     Random rand= new Random();
     private int enemyCount;
 
-    public CombatRoom()
-    {
-        int enemyCount=rand.nextInt(4)+3;
-        this.N=20;
-        this.M=30;
-        layout = new Tile[N][M];
-        this.generateRoom();
-        this.roomSpecificGen();
-    }
 
-    public CombatRoom(int N, int M, int levelDepth)
+    public CombatRoom(int levelDepth)
     {
+        super(levelDepth);
         int enemyCount=rand.nextInt(4)+3;
-        this.N=N;
-        this.M=M;
-        layout = new Tile[N][M];
-        this.generateRoom();
         this.roomSpecificGen();
     }
 

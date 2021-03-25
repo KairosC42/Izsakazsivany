@@ -23,25 +23,12 @@ public class Shop extends Room
     private Vector<Item> items= new Vector<Item>();
     private ItemGenerator generator;
 
-    public Shop()
-    {
-        this.N=20;
-        this.M=30;
-        this.items= new Vector<Item>();
-        this.layout = new Tile[N][M];
-        this.generateRoom();
-        this.generator=new ItemGenerator();
-        this.roomSpecificGen();
 
-    }
-
-    public Shop(int N, int M, int levelDepth)
+    public Shop(int levelDepth)
     {
-        this.N=N;
-        this.M=M;
-        this.items= new Vector<Item>();
-        this.layout = new Tile[N][M];
+        super(levelDepth);
         this.generateRoom();
+        this.items= new Vector<Item>();
         this.generator=new ItemGenerator();
         this.roomSpecificGen();
     }
@@ -68,5 +55,12 @@ public class Shop extends Room
             items.add(generator.generatePotion(levelDepth, true));
         }
     }
+    //getters
+
+    public Vector<Item> getItems() {
+        return items;
+    }
+
+
     //how should shop items be displayed?
 }
