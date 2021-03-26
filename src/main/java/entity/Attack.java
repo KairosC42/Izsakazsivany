@@ -1,20 +1,21 @@
 package entity;
 
 import java.awt.*;
+import java.util.Vector;
 
 public class Attack extends Sprite{
 
     private Sprite source;
-    private Sprite target[];
-    private Directions dir;
+    private Vector<Sprite> target;
     private int speed = 1;
     private boolean isEnded = false;
     private int range;
     private int starter_x;
     private int starter_y;
+    private Directions dir;
 
 
-    public Attack(int x, int y, int width, int height, Image image, Sprite source, Sprite target[], Directions dir, int range) {
+    public Attack(int x, int y, int width, int height, Image image, Sprite source, Vector<Sprite> target, Directions dir, int range) {
         if(dir==Directions.Down)
         {
             this.x = source.x + ((source.width/2) - (width/2));

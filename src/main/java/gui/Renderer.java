@@ -50,7 +50,6 @@ public class Renderer extends JPanel
     private final int FPS = 240;
     //private Image background;
     private Player player;
-    private Enemy enemies[];
     private int player_width = 40;
     private int player_height = 40;
     long last_time = System.nanoTime();
@@ -82,7 +81,7 @@ public class Renderer extends JPanel
     private Image trapDoorOpenTexture;
     private Image trapDoorClosedTexture;
 
-    //private Vector<Enemy> enemies = new Vector<Enemy>();
+    private Vector<Sprite> enemies = new Vector<>();
     // ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
 
 
@@ -256,6 +255,7 @@ public class Renderer extends JPanel
             Image playerImages[] = getImages(300,450,100,150,
                     4,4,100,50,"player.png");
             player = new Player(450,100, player_height, player_width,playerImages,this.window_h,this.window_w);
+
             attackImg = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
 
             wallTexture = ImageIO.read(this.getClass().getClassLoader().getResource("wall.png"));
@@ -271,6 +271,10 @@ public class Renderer extends JPanel
             trapDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_open.png"));
             trapDoorClosedTexture=ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_closed.png"));
             hearthTexture = ImageIO.read(this.getClass().getClassLoader().getResource("hearth.png"));
+            for( int i=0;i<levelDepth+2;++i)
+            {
+                enemies.add(new Enemy(200+20*i, 400+20*i,50,50, hearthTexture ));
+            }
         }
         catch(Exception e)
         {
@@ -548,7 +552,7 @@ public class Renderer extends JPanel
                     {
 
 
-        for (int i = 0; i < levelNum; i++) {
+        for (int i = 0; i < levelDepth; i++) {
             enemies.get(i).draw(grphcs);
         }
                     this.items = new Vector<Item>(); }
@@ -661,25 +665,25 @@ public class Renderer extends JPanel
                 }
             }
 
-            for (int i = 0; i < levelNum; i++) {
+            for (int i = 0; i < levelDepth; i++) {
                 if ((enemies.get(i).getX() < 0) || (enemies.get(i).getX() >= 900)
                         || (enemies.get(i).getY() < 0) || (enemies.get(i).getY() >= 600)
 
                 ) {
                     if (enemies.get(i).getX() == 0 || enemies.get(i).getX() == 900) {
-                        enemies.get(i).moveBack();
+                        ((Enemy)enemies.get(i)).moveBack();
                     }
                     if (enemies.get(i).getY() == 0 || enemies.get(i).getY() == 600) {
-                        enemies.get(i).moveBack();
+                        ((Enemy)enemies.get(i)).moveBack();
                     }
-                    enemies.get(i).move();
-                    enemies.get(i).randDirection();
+                    ((Enemy)enemies.get(i)).move();
+                    ((Enemy)enemies.get(i)).randDirection();
                 } else {
-                    enemies.get(i).move();
+                    ((Enemy)enemies.get(i)).move();
                 }
 
                 if (enemies.get(i).collides(player)) {
-                    player.setHealth(enemies.get(i).getDamage());
+                    player.setHealth(((Enemy)enemies.get(i)).getDamage());
                 }
 
             }
