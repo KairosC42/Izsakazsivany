@@ -12,16 +12,12 @@ import java.time.LocalTime;
 //import java.util.ArrayList;
 //import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
+import javax.swing.*;
 //import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.Timer;
 //import java.util.Scanner;
 //import java.io.*;
 //import javax.swing.*;
 //import java.awt.EventQueue;
-import javax.swing.JFrame;
 //import javax.swing.JLabel;
 //import java.util.Random;
 import java.awt.image.BufferedImage;
@@ -82,6 +78,7 @@ public class Renderer extends JPanel
     private Image itemDoorClosedTexture;
     private Image bossDoorOpenTexture;
     private Image bossDoorClosedTexture;
+    private Image hearthTexture;
     private Image trapDoorOpenTexture;
     private Image trapDoorClosedTexture;
 
@@ -93,6 +90,7 @@ public class Renderer extends JPanel
     private RoomNode currentRoomNode;
     private LocalTime lastTransitionTime= LocalTime.now();
 
+    private Sprite hearthSprite;
 
     public Renderer(int height, int width, JFrame frame) {
         super();
@@ -278,6 +276,17 @@ public class Renderer extends JPanel
             e.printStackTrace();
         }
 
+
+            hearthTexture = ImageIO.read(this.getClass().getClassLoader().getResource("hearth.png"));
+            hearthSprite = new Sprite(window_w+180,7,45,40,hearthTexture);
+
+            System.out.println(n);
+            System.out.println(m);
+            currentRoomNode.getRoom().printRoom();
+            level.printLevel();
+
+
+
     }
     //Kezdő állapotban lévő elemenk létrehozása.
     public void initTiles() {
@@ -400,7 +409,17 @@ public class Renderer extends JPanel
             att.draw(grphcs);
         }
 
-        //collide();
+        Graphics2D g2 = (Graphics2D)grphcs;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(Color.RED);
+        Font font = new Font("SansSerif", Font.BOLD, 40);
+        g2.setFont(font);
+        hearthSprite.draw(grphcs);
+        g2.drawString(Integer.toString(+player.getHealth()),window_w+230,40);
+
+        collide();
+
 
     }
 
@@ -627,7 +646,7 @@ public class Renderer extends JPanel
         {
             player.moveX();
             player.moveY();
-            collide();
+            
             if(currentAttacks.size()>0)
             {
                 for (Attack attack : currentAttacks)
@@ -643,7 +662,6 @@ public class Renderer extends JPanel
             delta_time = (int) ((time - last_time) / 1000000);
             last_time = time;
              */
-
 
             repaint();
         }
