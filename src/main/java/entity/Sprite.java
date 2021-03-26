@@ -1,8 +1,11 @@
 package entity;
 
+import rooms.Tile;
+
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
+
 
 public class Sprite
 {
@@ -12,12 +15,13 @@ public class Sprite
     protected int height=0;
     protected Image image=null;
 
-    Sprite()
+    private Tile type;
+
+    public Sprite()
     {
 
     }
-
-    Sprite(int x, int y, int width, int height, Image image)
+    public Sprite(int x, int y, int width, int height, Image image)
     {
         this.x = x;
         this.y = y;
@@ -79,5 +83,13 @@ public class Sprite
     public void setImage(Image image)
     {
         this.image = image;
+    }
+
+    public Tile getType() {
+        return type;
+    }
+
+    public void setType(Tile type) {
+        this.type = type;
     }
 }

@@ -6,12 +6,18 @@ import java.util.Random;
 
 public class BossRoom extends CombatRoom
 {
+
+    public BossRoom(int levelDepth)
+    {
+        super(levelDepth);
+        roomSpecificGen();
+    }
     @Override
     public void roomSpecificGen()
     {
         Random rand = new Random();
-        int n= rand.nextInt(N-3)+1;
-        int m=rand.nextInt(N-3)+1;
+        int n= rand.nextInt(N-4)+2;
+        int m=rand.nextInt(M-4)+2;
         //layout[N][..] is out of bounds
         //layout[N-1] is a wall, shouldn't overwrite that
         //layout[0] is also a wall, so random has to start at 1 (: reason for +1)

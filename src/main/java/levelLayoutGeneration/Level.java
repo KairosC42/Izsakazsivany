@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Vector;
 import java.util.Random;
 
+
 /**
  * <h1>Level class</h1>
  * Level Generator class. Generate a level layout with placed down rooms.
@@ -35,6 +36,7 @@ public class Level
     private RoomNode[][] roomMatrix;
     private RoomNode startingRoom;
     private Random rand = new Random();
+    private int levelDepth;
 
 
     /**
@@ -47,6 +49,7 @@ public class Level
 
     public Level(int levelDepth)
     {
+        this.levelDepth=levelDepth;
         generateLevel(levelDepth);
     }
 
@@ -80,11 +83,147 @@ public class Level
             currentNumberOfRooms--;
         }
 
+
+
         Bfs.minDistance(roomMatrix,roomVector,startingRoom);
         placeSpecialRooms();
 
 
 
+        //A base room layout contains no doors, as that depends on the level layout
+        //which a room cannot access from within itself, so doors are created here
+        /*
+            process:
+                -iterate roomVector
+                -for every room in roomVector assign a door based on type of room its next to, or nothing in case of null.
+                -checking the type of adjacent room is done via the switch-cases
+            sadly contains a lot of duped code, but it's not worth making it a function as its single use
+            for now at least xd
+         */
+        for(RoomNode room : roomVector )
+        {
+            int i = room.getCoordinate().i;
+            int j = room.getCoordinate().j;
+
+            Tile[][] layout;
+            Tile type = Tile.DOOR_OPEN;
+            int N = room.getRoom().getN();
+            int M = room.getRoom().getM();
+
+            //northern neighbour:
+            try
+            {
+                if(roomMatrix[i-1][j]!=null)
+                {
+                    switch (roomMatrix[i-1][j].getRoomType())
+                    {
+                        case BOSSROOM:
+                            type = Tile.BOSSDOOR_OPEN;
+                            break;
+                        case SHOP:
+                            type = Tile.SHOPDOOR_OPEN;
+                            break;
+                        case ITEMROOM:
+                            type = Tile.ITEMDOOR_OPEN;
+                            break;
+                        default:
+                            type = Tile.DOOR_OPEN;
+                            break;
+                    }
+                    layout=room.getRoom().getLayout();
+                    layout[0][M/2-1] = type;
+                    roomMatrix[i][j].getRoom().setLayout(layout);
+                    room.getRoom().setLayout(layout);
+                }
+            }
+            catch(IndexOutOfBoundsException e){}
+
+            //southern neighbour
+            try
+            {
+                if(roomMatrix[i+1][j]!=null)
+                {
+                    switch (roomMatrix[i+1][j].getRoomType())
+                    {
+                        case BOSSROOM:
+                            type = Tile.BOSSDOOR_OPEN;
+                            break;
+                        case SHOP:
+                            type = Tile.SHOPDOOR_OPEN;
+                            break;
+                        case ITEMROOM:
+                            type = Tile.ITEMDOOR_OPEN;
+                            break;
+                        default:
+                            type = Tile.DOOR_OPEN;
+                            break;
+                    }
+
+                    layout=room.getRoom().getLayout();
+                    layout[N-1][M/2-1] = type;
+                    roomMatrix[i][j].getRoom().setLayout(layout);
+                    room.getRoom().setLayout(layout);
+                }
+            }
+            catch(IndexOutOfBoundsException e){}
+
+            //eastern neighbour
+            try
+            {
+                if(roomMatrix[i][j+1]!=null)
+                {
+                    switch (roomMatrix[i][j+1].getRoomType())
+                    {
+                        case BOSSROOM:
+                            type = Tile.BOSSDOOR_OPEN;
+                            break;
+                        case SHOP:
+                            type = Tile.SHOPDOOR_OPEN;
+                            break;
+                        case ITEMROOM:
+                            type = Tile.ITEMDOOR_OPEN;
+                            break;
+                        default:
+                            type = Tile.DOOR_OPEN;
+                            break;
+                    }
+                    layout=room.getRoom().getLayout();
+                    layout[N/2-1][M-1] = type;
+                    roomMatrix[i][j].getRoom().setLayout(layout);
+                    room.getRoom().setLayout(layout);
+                }
+            }
+            catch(IndexOutOfBoundsException e){}
+
+            //western neighbour
+            try
+            {
+                if(roomMatrix[i][j-1]!=null)
+                {
+                    switch (roomMatrix[i][j-1].getRoomType())
+                    {
+                        case BOSSROOM:
+                            type = Tile.BOSSDOOR_OPEN;
+                            break;
+                        case SHOP:
+                            type = Tile.SHOPDOOR_OPEN;
+                            break;
+                        case ITEMROOM:
+                            type = Tile.ITEMDOOR_OPEN;
+                            break;
+                        default:
+                            type = Tile.DOOR_OPEN;
+                            break;
+                    }
+                    layout=room.getRoom().getLayout();
+                    layout[N/2-1][0] = type;
+                    roomMatrix[i][j].getRoom().setLayout(layout);
+                    room.getRoom().setLayout(layout);
+                }
+            }
+            catch(IndexOutOfBoundsException e){}
+
+        }
     }
 
     private void placeRoom(Coordinate newRoomCoordinate)
@@ -310,6 +449,50 @@ public class Level
         System.out.println("\u001B[0m");
     }
 
+    public void printLevelWithPlayerPos(RoomNode currentRoomNode)
+    {
+        System.out.println("\n\n\n");
+
+        for (int i = 0; i < mSize; i++)
+        { //this equals to the row in our matrix.
+            for (int j = 0; j < mSize; j++)
+            { //this equals to the column in each row.
+                if (roomMatrix[i][j] == null)
+                {
+                    System.out.print("\u001B[40m" + "N" + " ");
+                } else
+                {
+                    if(i == currentRoomNode.getCoordinate().i && j==currentRoomNode.getCoordinate().j)
+                    {
+                        System.out.print("\u001B[44m" + "P" + " " + "\u001B[40m");
+                    }
+                    else if (roomMatrix[i][j].roomType == RoomType.COMBATROOM)
+                    {
+                        System.out.print("\u001B[45m" + "C" + " " + "\u001B[40m");
+                    }
+                    else if(roomMatrix[i][j].roomType == RoomType.ITEMROOM)
+                    {
+                        System.out.print("\u001B[103m" + "I" + " " + "\u001B[40m");
+                    }
+                    else if(roomMatrix[i][j].roomType == RoomType.SHOP)
+                    {
+                        System.out.print("\u001B[106m" + "S" + " " + "\u001B[40m");
+                    }
+                    else if(roomMatrix[i][j].roomType == RoomType.BOSSROOM )
+                    {
+                        System.out.print("\u001B[41m" + "B" + " " + "\u001B[40m");
+                    }
+                    else if(roomMatrix[i][j].roomType == RoomType.STARTROOM)
+                    {
+                        System.out.print("\u001B[42m" + "O" + " " + "\u001B[40m");
+                    }
+
+                }
+            }
+            System.out.println(); //change line on console as row comes to end in the matrix.
+        }
+    }
+
     private void placeSpecialRooms()
     {
         roomVector.sort(new RoomNode());
@@ -318,7 +501,7 @@ public class Level
         {
             if(!(i == 0||i == 1|| i == roomVector.size()-2|| i == roomVector.size()-1))
             {
-                CombatRoom r=new CombatRoom();
+                CombatRoom r=new CombatRoom(levelDepth);
                 roomVector.get(i).room = r;
                 roomVector.get(i).roomType=RoomType.COMBATROOM;
                 roomMatrix[roomVector.get(i).coordinate.i][roomVector.get(i).coordinate.j].room=r;
@@ -329,7 +512,7 @@ public class Level
             {
                 if (i == 0)
                 {
-                    BossRoom r = new BossRoom();
+                    BossRoom r = new BossRoom(levelDepth);
                     roomVector.get(i).room = r;
                     roomVector.get(i).roomType=RoomType.BOSSROOM;
                     roomMatrix[roomVector.get(i).coordinate.i][roomVector.get(i).coordinate.j].room = r;
@@ -337,7 +520,7 @@ public class Level
                 }
                 if (i == roomVector.size()-2)
                 {
-                    ItemRoom r = new ItemRoom();
+                    ItemRoom r = new ItemRoom(levelDepth);
                     roomVector.get(i).room = r;
                     roomVector.get(i).roomType=RoomType.ITEMROOM;
                     roomMatrix[roomVector.get(i).coordinate.i][roomVector.get(i).coordinate.j].room = r;
@@ -345,7 +528,7 @@ public class Level
                 }
                 if (i == 1)
                 {
-                    Shop r = new Shop();
+                    Shop r = new Shop(levelDepth);
                     roomVector.get(i).room = r;
                     roomVector.get(i).roomType=RoomType.SHOP;
                     roomMatrix[roomVector.get(i).coordinate.i][roomVector.get(i).coordinate.j].room = r;

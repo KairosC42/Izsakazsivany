@@ -20,6 +20,17 @@ public class RoomNode implements Comparator<RoomNode>
     protected int distanceFromStart;
     protected Room room;
     protected RoomType roomType;
+    protected boolean visited=false;
+
+    public void setVisited(boolean visited)
+    {
+        this.visited = visited;
+    }
+
+    public boolean isVisited()
+    {
+        return visited;
+    }
 
     public Room getRoom()
     {
