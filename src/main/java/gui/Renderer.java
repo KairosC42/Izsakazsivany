@@ -270,14 +270,16 @@ public class Renderer extends JPanel
             bossDoorClosedTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door_closed.png"));
             trapDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_open.png"));
             trapDoorClosedTexture=ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_closed.png"));
+            hearthTexture = ImageIO.read(this.getClass().getClassLoader().getResource("hearth.png"));
         }
         catch(Exception e)
         {
             e.printStackTrace();
+
         }
 
 
-            hearthTexture = ImageIO.read(this.getClass().getClassLoader().getResource("hearth.png"));
+
             hearthSprite = new Sprite(window_w+180,7,45,40,hearthTexture);
 
             System.out.println(n);
