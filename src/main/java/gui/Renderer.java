@@ -1,7 +1,6 @@
 package gui;
 
-import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -35,20 +34,20 @@ import java.util.Vector;
 //import java.time.Duration;
 //import java.time.Instant;
 //import java.awt.Font;
-import entity.Attack;
-import entity.Enemy;
-import entity.Player;
-import entity.Sprite;
+import entity.*;
 import levelLayoutGeneration.Level;
 import levelLayoutGeneration.RoomNode;
+import rooms.ItemRoom;
+import rooms.RoomType;
+import rooms.Shop;
 import rooms.Tile;
 
 public class Renderer extends JPanel
 {
 
-    private final JFrame frame;
-    private final int window_w;
-    private final int window_h;
+    private JFrame frame;
+    private int window_w;
+    private int window_h;
     private int tile_size =30;
     private Timer newFrameTimer;
     //private Timer animationTimer;
@@ -56,14 +55,14 @@ public class Renderer extends JPanel
     //private Image background;
     private Player player;
     private Enemy enemies[];
-    private final int player_width = 40;
-    private final int player_height = 40;
+    private int player_width = 40;
+    private int player_height = 40;
     long last_time = System.nanoTime();
     int delta_time = 0;
     long time;
     private Image attackImg;
     Vector<Item> items;
-    Vector<Attack> currentAttack = new Vector<Attack>();
+    Vector<Attack> currentAttacks = new Vector<Attack>();
     Graphics grphcs;
 
     private int tileHeight;
@@ -86,34 +85,13 @@ public class Renderer extends JPanel
     private Image trapDoorOpenTexture;
     private Image trapDoorClosedTexture;
 
-    //private Vector<Enemy> enemies = new Vector<Enemy>(); //ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
-    private Enemy enemies[];
+    //private Vector<Enemy> enemies = new Vector<Enemy>();
+    // ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
 
 
-    public Renderer(int height, int width, JFrame frame) {
-
-    private int tileHeight;
-    private int tileWidth;
-    private Level level;
     private RoomNode[][] roomMatrix;
     private RoomNode currentRoomNode;
     private LocalTime lastTransitionTime= LocalTime.now();
-    private Sprite tiles[][];
-    private int n;
-    private int m;
-    private Image wallTexture;
-    private Image floorTexture;
-    private Image openDoorTexture;
-    private Image closedDoorTexture;
-    private Image shopDoorOpenTexture;
-    private Image shopDoorClosedTexture;
-    private Image itemDoorOpenTexture;
-    private Image itemDoorClosedTexture;
-    private Image bossDoorOpenTexture;
-    private Image bossDoorClosedTexture;
-
-    //private Vector<Enemy> enemies = new Vector<Enemy>(); //ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
-    private Enemy enemies[];
 
 
     public Renderer(int height, int width, JFrame frame) {
@@ -161,6 +139,7 @@ public class Renderer extends JPanel
 
         this.player.setX(n/2*tileHeight);
         this.player.setY(m/2*tileWidth);
+        currentRoomNode=level.getStartingRoom();
         //player starts in the middle of the room
         initTiles();
         // calling init() is a temporary solution, as that also resets textures, realistically i only want the starting room's textures and layout
@@ -265,7 +244,7 @@ public class Renderer extends JPanel
             @Override
             public void actionPerformed(ActionEvent ae) {
                 Attack attack = new Attack(player.getX(), player.getY(), 10,50, attackImg , player, enemies, player.getDirection(), player.getRange());
-                cuttentAttacks.add(attack);
+                currentAttacks.add(attack);
             }
         });
     }
@@ -277,7 +256,7 @@ public class Renderer extends JPanel
             //player képeinek betöltése
             Image playerImages[] = getImages(300,450,100,150,
                     4,4,100,50,"player.png");
-            player = new Player(450,100, playerImages,this.window_h,this.window_w);
+            player = new Player(450,100, player_height, player_width,playerImages,this.window_h,this.window_w);
             attackImg = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
 
             wallTexture = ImageIO.read(this.getClass().getClassLoader().getResource("wall.png"));
@@ -301,12 +280,12 @@ public class Renderer extends JPanel
     }
     //Kezdő állapotban lévő elemenk létrehozása.
     public void initTiles() {
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) {
+            for (int i = 0; i < m; i++) {
+                for (int j = 0; j < n; j++) {
                     Image actImage;
                     Tile type;
                     //getstarting
-                    switch (level.getStartingRoom().getRoom().getLayout()[i][j]) {
+                    switch (level.getStartingRoom().getRoom().getLayout()[j][i]) {
                         case FLOOR:
                             actImage = floorTexture;
                             type = Tile.FLOOR;
@@ -355,9 +334,9 @@ public class Renderer extends JPanel
                             actImage = wallTexture;
                             type = Tile.WALL;
                     }
-                    Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileHeight, tileWidth, actImage);
+                    Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileWidth ,tileHeight, actImage);
                     act.setType(type);
-                    tiles[i][j] = act;
+                    tiles[j][i] = act;
                 }
             }
     }
@@ -415,7 +394,7 @@ public class Renderer extends JPanel
                 it.draw(grphcs);
             }
         }
-        for (Attack att : currentAttack)
+        for (Attack att : currentAttacks)
         {
             att.draw(grphcs);
         }
@@ -424,45 +403,6 @@ public class Renderer extends JPanel
 
     }
 
-    public void collide()
-    {
-        for(int i = 0; i <n; i++)
-        {
-            for(int j = 0; j < m; j++)
-            {
-                if(tiles[i][j].collides(player))
-                {
-                    //case-l szebb lehet ez
-                    if(tiles[i][j].getType()==Tile.WALL)
-                    {
-
-                        //stepback()
-                    }
-                    if(tiles[i][j].getType()==Tile.DOOR_OPEN)
-                    {
-
-                        //transition()
-                    }
-                    if(tiles[i][j].getType()==Tile.ITEMDOOR_OPEN)
-                    {
-
-                        //transition()
-                    }
-                    if(tiles[i][j].getType()==Tile.SHOPDOOR_OPEN)
-                    {
-
-                        //transition()
-                    }
-                    if(tiles[i][j].getType()==Tile.BOSSDOOR_OPEN)
-                    {
-        for (Attack att : currentAttack)
-        {
-            att.draw(grphcs);
-        }
-
-        collide();
-
-    }
 
     public void collide()
     {
@@ -521,7 +461,7 @@ public class Renderer extends JPanel
                     }
                     if((tiles[i][j].getType()==Tile.TRAPDOOR_OPEN))
                     {
-                        //next_level()
+                        newLevel();
                     }
                 }
             }
@@ -532,61 +472,65 @@ public class Renderer extends JPanel
          */
     }
 
-    private void transition(int x, int y)
-    {
 
-        long difference=1000000;
-        try
-        {
-            SimpleDateFormat format=new SimpleDateFormat("HH:mm:ss");
+    private void transition(int x, int y) {
+
+        long difference = 1000000;
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
             Date date1 = format.parse(lastTransitionTime.toString());
             Date date2 = format.parse(LocalTime.now().toString());
             difference = date2.getTime() - date1.getTime();
             System.out.println(date1);
             System.out.println(date2);
             System.out.println(difference);
-        }
-        catch (Exception e)
-        {
-            difference=1000000;
+        } catch (Exception e) {
+            difference = 1000000;
         }
 
 
-        if( difference>=200)
-        {
+        if (difference >= 200) {
             //System.out.println(x +" "+ y);
-            if (x == 0)
-            {
+            if (x == 0) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i - 1][currentRoomNode.getCoordinate().j];
                 player.stepBackAfterLeveltransition(player.getX(), window_w / m * (m - 4));
 
-            } else if (y == 0)
-            {
+            } else if (y == 0) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i][currentRoomNode.getCoordinate().j - 1];
                 player.stepBackAfterLeveltransition(window_h / n * (n - 2), player.getY());
 
-            } else if (x == n - 1)
-            {
+            } else if (x == n - 1) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i + 1][currentRoomNode.getCoordinate().j];
                 player.stepBackAfterLeveltransition(player.getX(), window_w / m * 2);
 
-            } else if (y == m - 1)
-            {
+            } else if (y == m - 1) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i][currentRoomNode.getCoordinate().j + 1];
                 player.stepBackAfterLeveltransition(window_h / n * 2, player.getY());
 
             }
-    public void drawRoom(Graphics grphcs)
-    {
-        for(int i = 0; i < n; i++)
-        {
-            for(int j = 0; j < m; j++)
+
+            if(currentRoomNode!=null)
             {
-                tiles[i][j].draw(grphcs);
+                if (currentRoomNode.getRoomType() == RoomType.SHOP)
+                {
+                    this.items = new Vector<Item>();
+                    Shop temp = (Shop) currentRoomNode.getRoom(); // this casting doesn't work inline for some reason
+                    this.items = temp.getItems();
+                } else if (currentRoomNode.getRoomType() == RoomType.ITEMROOM)
+                {
+                    this.items = new Vector<Item>();
+                    ItemRoom temp = (ItemRoom) currentRoomNode.getRoom();
+                    this.items.add(temp.getStatItem());
+                    this.items.add(temp.getWeapon());
+                } else
+                    {
+
+                    this.items = new Vector<Item>(); }
             }
-        }
-    }
-            level.printLevelWithPlayerPos(currentRoomNode);
+
+
+
+            //level.printLevelWithPlayerPos(currentRoomNode);
 
 
             for (int i = 0; i < m; i++)
@@ -597,10 +541,6 @@ public class Renderer extends JPanel
                     Tile type;
                     switch (currentRoomNode.getRoom().getLayout()[j][i])
                     {
-                        case WALL:
-                            actImage = wallTexture;
-                            type = Tile.WALL;
-                            break;
                         case FLOOR:
                             actImage = floorTexture;
                             type = Tile.FLOOR;
@@ -626,7 +566,7 @@ public class Renderer extends JPanel
                             type = Tile.ITEMDOOR_OPEN;
                             break;
                         case ITEMDOOR_CLOSED:
-                            actImage = bossDoorClosedTexture;
+                            actImage = itemDoorClosedTexture;
                             type = Tile.ITEMDOOR_CLOSED;
                             break;
                         case SHOPDOOR_OPEN:
@@ -634,11 +574,17 @@ public class Renderer extends JPanel
                             type = Tile.SHOPDOOR_OPEN;
                             break;
                         case SHOPDOOR_CLOSED:
-                            actImage = bossDoorClosedTexture;
+                            actImage = shopDoorClosedTexture;
                             type = Tile.SHOPDOOR_CLOSED;
                             break;
-                        //todo trapdoor
-
+                        case TRAPDOOR_CLOSED:
+                            actImage = trapDoorClosedTexture;
+                            type = Tile.TRAPDOOR_CLOSED;
+                            break;
+                        case TRAPDOOR_OPEN:
+                            actImage = trapDoorOpenTexture;
+                            type = Tile.TRAPDOOR_OPEN;
+                            break;
                         default:
                             actImage = wallTexture;
                             type = Tile.WALL;
@@ -681,9 +627,9 @@ public class Renderer extends JPanel
             player.moveX();
             player.moveY();
             collide();
-            if(currentAttack.size()>0)
+            if(currentAttacks.size()>0)
             {
-                for (Attack attack : currentAttack)
+                for (Attack attack : currentAttacks)
                 {
                     attack.cast();
                 }
@@ -703,14 +649,15 @@ public class Renderer extends JPanel
 
         void clearAttacks()
         {
-            for(int i = 0; i < currentAttack.size(); i++)
+            for(int i = 0; i < currentAttacks.size(); i++)
             {
-                if(currentAttack.get(i).isEnded() == true)
+                if(currentAttacks.get(i).isEnded() == true)
                 {
-                    currentAttack.remove(currentAttack.get(i));
+                    currentAttacks.remove(currentAttacks.get(i));
                 }
             }
         }
     }
 }
+
 

@@ -50,7 +50,7 @@ public  class ItemGenerator
         int realPrice=0;
         if(hasPrice){ realPrice = Math.round(price);}
 
-        return new StatItem(0,0,50,50,i,realPrice,"statItem", healthModifier, rangeModifier, attackSpeedModifier, damageModifier, speedModifier);
+        return new StatItem(200,200,50,50,i,realPrice,"statItem", healthModifier, rangeModifier, attackSpeedModifier, damageModifier, speedModifier);
     }
 
     public Item generateWeapon(int levelDepth, boolean hasPrice)
@@ -68,7 +68,7 @@ public  class ItemGenerator
         float price = ( (50 + (levelDepth-1)*0.4f) * (weaponRangeModifier/275.f) * (weaponDamageModifier/20.f) * (attackSpeedMultiplier*100/20.0f) );
         int realPrice=0;
         if(hasPrice){ realPrice = Math.round(price);}
-       return new Weapon(0, 0,50, 50,i,realPrice, "weapon" , weaponRangeModifier, weaponDamageModifier, attackSpeedMultiplier);
+       return new Weapon(200, 400,50, 50,i,realPrice, "weapon" , weaponRangeModifier, weaponDamageModifier, attackSpeedMultiplier);
     }
 
     public Item generatePotion(int levelDepth, boolean hasPrice)

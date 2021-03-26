@@ -52,4 +52,15 @@ public class ItemRoom extends Room
 
         this.weapon = generator.generateWeapon(levelDepth,false);
     }
+
+    //getters
+
+
+    public Item getStatItem() {
+        return statItem;
+    }
+
+    public Item getWeapon() {
+        return weapon;
+    }
 }

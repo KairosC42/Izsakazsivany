@@ -36,6 +36,7 @@ public class Shop extends Room
     @Override
     public void roomSpecificGen()
     {
+
         this.items= new Vector<Item>();
         Random rand= new Random();
         itemCount=rand.nextInt(3)+3;
