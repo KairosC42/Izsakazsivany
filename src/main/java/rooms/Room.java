@@ -38,10 +38,10 @@ public abstract class Room
         layout = new Tile[N][M]; // used for background, eg: walls, floor, doors
         generateRoom();
     }
-    public Room(int N, int M, int levelDepth)
+    public Room(int levelDepth)
     {
-        this.N = N;
-        this.M = M;
+        this.N =20;
+        this.M = 30;
         layout = new Tile[N][M];
         this.visited=false;
         this.levelDepth=levelDepth;
@@ -61,7 +61,6 @@ public abstract class Room
                 //NOTE: rooms should also have doors, but those are placed by generateLevel() found in Level
             }
         }
-        roomSpecificGen();
     }
 
     Sprite[][] overlay= new Sprite[N][M]; //used for displaying over background, for sprites with variable positions

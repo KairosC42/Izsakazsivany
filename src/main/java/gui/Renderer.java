@@ -30,45 +30,44 @@ import java.util.Vector;
 //import java.time.Duration;
 //import java.time.Instant;
 //import java.awt.Font;
-import entity.Attack;
-import entity.Enemy;
-import entity.Player;
-import entity.Sprite;
+import entity.*;
 import levelLayoutGeneration.Level;
 import levelLayoutGeneration.RoomNode;
+import rooms.ItemRoom;
+import rooms.RoomType;
+import rooms.Shop;
 import rooms.Tile;
 
-public class Renderer extends JPanel {
+public class Renderer extends JPanel
+{
 
-    private final JFrame frame;
-    private final int window_w;
-    private final int window_h;
+    private JFrame frame;
+    private int window_w;
+    private int window_h;
     private int tile_size =30;
     private Timer newFrameTimer;
     //private Timer animationTimer;
     private final int FPS = 240;
     //private Image background;
-
     private Player player;
-    private int player_width;
-    private int player_height;
+    private Enemy enemies[];
+    private int player_width = 40;
+    private int player_height = 40;
     long last_time = System.nanoTime();
     int delta_time = 0;
     long time;
     private Image attackImg;
-    Vector<Attack> currentAttack = new Vector<Attack>();
+    Vector<Item> items;
+    Vector<Attack> currentAttacks = new Vector<Attack>();
     Graphics grphcs;
-
 
     private int tileHeight;
     private int tileWidth;
     private Level level;
-    private RoomNode[][] roomMatrix;
-    private RoomNode currentRoomNode;
-    private LocalTime lastTransitionTime= LocalTime.now();
     private Sprite tiles[][];
     private int n;
     private int m;
+    private int levelDepth = 1;
     private Image wallTexture;
     private Image floorTexture;
     private Image openDoorTexture;
@@ -80,17 +79,25 @@ public class Renderer extends JPanel {
     private Image bossDoorOpenTexture;
     private Image bossDoorClosedTexture;
     private Image hearthTexture;
+    private Image trapDoorOpenTexture;
+    private Image trapDoorClosedTexture;
 
-    //private Vector<Enemy> enemies = new Vector<Enemy>(); //ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
-    private Enemy enemies[];
+    //private Vector<Enemy> enemies = new Vector<Enemy>();
+    // ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
+
+
+    private RoomNode[][] roomMatrix;
+    private RoomNode currentRoomNode;
+    private LocalTime lastTransitionTime= LocalTime.now();
 
     private Sprite hearthSprite;
 
     public Renderer(int height, int width, JFrame frame) {
         super();
-        //this.window_h = height;
-        //this.window_w = width;
+        this.window_h = height;
+        this.window_w = width;
         this.frame = frame;
+
         handleInputs();
         this.level = new Level(1);
         this.n = level.getStartingRoom().getRoom().getN();  //20magas - sorok száma
@@ -106,108 +113,148 @@ public class Renderer extends JPanel {
         System.out.println(window_w);
         System.out.println(window_h);
 
+        this.level = new Level(levelDepth);
         tileHeight = tile_size;
         tileWidth = tile_size;
         player_width = tileWidth;
         player_height = tileHeight;
         this.tiles = new Sprite[this.n][this.m];
 
-        init();
 
+        initGraphics();
+        initTiles();
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
         newFrameTimer.start();
-        System.out.println(newFrameTimer.getDelay());
 
     }
 
-    public void handleInputs() {
+    public void newLevel()
+    {
+        newFrameTimer.stop();
+        //timer is stopped here, restarted later, to avoid any weird behaviour while a new floor is generated and loaded
+        this.level=new Level(++levelDepth);
+        //the rest of the things set in the constructor are still valid here
+
+        this.player.setX(n/2*tileHeight);
+        this.player.setY(m/2*tileWidth);
+        currentRoomNode=level.getStartingRoom();
+        //player starts in the middle of the room
+        initTiles();
+        // calling init() is a temporary solution, as that also resets textures, realistically i only want the starting room's textures and layout
+        newFrameTimer.start();
+    }
+
+    public void handleInputs()
+    {
         //input kezelések
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "pressed up");
-        this.getActionMap().put("pressed up", new AbstractAction() {
+        this.getActionMap().put("pressed up", new AbstractAction()
+        {
             @Override
-            public void actionPerformed(ActionEvent ae) {
-                if (player.getVelX() == 0) {
+            public void actionPerformed(ActionEvent ae)
+            {
+                if(player.getVelX() == 0)
+                {
                     player.setVelY(-player.getMoveSpeed());
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "released up");
-        this.getActionMap().put("released up", new AbstractAction() {
+        this.getActionMap().put("released up", new AbstractAction()
+        {
             @Override
-            public void actionPerformed(ActionEvent ae) {
+            public void actionPerformed(ActionEvent ae)
+            {
                 player.setVelY(0);
             }
         });
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "pressed left");
-        this.getActionMap().put("pressed left", new AbstractAction() {
+        this.getActionMap().put("pressed left", new AbstractAction()
+        {
             @Override
-            public void actionPerformed(ActionEvent ae) {
-                if (player.getVelY() == 0) {
+            public void actionPerformed(ActionEvent ae)
+            {
+                if(player.getVelY() == 0)
+                {
                     player.setVelX(-player.getMoveSpeed());
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "released left");
-        this.getActionMap().put("released left", new AbstractAction() {
+        this.getActionMap().put("released left", new AbstractAction()
+        {
             @Override
-            public void actionPerformed(ActionEvent ae) {
+            public void actionPerformed(ActionEvent ae)
+            {
                 player.setVelX(0);
             }
         });
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "pressed down");
-        this.getActionMap().put("pressed down", new AbstractAction() {
+        this.getActionMap().put("pressed down", new AbstractAction()
+        {
             @Override
-            public void actionPerformed(ActionEvent ae) {
-                if (player.getVelX() == 0) {
+            public void actionPerformed(ActionEvent ae)
+            {
+                if(player.getVelX() == 0)
+                {
                     player.setVelY(player.getMoveSpeed());
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "released down");
-        this.getActionMap().put("released down", new AbstractAction() {
+        this.getActionMap().put("released down", new AbstractAction()
+        {
             @Override
-            public void actionPerformed(ActionEvent ae) {
+            public void actionPerformed(ActionEvent ae)
+            {
                 player.setVelY(0);
             }
         });
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "pressed right");
-        this.getActionMap().put("pressed right", new AbstractAction() {
+        this.getActionMap().put("pressed right", new AbstractAction()
+        {
             @Override
-            public void actionPerformed(ActionEvent ae) {
-                if (player.getVelY() == 0) {
+            public void actionPerformed(ActionEvent ae)
+            {
+                if(player.getVelY() == 0)
+                {
                     player.setVelX(player.getMoveSpeed());
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "released right");
-        this.getActionMap().put("released right", new AbstractAction() {
+        this.getActionMap().put("released right", new AbstractAction()
+        {
             @Override
-            public void actionPerformed(ActionEvent ae) {
+            public void actionPerformed(ActionEvent ae)
+            {
                 player.setVelX(0);
             }
         });
 
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), "pressed space");
-        this.getActionMap().put("pressed space", new AbstractAction() {
+        this.getActionMap().put("pressed space", new AbstractAction()
+        {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                Attack attack = new Attack(player.getX(), player.getY(), 10, 50, attackImg, player, enemies, player.getDirection(), player.getRange());
-                currentAttack.add(attack);
+                Attack attack = new Attack(player.getX(), player.getY(), 10,50, attackImg , player, enemies, player.getDirection(), player.getRange());
+                currentAttacks.add(attack);
             }
         });
     }
 
-    //Kezdő állapotban lévő elemenk létrehozása.
-    public void init() {
-        try {
+    public void initGraphics()
+    {
+        try
+        {
             //player képeinek betöltése
-            Image playerImages[] = getImages(300, 450, 100, 150,
-                    4, 4, 100, 50, "player.png");
-            player = new Player(450, 100, player_height, player_width, playerImages, this.window_h,this.window_w);
+            Image playerImages[] = getImages(300,450,100,150,
+                    4,4,100,50,"player.png");
+            player = new Player(450,100, player_height, player_width,playerImages,this.window_h,this.window_w);
             attackImg = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
 
             wallTexture = ImageIO.read(this.getClass().getClassLoader().getResource("wall.png"));
@@ -220,6 +267,14 @@ public class Renderer extends JPanel {
             itemDoorClosedTexture = ImageIO.read(this.getClass().getClassLoader().getResource("item_door_closed.png"));
             bossDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door_open.png"));
             bossDoorClosedTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door_closed.png"));
+            trapDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_open.png"));
+            trapDoorClosedTexture=ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_closed.png"));
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
 
             hearthTexture = ImageIO.read(this.getClass().getClassLoader().getResource("hearth.png"));
             hearthSprite = new Sprite(window_w+180,7,45,40,hearthTexture);
@@ -230,16 +285,16 @@ public class Renderer extends JPanel {
             level.printLevel();
 
 
+
+    }
+    //Kezdő állapotban lévő elemenk létrehozása.
+    public void initTiles() {
             for (int i = 0; i < m; i++) {
                 for (int j = 0; j < n; j++) {
                     Image actImage;
                     Tile type;
                     //getstarting
-                    switch (currentRoomNode.getRoom().getLayout()[j][i]) {
-                        case WALL:
-                            actImage = wallTexture;
-                            type = Tile.WALL;
-                            break;
+                    switch (level.getStartingRoom().getRoom().getLayout()[j][i]) {
                         case FLOOR:
                             actImage = floorTexture;
                             type = Tile.FLOOR;
@@ -265,7 +320,7 @@ public class Renderer extends JPanel {
                             type = Tile.ITEMDOOR_OPEN;
                             break;
                         case ITEMDOOR_CLOSED:
-                            actImage = bossDoorClosedTexture;
+                            actImage = itemDoorClosedTexture;
                             type = Tile.ITEMDOOR_CLOSED;
                             break;
                         case SHOPDOOR_OPEN:
@@ -273,27 +328,26 @@ public class Renderer extends JPanel {
                             type = Tile.SHOPDOOR_OPEN;
                             break;
                         case SHOPDOOR_CLOSED:
-                            actImage = bossDoorClosedTexture;
+                            actImage = shopDoorClosedTexture;
                             type = Tile.SHOPDOOR_CLOSED;
                             break;
-                        //todo trapdoor
-
+                        case TRAPDOOR_OPEN:
+                            actImage = trapDoorOpenTexture;
+                            type = Tile.TRAPDOOR_OPEN;
+                            break;
+                        case TRAPDOOR_CLOSED:
+                            actImage = trapDoorClosedTexture;
+                            type = Tile.TRAPDOOR_CLOSED;
+                            break;
                         default:
                             actImage = wallTexture;
                             type = Tile.WALL;
-
                     }
-                    Sprite act = new Sprite(i*tileHeight,j * tileWidth, tileWidth, tileHeight, actImage);
+                    Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileWidth ,tileHeight, actImage);
                     act.setType(type);
-
                     tiles[j][i] = act;
                 }
             }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
     public void nextRoom()
     {
@@ -340,15 +394,20 @@ public class Renderer extends JPanel {
     {
         grphcs.setColor(Color.darkGray);
         super.paintComponent(grphcs);
-        //grphcs.fillRect(0, 0, 900, 600);
+        grphcs.fillRect(0, 0, 900, 600);
         drawRoom(grphcs);
         player.draw(grphcs);
-        for (Attack att : currentAttack)
+        if(items!=null)
+        {
+            for (Item it : items) {
+                it.draw(grphcs);
+            }
+        }
+        for (Attack att : currentAttacks)
         {
             att.draw(grphcs);
         }
 
-        collide();
         Graphics2D g2 = (Graphics2D)grphcs;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
@@ -358,7 +417,11 @@ public class Renderer extends JPanel {
         hearthSprite.draw(grphcs);
         g2.drawString(Integer.toString(+player.getHealth()),window_w+230,40);
 
+        collide();
+
+
     }
+
 
     public void collide()
     {
@@ -417,7 +480,7 @@ public class Renderer extends JPanel {
                     }
                     if((tiles[i][j].getType()==Tile.TRAPDOOR_OPEN))
                     {
-                        //next_level()
+                        newLevel();
                     }
                 }
             }
@@ -428,53 +491,65 @@ public class Renderer extends JPanel {
          */
     }
 
-    private void transition(int x, int y)
-    {
 
-        long difference=1000000;
-        try
-        {
-            SimpleDateFormat format=new SimpleDateFormat("HH:mm:ss");
+    private void transition(int x, int y) {
+
+        long difference = 1000000;
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
             Date date1 = format.parse(lastTransitionTime.toString());
             Date date2 = format.parse(LocalTime.now().toString());
             difference = date2.getTime() - date1.getTime();
             System.out.println(date1);
             System.out.println(date2);
             System.out.println(difference);
-        }
-        catch (Exception e)
-        {
-            difference=1000000;
+        } catch (Exception e) {
+            difference = 1000000;
         }
 
 
-        if( difference>=200)
-        {
+        if (difference >= 200) {
             //System.out.println(x +" "+ y);
-            if (x == 0)
-            {
+            if (x == 0) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i - 1][currentRoomNode.getCoordinate().j];
                 player.stepBackAfterLeveltransition(player.getX(), window_w / m * (m - 4));
 
-            } else if (y == 0)
-            {
+            } else if (y == 0) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i][currentRoomNode.getCoordinate().j - 1];
                 player.stepBackAfterLeveltransition(window_h / n * (n - 2), player.getY());
 
-            } else if (x == n - 1)
-            {
+            } else if (x == n - 1) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i + 1][currentRoomNode.getCoordinate().j];
                 player.stepBackAfterLeveltransition(player.getX(), window_w / m * 2);
 
-            } else if (y == m - 1)
-            {
+            } else if (y == m - 1) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i][currentRoomNode.getCoordinate().j + 1];
                 player.stepBackAfterLeveltransition(window_h / n * 2, player.getY());
 
             }
 
+            if(currentRoomNode!=null)
+            {
+                if (currentRoomNode.getRoomType() == RoomType.SHOP)
+                {
+                    this.items = new Vector<Item>();
+                    Shop temp = (Shop) currentRoomNode.getRoom(); // this casting doesn't work inline for some reason
+                    this.items = temp.getItems();
+                } else if (currentRoomNode.getRoomType() == RoomType.ITEMROOM)
+                {
+                    this.items = new Vector<Item>();
+                    ItemRoom temp = (ItemRoom) currentRoomNode.getRoom();
+                    this.items.add(temp.getStatItem());
+                    this.items.add(temp.getWeapon());
+                } else
+                    {
 
-            level.printLevelWithPlayerPos(currentRoomNode);
+                    this.items = new Vector<Item>(); }
+            }
+
+
+
+            //level.printLevelWithPlayerPos(currentRoomNode);
 
 
             for (int i = 0; i < m; i++)
@@ -485,10 +560,6 @@ public class Renderer extends JPanel {
                     Tile type;
                     switch (currentRoomNode.getRoom().getLayout()[j][i])
                     {
-                        case WALL:
-                            actImage = wallTexture;
-                            type = Tile.WALL;
-                            break;
                         case FLOOR:
                             actImage = floorTexture;
                             type = Tile.FLOOR;
@@ -514,7 +585,7 @@ public class Renderer extends JPanel {
                             type = Tile.ITEMDOOR_OPEN;
                             break;
                         case ITEMDOOR_CLOSED:
-                            actImage = bossDoorClosedTexture;
+                            actImage = itemDoorClosedTexture;
                             type = Tile.ITEMDOOR_CLOSED;
                             break;
                         case SHOPDOOR_OPEN:
@@ -522,11 +593,17 @@ public class Renderer extends JPanel {
                             type = Tile.SHOPDOOR_OPEN;
                             break;
                         case SHOPDOOR_CLOSED:
-                            actImage = bossDoorClosedTexture;
+                            actImage = shopDoorClosedTexture;
                             type = Tile.SHOPDOOR_CLOSED;
                             break;
-                        //todo trapdoor
-
+                        case TRAPDOOR_CLOSED:
+                            actImage = trapDoorClosedTexture;
+                            type = Tile.TRAPDOOR_CLOSED;
+                            break;
+                        case TRAPDOOR_OPEN:
+                            actImage = trapDoorOpenTexture;
+                            type = Tile.TRAPDOOR_OPEN;
+                            break;
                         default:
                             actImage = wallTexture;
                             type = Tile.WALL;
@@ -568,11 +645,10 @@ public class Renderer extends JPanel {
         {
             player.moveX();
             player.moveY();
-            //System.out.println(player.getX());
-            //System.out.println(player.getY());
-            if(currentAttack.size()>0)
+            
+            if(currentAttacks.size()>0)
             {
-                for (Attack attack : currentAttack)
+                for (Attack attack : currentAttacks)
                 {
                     attack.cast();
                 }
@@ -589,17 +665,17 @@ public class Renderer extends JPanel {
             repaint();
         }
 
-
         void clearAttacks()
         {
-            for(int i = 0; i < currentAttack.size(); i++)
+            for(int i = 0; i < currentAttacks.size(); i++)
             {
-                if(currentAttack.get(i).isEnded() == true)
+                if(currentAttacks.get(i).isEnded() == true)
                 {
-                    currentAttack.remove(currentAttack.get(i));
+                    currentAttacks.remove(currentAttacks.get(i));
                 }
             }
         }
     }
 }
+
 
