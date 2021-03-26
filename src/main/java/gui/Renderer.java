@@ -101,11 +101,11 @@ public class Renderer extends JPanel
         this.frame = frame;
 
         handleInputs();
-        this.level = new Level(1);
+        this.level = new Level(levelDepth);
         this.n = level.getStartingRoom().getRoom().getN();  //20magas - sorok száma
         this.m = level.getStartingRoom().getRoom().getM();//30széles - oszlopok száma
         roomMatrix=level.getRoomMatrix();
-        currentRoomNode=level.getStartingRoom();
+
 
         System.out.println(n);
         System.out.println(m);
@@ -115,16 +115,17 @@ public class Renderer extends JPanel
         System.out.println(window_w);
         System.out.println(window_h);
 
-        this.level = new Level(levelDepth);
+
         tileHeight = tile_size;
         tileWidth = tile_size;
         player_width = tileWidth;
         player_height = tileHeight;
         this.tiles = new Sprite[this.n][this.m];
 
-
+        currentRoomNode=level.getStartingRoom();
         initGraphics();
         initTiles();
+
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
         newFrameTimer.start();
 
@@ -285,7 +286,7 @@ public class Renderer extends JPanel
                     Image actImage;
                     Tile type;
                     //getstarting
-                    switch (level.getStartingRoom().getRoom().getLayout()[j][i]) {
+                    switch (currentRoomNode.getRoom().getLayout()[j][i]) {
                         case FLOOR:
                             actImage = floorTexture;
                             type = Tile.FLOOR;

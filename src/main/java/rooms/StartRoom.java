@@ -14,7 +14,7 @@ public class StartRoom extends Room
     @Override
     public void roomSpecificGen()
     {
-
+/*
         //!This is only for testing, otherwise StartRoom's roomSpecificGen is empty!!
         //only for testing trapdoor spawn location, rendering and level transition
         Random rand = new Random();
@@ -25,5 +25,7 @@ public class StartRoom extends Room
         //layout[0] is also a wall, so random has to start at 1 (: reason for +1)
         //N-3+1= N-2 is the first non wall floor
         this.layout[n][m]= Tile.TRAPDOOR_OPEN;
+
+ */
     }
 }
