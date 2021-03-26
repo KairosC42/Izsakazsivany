@@ -173,7 +173,7 @@ public class Player extends Sprite
 
     public float getAttackSpeed()
     {
-        return attackSpeed+attackSpeedModifier;
+        return attackSpeed*attackSpeedModifier;
     }
 
     public float getDamage()
