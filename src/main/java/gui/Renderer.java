@@ -273,7 +273,7 @@ public class Renderer extends JPanel
             hearthTexture = ImageIO.read(this.getClass().getClassLoader().getResource("hearth.png"));
             for( int i=0;i<levelDepth+2;++i)
             {
-                enemies.add(new Enemy(200+20*i, 400+20*i,50,50, hearthTexture ));
+                enemies.add(new Enemy(200+50*i, 400+50*i,50,50, hearthTexture ));
             }
         }
         catch(Exception e)
@@ -409,6 +409,9 @@ public class Renderer extends JPanel
             for (Item it : items) {
                 it.draw(grphcs);
             }
+        }
+        for (int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).draw(grphcs);
         }
         for (Attack att : currentAttacks)
         {
@@ -552,9 +555,7 @@ public class Renderer extends JPanel
                     {
 
 
-        for (int i = 0; i < levelDepth; i++) {
-            enemies.get(i).draw(grphcs);
-        }
+
                     this.items = new Vector<Item>(); }
             }
 
@@ -665,7 +666,7 @@ public class Renderer extends JPanel
                 }
             }
 
-            for (int i = 0; i < levelDepth; i++) {
+            for (int i = 0; i < enemies.size(); i++) {
                 if ((enemies.get(i).getX() < 0) || (enemies.get(i).getX() >= 900)
                         || (enemies.get(i).getY() < 0) || (enemies.get(i).getY() >= 600)
 
