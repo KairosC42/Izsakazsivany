@@ -63,6 +63,8 @@ public class Renderer extends JPanel
     private int tileHeight;
     private int tileWidth;
     private Level level;
+
+
     private Sprite tiles[][];
     private int n;
     private int m;
@@ -647,6 +649,16 @@ public class Renderer extends JPanel
     {
         Dimension dim = new Dimension(window_h,window_w);
         return dim;
+    }
+
+    public Sprite[][] getTiles()
+    {
+        return tiles;
+    }
+
+    public void setTiles(Sprite[][] tiles)
+    {
+        this.tiles = tiles;
     }
 
     //Maguktól mozgó dolgokat kell ebben az osztályban kezelni, illetve ha a mozgó objecktek ütköznek valamivel, azt is itt.
