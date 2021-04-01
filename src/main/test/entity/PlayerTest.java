@@ -9,6 +9,7 @@ class PlayerTest
     @Test
     public void stepBack()
     {
+        assertEquals(true,true);
 
     }
 }
