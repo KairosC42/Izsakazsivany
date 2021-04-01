@@ -21,7 +21,6 @@
     <build>
         <finalName>maven-unit-test</finalName>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -36,7 +35,6 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 </project>
