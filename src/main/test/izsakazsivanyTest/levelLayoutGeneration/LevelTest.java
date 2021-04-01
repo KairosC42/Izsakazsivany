@@ -46,15 +46,15 @@ class LevelTest
                 {
                     if (roomNodes[i][j] != null)
                     {
-                        if (roomNodes[i][j].roomType == RoomType.BOSSROOM)
+                        if (roomNodes[i][j].getRoomType() == RoomType.BOSSROOM)
                         {
                             numberOfBossRooms++;
                         }
-                        if (roomNodes[i][j].roomType == RoomType.ITEMROOM)
+                        if (roomNodes[i][j].getRoomType() == RoomType.ITEMROOM)
                         {
                             numberOfItemRooms++;
                         }
-                        if (roomNodes[i][j].roomType == RoomType.SHOP)
+                        if (roomNodes[i][j].getRoomType() == RoomType.SHOP)
                         {
                             numberOfShopRooms++;
                         }

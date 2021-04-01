@@ -18,7 +18,7 @@ public class RoomNode implements Comparator<RoomNode>
     protected Coordinate coordinate;
     protected int bias;
     protected int distanceFromStart;
-    protected Room room;
+    public Room room;
     protected RoomType roomType;
     protected boolean visited=false;
 
@@ -38,7 +38,7 @@ public class RoomNode implements Comparator<RoomNode>
     }
 
     //bias is between 0 and 4
-    protected RoomNode(int i, int j,int bias)
+    public RoomNode(int i, int j, int bias)
     {
         this.roomType=RoomType.NONE;
         this.coordinate=new Coordinate(i,j);
@@ -61,7 +61,7 @@ public class RoomNode implements Comparator<RoomNode>
         return roomType;
     }
 
-    protected void setRoomType(RoomType roomType)
+    public void setRoomType(RoomType roomType)
     {
         this.roomType = roomType;
     }
