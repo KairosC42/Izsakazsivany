@@ -451,6 +451,7 @@ public class Level
         System.out.println("\u001B[41m" + "B = Boss Room is the furthest from the start room"+ "\u001B[40m");
         System.out.println("\u001B[45m" + "C = Combat Room is all the other not special room"+ "\u001B[40m");
         System.out.println("\u001B[0m");
+
     }
 
     public void printLevelWithPlayerPos(RoomNode currentRoomNode)

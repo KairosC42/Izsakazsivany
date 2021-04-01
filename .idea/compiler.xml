@@ -11,7 +11,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Izsakazsivany" target="15" />
+      <module name="Izsakazsivany" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
