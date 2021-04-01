@@ -60,7 +60,7 @@ class LevelTest
     }
 
 
-    
+
     @Test
     void startingRoom()
     {
