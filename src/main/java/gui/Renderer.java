@@ -50,7 +50,6 @@ public class Renderer extends JPanel
     private final int FPS = 240;
     //private Image background;
     private Player player;
-    private Enemy enemies[];
     private int player_width = 40;
     private int player_height = 40;
     long last_time = System.nanoTime();
@@ -64,6 +63,8 @@ public class Renderer extends JPanel
     private int tileHeight;
     private int tileWidth;
     private Level level;
+
+
     private Sprite tiles[][];
     private int n;
     private int m;
@@ -82,7 +83,7 @@ public class Renderer extends JPanel
     private Image trapDoorOpenTexture;
     private Image trapDoorClosedTexture;
 
-    //private Vector<Enemy> enemies = new Vector<Enemy>();
+    private Vector<Sprite> enemies = new Vector<>();
     // ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
 
 
@@ -256,6 +257,7 @@ public class Renderer extends JPanel
             Image playerImages[] = getImages(300,450,100,150,
                     4,4,100,50,"player.png");
             player = new Player(450,100, player_height, player_width,playerImages,this.window_h,this.window_w);
+
             attackImg = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
 
             wallTexture = ImageIO.read(this.getClass().getClassLoader().getResource("wall.png"));
@@ -271,11 +273,14 @@ public class Renderer extends JPanel
             trapDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_open.png"));
             trapDoorClosedTexture=ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_closed.png"));
             hearthTexture = ImageIO.read(this.getClass().getClassLoader().getResource("hearth.png"));
+            for( int i=0;i<levelDepth+2;++i)
+            {
+                enemies.add(new Enemy(200+50*i, 400+50*i,50,50, hearthTexture ));
+            }
         }
         catch(Exception e)
         {
             e.printStackTrace();
-
         }
 
 
@@ -369,8 +374,9 @@ public class Renderer extends JPanel
     images[] - a tömb amiben szeretnénk tárolni a képeket.
      */
     public Image[] getImages(int width, int height, int width_margin,
-                             int height_margin, int rows, int cols, int starter_height, int starter_width, String fileName)
-            throws IOException {
+                          int height_margin, int rows, int cols, int starter_height, int starter_width,String fileName)
+            throws IOException
+    {
 
         // packagek előtt:  BufferedImage bigImg = ImageIO.read(this.getClass().getResource(fileName));
         BufferedImage bigImg = ImageIO.read(this.getClass().getClassLoader().getResource(fileName));
@@ -381,8 +387,8 @@ public class Renderer extends JPanel
             for (int j = 0; j < cols; j++)
             {
                 images[(i * cols) + j] = bigImg.getSubimage(
-                        starter_width + (j * (width + width_margin)),
-                        starter_height + (i * (height + height_margin)),
+                        starter_width + (j * (width+width_margin)),
+                        starter_height+ (i * (height+height_margin)),
                         width,
                         height
                 );
@@ -405,6 +411,9 @@ public class Renderer extends JPanel
             for (Item it : items) {
                 it.draw(grphcs);
             }
+        }
+        for (int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).draw(grphcs);
         }
         for (Attack att : currentAttacks)
         {
@@ -547,6 +556,8 @@ public class Renderer extends JPanel
                 } else
                     {
 
+
+
                     this.items = new Vector<Item>(); }
             }
 
@@ -640,6 +651,16 @@ public class Renderer extends JPanel
         return dim;
     }
 
+    public Sprite[][] getTiles()
+    {
+        return tiles;
+    }
+
+    public void setTiles(Sprite[][] tiles)
+    {
+        this.tiles = tiles;
+    }
+
     //Maguktól mozgó dolgokat kell ebben az osztályban kezelni, illetve ha a mozgó objecktek ütköznek valamivel, azt is itt.
     class NewFrameListener implements ActionListener
     {
@@ -648,7 +669,7 @@ public class Renderer extends JPanel
         {
             player.moveX();
             player.moveY();
-            
+
             if(currentAttacks.size()>0)
             {
                 for (Attack attack : currentAttacks)
@@ -656,6 +677,30 @@ public class Renderer extends JPanel
                     attack.cast();
                 }
             }
+
+            for (int i = 0; i < enemies.size(); i++) {
+                if ((enemies.get(i).getX() < 0) || (enemies.get(i).getX() >= 900)
+                        || (enemies.get(i).getY() < 0) || (enemies.get(i).getY() >= 600)
+
+                ) {
+                    if (enemies.get(i).getX() == 0 || enemies.get(i).getX() == 900) {
+                        ((Enemy)enemies.get(i)).moveBack();
+                    }
+                    if (enemies.get(i).getY() == 0 || enemies.get(i).getY() == 600) {
+                        ((Enemy)enemies.get(i)).moveBack();
+                    }
+                    ((Enemy)enemies.get(i)).move();
+                    ((Enemy)enemies.get(i)).randDirection();
+                } else {
+                    ((Enemy)enemies.get(i)).move();
+                }
+
+                if (enemies.get(i).collides(player)) {
+                    player.setHealth(((Enemy)enemies.get(i)).getDamage());
+                }
+
+            }
+
 
             clearAttacks();
             //TODO animilás

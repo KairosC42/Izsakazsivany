@@ -62,44 +62,8 @@ public class Level
      * The number of rooms will be: 3 * levelDepth + 6 to 8
      */
 
-
-    public void generateLevel(int levelDepth)
+    public void generateDoors()
     {
-        roomVector = new Vector<>();
-        roomMatrix = new RoomNode[mSize][mSize];
-
-        numberOfRooms = 3 * levelDepth + rand.nextInt((max - min) + 1) + min;
-        int currentNumberOfRooms = numberOfRooms;
-
-        startingRoom = new RoomNode(mSize / 2 - 1, mSize / 2 - 1, 4);
-        roomVector.add(startingRoom);
-        roomMatrix[mSize / 2 - 1][mSize / 2 - 1] = startingRoom;
-
-        currentNumberOfRooms--;
-
-        while (currentNumberOfRooms > 0)
-        {
-            placeRoom(selectNextPlace());
-            currentNumberOfRooms--;
-        }
-
-
-
-        Bfs.minDistance(roomMatrix,roomVector,startingRoom);
-        placeSpecialRooms();
-
-
-
-        //A base room layout contains no doors, as that depends on the level layout
-        //which a room cannot access from within itself, so doors are created here
-        /*
-            process:
-                -iterate roomVector
-                -for every room in roomVector assign a door based on type of room its next to, or nothing in case of null.
-                -checking the type of adjacent room is done via the switch-cases
-            sadly contains a lot of duped code, but it's not worth making it a function as its single use
-            for now at least xd
-         */
         for(RoomNode room : roomVector )
         {
             int i = room.getCoordinate().i;
@@ -224,6 +188,46 @@ public class Level
             catch(IndexOutOfBoundsException e){}
 
         }
+    }
+
+    public void generateLevel(int levelDepth)
+    {
+        roomVector = new Vector<>();
+        roomMatrix = new RoomNode[mSize][mSize];
+
+        numberOfRooms = 3 * levelDepth + rand.nextInt((max - min) + 1) + min;
+        int currentNumberOfRooms = numberOfRooms;
+
+        startingRoom = new RoomNode(mSize / 2 - 1, mSize / 2 - 1, 4);
+        roomVector.add(startingRoom);
+        roomMatrix[mSize / 2 - 1][mSize / 2 - 1] = startingRoom;
+
+        currentNumberOfRooms--;
+
+        while (currentNumberOfRooms > 0)
+        {
+            placeRoom(selectNextPlace());
+            currentNumberOfRooms--;
+        }
+
+
+
+        Bfs.minDistance(roomMatrix,roomVector,startingRoom);
+        placeSpecialRooms();
+
+
+
+        //A base room layout contains no doors, as that depends on the level layout
+        //which a room cannot access from within itself, so doors are created here
+        /*
+            process:
+                -iterate roomVector
+                -for every room in roomVector assign a door based on type of room its next to, or nothing in case of null.
+                -checking the type of adjacent room is done via the switch-cases
+            sadly contains a lot of duped code, but it's not worth making it a function as its single use
+            for now at least xd
+         */
+        generateDoors();
     }
 
     private void placeRoom(Coordinate newRoomCoordinate)
@@ -447,6 +451,7 @@ public class Level
         System.out.println("\u001B[41m" + "B = Boss Room is the furthest from the start room"+ "\u001B[40m");
         System.out.println("\u001B[45m" + "C = Combat Room is all the other not special room"+ "\u001B[40m");
         System.out.println("\u001B[0m");
+
     }
 
     public void printLevelWithPlayerPos(RoomNode currentRoomNode)
@@ -559,4 +564,13 @@ public class Level
         return startingRoom;
     }
 
+    public int getNumberOfRooms() {
+        return numberOfRooms;
+    }
+
+    public void setRoomMatrix(RoomNode[][] roomMatrix){this.roomMatrix=roomMatrix;}
+
+    public void setRoomVector(Vector<RoomNode> roomVector){this.roomVector=roomVector;}
+
+    public void setStartingRoom(RoomNode startingRoom){this.startingRoom=startingRoom;}
 }
