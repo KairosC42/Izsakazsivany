@@ -1,5 +1,7 @@
-package levelLayoutGeneration;
+package izsakazsivanyTest.levelLayoutGeneration;
 
+import levelLayoutGeneration.Level;
+import levelLayoutGeneration.RoomNode;
 import rooms.RoomType;
 import rooms.StartRoom;
 import rooms.Tile;
