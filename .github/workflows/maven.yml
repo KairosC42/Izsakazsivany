@@ -26,8 +26,8 @@ jobs:
       run: mvn test
     - name: Report
       run: mvn surefire-report:report
-    - name: Upload math result for job 2
+    - name: publish artifact
       uses: actions/upload-artifact@v2
       with:
-        name: out
-        path: target
+        path: ${{ github.workspace }}
+        name: ${{ env.VERSION_MAJOR }}.${{ env.VERSION_MINOR }}
