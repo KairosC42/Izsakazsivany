@@ -9,14 +9,15 @@ public class Enemy extends Sprite {
     private String lastMove = "left";
     private int healthPoints;
     private int attackRange;
-    private int damage;
+    private int damage = 10;
     private String name;
     private int velx;
     private int vely;
 
 
-    public Enemy(int x, int y, int width, int height, Image image) {
+    public Enemy(int x, int y, int width, int height, Image image, int damage) {
         super(x, y, width, height, image);
+        this.damage = damage;
     }
 
 
@@ -27,22 +28,22 @@ public class Enemy extends Sprite {
 
     public void move() {
 
-      //todo move:  if ( x<850 && y<800 ) {   }
-            switch (direction) {
-                case "up":
-                    y -= speed;
-                    break;
-                case "down":
-                    y += speed;
-                    break;
-                case "left":
-                    x -= speed;
-                    break;
-                case "right":
-                    x += speed;
-                    break;
-            }
-            lastMove = direction;
+        //todo move:  if ( x<850 && y<800 ) {   }
+        switch (direction) {
+            case "up":
+                y -= speed;
+                break;
+            case "down":
+                y += speed;
+                break;
+            case "left":
+                x -= speed;
+                break;
+            case "right":
+                x += speed;
+                break;
+        }
+        lastMove = direction;
 
 
 
@@ -76,7 +77,7 @@ public class Enemy extends Sprite {
                 y += speed;
                 break;
             case "down":
-                y -= speed;
+                y -= speed;;
                 break;
             case "left":
                 x += speed;

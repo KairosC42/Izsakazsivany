@@ -81,6 +81,7 @@ public class Renderer extends JPanel
     private Image hearthTexture;
     private Image trapDoorOpenTexture;
     private Image trapDoorClosedTexture;
+    private Image enemyTexture;
 
     private Vector<Sprite> enemies = new Vector<>();
     // ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
@@ -272,9 +273,9 @@ public class Renderer extends JPanel
             trapDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_open.png"));
             trapDoorClosedTexture=ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_closed.png"));
             hearthTexture = ImageIO.read(this.getClass().getClassLoader().getResource("hearth.png"));
-            for( int i=0;i<levelDepth+2;++i)
-            {
-                enemies.add(new Enemy(200+50*i, 400+50*i,50,50, hearthTexture ));
+            enemyTexture = ImageIO.read(this.getClass().getClassLoader().getResource("enemy.png"));
+            for (int i = 0; i < levelDepth + 2; ++i) {
+                enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10));
             }
         }
         catch(Exception e)
@@ -440,6 +441,7 @@ public class Renderer extends JPanel
         {
             for(int j = 0; j < m; j++)
             {
+                //Player
                 if(tiles[i][j].collides(player))
                 {
                     //case-l szebb lehet ez
@@ -493,13 +495,83 @@ public class Renderer extends JPanel
                     {
                         newLevel();
                     }
+
+                    for (int k = 0; k < enemies.size(); k++)
+                    {
+
+                        if (tiles[i][j].collides(enemies.get(k)))
+                        {
+
+                            //case-l szebb lehet ez,
+
+                            if (tiles[i][j].getType() == Tile.FLOOR)
+                            {
+                                System.out.println("collided with FLLOR");
+                                ((Enemy) enemies.get(k)).moveBack();
+
+                            }
+
+                            if (tiles[i][j].getType() == Tile.WALL)
+                            {
+                                System.out.println("collided with WALL");
+                                ((Enemy) enemies.get(k)).moveBack();
+
+                            }
+                            if (tiles[i][j].getType() == Tile.DOOR_OPEN)
+                            {
+                                //System.out.println("collided with DOOR_OPEN");
+                                ((Enemy) enemies.get(k)).moveBack();
+                            }
+                            if (tiles[i][j].getType() == Tile.ITEMDOOR_OPEN)
+                            {
+                                //System.out.println("collided with ITEMDOOR_OPEN");
+                                ((Enemy) enemies.get(k)).moveBack();
+                            }
+                            if (tiles[i][j].getType() == Tile.SHOPDOOR_OPEN)
+                            {
+                                //System.out.println("collided with SHOPDOOR_OPEN");
+                                ((Enemy) enemies.get(k)).moveBack();
+                            }
+                            if (tiles[i][j].getType() == Tile.BOSSDOOR_OPEN)
+                            {
+                                //System.out.println("collided with BOSSDOOR_OPEN");
+                                ((Enemy) enemies.get(k)).moveBack();
+                            }
+                            if ((tiles[i][j].getType() == Tile.DOOR_CLOSED))
+                            {
+                                //System.out.println("collided with DOOR_CLOSED");
+                                ((Enemy) enemies.get(k)).moveBack();
+                            }
+                            if ((tiles[i][j].getType() == Tile.BOSSDOOR_CLOSED))
+                            {
+                                //System.out.println("collided with BOSSDOOR_CLOSED");
+                                ((Enemy) enemies.get(k)).moveBack();
+                            }
+                            if ((tiles[i][j].getType() == Tile.ITEMDOOR_CLOSED))
+                            {
+                                //System.out.println("collided with ITEMDOOR_CLOSED");
+                                ((Enemy) enemies.get(k)).moveBack();
+                            }
+                            if ((tiles[i][j].getType() == Tile.SHOPDOOR_CLOSED))
+                            {
+                                //System.out.println("collided with SHOPDOOR_CLOSED");
+                                ((Enemy) enemies.get(k)).moveBack();
+                            }
+                            if ((tiles[i][j].getType() == Tile.TRAPDOOR_OPEN))
+                            {
+                                ((Enemy) enemies.get(k)).moveBack();
+
+                            }
+                            if (enemies.get(k).collides(player))
+                            {
+                                player.setHealth(((Enemy) enemies.get(k)).getDamage());
+                                ((Enemy) enemies.get(k)).moveBack();
+                            }
+                        }
+                    }
                 }
             }
         }
-        //enemy collision
-        /*
-        végig megyünk az enemyk listáján és megnézzük, hogy nekiment-e a player
-         */
     }
 
 
@@ -678,24 +750,30 @@ public class Renderer extends JPanel
             }
 
             for (int i = 0; i < enemies.size(); i++) {
-                if ((enemies.get(i).getX() < 0) || (enemies.get(i).getX() >= 900)
-                        || (enemies.get(i).getY() < 0) || (enemies.get(i).getY() >= 600)
+                ((Enemy) enemies.get(i)).move();
 
-                ) {
-                    if (enemies.get(i).getX() == 0 || enemies.get(i).getX() == 900) {
-                        ((Enemy)enemies.get(i)).moveBack();
-                    }
-                    if (enemies.get(i).getY() == 0 || enemies.get(i).getY() == 600) {
-                        ((Enemy)enemies.get(i)).moveBack();
-                    }
-                    ((Enemy)enemies.get(i)).move();
-                    ((Enemy)enemies.get(i)).randDirection();
-                } else {
-                    ((Enemy)enemies.get(i)).move();
+                if (10 > ((Enemy) enemies.get(i)).getX()) {
+                    ((Enemy) enemies.get(i)).moveBack();
+                    ((Enemy) enemies.get(i)).randDirection();
+                }
+                if (790 < ((Enemy) enemies.get(i)).getX()) {
+                    ((Enemy) enemies.get(i)).moveBack();
+                    ((Enemy) enemies.get(i)).randDirection();
                 }
 
+                if (10 > ((Enemy) enemies.get(i)).getY()) {
+                    ((Enemy) enemies.get(i)).moveBack();
+                    ((Enemy) enemies.get(i)).randDirection();
+                }
+
+                if (490 < ((Enemy) enemies.get(i)).getY()) {
+                    ((Enemy) enemies.get(i)).moveBack();
+                    ((Enemy) enemies.get(i)).randDirection();
+                }
+
+
                 if (enemies.get(i).collides(player)) {
-                    player.setHealth(((Enemy)enemies.get(i)).getDamage());
+                    player.setHealth(((Enemy) enemies.get(i)).getDamage());
                 }
 
             }
