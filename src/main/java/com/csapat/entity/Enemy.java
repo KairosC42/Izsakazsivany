@@ -44,9 +44,6 @@ public class Enemy extends Sprite {
                 break;
         }
         lastMove = direction;
-
-
-
     }
 
 
@@ -89,7 +86,6 @@ public class Enemy extends Sprite {
     }
 
     public void attack() {
-
     }
 
 

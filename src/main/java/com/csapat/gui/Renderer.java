@@ -82,6 +82,7 @@ public class Renderer extends JPanel
     private Image trapDoorOpenTexture;
     private Image trapDoorClosedTexture;
     private Image enemyTexture;
+    private Image[] playerImages;
 
     private Vector<Sprite> enemies = new Vector<>();
     // ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
@@ -123,6 +124,13 @@ public class Renderer extends JPanel
 
         currentRoomNode=level.getStartingRoom();
         initGraphics();
+
+        player = new Player(450,100, player_height, player_width,playerImages,this.window_h,this.window_w);
+        for (int i = 0; i < levelDepth + 2; ++i)
+        {
+            enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10));
+        }
+
         initTiles();
 
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
@@ -254,12 +262,10 @@ public class Renderer extends JPanel
         try
         {
             //player képeinek betöltése
-            Image playerImages[] = getImages(300,450,100,150,
+            playerImages = getImages(300,450,100,150,
                     4,4,100,50,"player.png");
-            player = new Player(450,100, player_height, player_width,playerImages,this.window_h,this.window_w);
 
             attackImg = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
-
             wallTexture = ImageIO.read(this.getClass().getClassLoader().getResource("wall.png"));
             floorTexture = ImageIO.read(this.getClass().getClassLoader().getResource("floor.png"));
             openDoorTexture = ImageIO.read(this.getClass().getClassLoader().getResource("door_open.png"));
@@ -274,9 +280,7 @@ public class Renderer extends JPanel
             trapDoorClosedTexture=ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_closed.png"));
             hearthTexture = ImageIO.read(this.getClass().getClassLoader().getResource("hearth.png"));
             enemyTexture = ImageIO.read(this.getClass().getClassLoader().getResource("enemy.png"));
-            for (int i = 0; i < levelDepth + 2; ++i) {
-                enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10));
-            }
+
         }
         catch(Exception e)
         {

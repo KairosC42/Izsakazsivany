@@ -17,8 +17,8 @@ public class EnemyTest {
     private Player player;
     @Test
 
-    public void EnemyTest() {
-        assertTrue(enemies.size() == 0, "Enemyk szama nulla");
+    public void EnemyTest(){
 
+        assertTrue(enemies.size() == 0, "Enemyk szama nulla");
     }
 }
