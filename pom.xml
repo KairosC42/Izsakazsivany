@@ -19,7 +19,8 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>maven-unit-test</finalName>
+
+        <testSourceDirectory>src/main/test/izsakazsivany</testSourceDirectory>
         <plugins>
 
             <plugin>
