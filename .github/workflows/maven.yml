@@ -25,7 +25,7 @@ jobs:
     - name: Test
       run: mvn test
     - name: Report
-      run: mvn surefire-report:report
+      run: mvn surefire-report:report -DoutputDirectory=newpath
     
   job_1:
     name: Add 3 and 7
