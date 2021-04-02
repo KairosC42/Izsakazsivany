@@ -26,6 +26,8 @@ jobs:
       run: mvn test
     - name: Report
       run: mvn surefire-report:report
-    - name: Publish Test Report
-      if: ${{ always() }}
-      uses: scacap/action-surefire-report@v1
+    - name: Upload math result for job 2
+      uses: actions/upload-artifact@v2
+      with:
+        name: out
+        path: valami
