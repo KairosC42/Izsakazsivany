@@ -11,11 +11,13 @@ class RendererTest
     @Test
     public void RendererTest()
     {
-        JFrame frame = new JFrame("Izsák A Zsivány");
+        /*Frame frame = new JFrame("Izsak");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         com.csapat.gui.Renderer gameRenderer = new Renderer(900,600,frame);
         gameRenderer.initTiles();
-        Assertions.assertFalse(gameRenderer.getTiles().length==0,"A pálya beöltése nem üres tömböt eredményez");
+        Assertions.assertFalse(gameRenderer.getTiles().length==0,"A palya betoltese nem ures tombot eredmenyez");
+
+         */
     }
 }
