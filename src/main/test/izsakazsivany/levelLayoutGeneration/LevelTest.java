@@ -1,4 +1,4 @@
-package izsakazsivanyTest.levelLayoutGeneration;
+package izsakazsivany.levelLayoutGeneration;
 
 import levelLayoutGeneration.Level;
 import levelLayoutGeneration.RoomNode;
@@ -12,9 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.junit.jupiter.api.Test;
-import rooms.RoomType;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class LevelTest
 {

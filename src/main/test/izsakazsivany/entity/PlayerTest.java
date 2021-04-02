@@ -1,6 +1,6 @@
-package izsakazsivanyTest.entity;
+package izsakazsivany.entity;
 import org.junit.jupiter.api.Test;
-import rooms.RoomType;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class PlayerTest
