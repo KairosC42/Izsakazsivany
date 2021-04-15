@@ -21,6 +21,8 @@ import java.util.Random;
 *
 * @author: Ballai András
  */
+
+//todo: assign textures based on stats
 public  class ItemGenerator
 {
     Random rand;
@@ -40,13 +42,13 @@ public  class ItemGenerator
         {
             System.out.println("Missing texture!");
         }
-        int healthModifier= (rand.nextInt(25)+10) + (levelDepth-1)*15;
-        float rangeModifier = (rand.nextInt(15)+5) + (levelDepth-1)*5  /100.f;
-        float attackSpeedModifier=(rand.nextInt(10)+5) + (levelDepth-1)*3 /100.f;
-        float damageModifier=(rand.nextInt(8)+2) + (levelDepth-1)*2 /100.f;
-        float speedModifier=(rand.nextInt(8)+2) + (levelDepth-1)*2 /100.f;
-
-        float price = ( (50 + (levelDepth-1)*0.4f) * (rangeModifier*100.f/12.5f) * (damageModifier*100.f/6.f) * (attackSpeedModifier*100.f/10.f) * (speedModifier/100.f)/6.f * (healthModifier/22.5f) );
+        int healthModifier= (rand.nextInt(26)+10) + (levelDepth-1)*15;
+        float rangeModifier = ((rand.nextInt(16)+5) + (levelDepth-1)*5 ) /100.f;
+        float attackSpeedModifier=((rand.nextInt(11)+5) + (levelDepth-1)*3) /100.f;
+        float damageModifier=((rand.nextInt(9)+2) + (levelDepth-1)*2) /100.f;
+        float speedModifier=((rand.nextInt(9)+2) + (levelDepth-1)*2) /100.f;
+        float priceMultiplier = ((rangeModifier*100.f/12.5f) + (damageModifier*100.f/6.f) + (attackSpeedModifier*100.f/10.f) + (speedModifier/100.f/6.f) + (healthModifier/22.5f))/5;
+        float price = (50 + (50 * (levelDepth-1)*0.4f) ) * priceMultiplier;
         int realPrice=0;
         if(hasPrice){ realPrice = Math.round(price);}
 
@@ -55,9 +57,9 @@ public  class ItemGenerator
 
     public Item generateWeapon(int levelDepth, boolean hasPrice)
     {
-        int weaponRangeModifier = rand.nextInt(40)+50 + (levelDepth-1)*15;
-        int weaponDamageModifier = rand.nextInt(10)+15 + (levelDepth-1)*8 ;
-        float attackSpeedMultiplier = ((rand.nextInt(15)+10 + (levelDepth-1)*5)  /100.f);
+        int weaponRangeModifier = rand.nextInt(41)+50 + (levelDepth-1)*15;
+        int weaponDamageModifier = rand.nextInt(11)+15 + (levelDepth-1)*8 ;
+        float attackSpeedMultiplier = ((rand.nextInt(16)+10) + (levelDepth-1)*5)  /100.f;
         try{
             i = ImageIO.read(this.getClass().getClassLoader().getResource("sword.png"));
         }
@@ -65,7 +67,10 @@ public  class ItemGenerator
         {
             System.out.println("Missing texture!");
         }
-        float price = ( (50 + (levelDepth-1)*0.4f) * (weaponRangeModifier/275.f) * (weaponDamageModifier/20.f) * (attackSpeedMultiplier*100/20.0f) );
+        //previous method of multiplying the price based on every stat did work, but it was too volatile, if all 3 values were above average
+        //then the price could get 3x as big
+        float priceMultiplier = ((weaponRangeModifier/70.f) + (weaponDamageModifier/20.f) + (attackSpeedMultiplier*100/12.5f))/3;
+        float price = ( (50 + (50 * (levelDepth-1)*0.4f)) * priceMultiplier );
         int realPrice=0;
         if(hasPrice){ realPrice = Math.round(price);}
        return new Weapon(200, 400,50, 50,i,realPrice, "weapon" , weaponRangeModifier, weaponDamageModifier, attackSpeedMultiplier);
@@ -75,15 +80,15 @@ public  class ItemGenerator
     {
         int healthRestore =0;
         int grantExp=0;
-        float price=25 + (levelDepth-1)*0.4f;
+        float price=25+  25 * (levelDepth-1)*0.4f;
         if(rand.nextBoolean())
         {
-            healthRestore= rand.nextInt(30)+20 +(levelDepth-1)*15 ;
+            healthRestore= rand.nextInt(31)+20 +(levelDepth-1)*15 ;
             price *= healthRestore/35.f;
         }
         else
         {
-            grantExp = rand.nextInt(50)+30 +(levelDepth-1)*20 ;
+            grantExp = rand.nextInt(51)+30 +(levelDepth-1)*20 ;
             price *= grantExp/55.f;
 
         }
