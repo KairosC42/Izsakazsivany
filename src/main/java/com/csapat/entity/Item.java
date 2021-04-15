@@ -34,6 +34,8 @@ public class Item extends Sprite
     {
         return name;
     }
+
+
     //setters
 
 
