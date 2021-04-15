@@ -13,6 +13,7 @@ import java.time.LocalTime;
 //import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
 //import javax.swing.ImageIcon;
 //import java.util.Scanner;
 //import java.io.*;
@@ -58,6 +59,8 @@ public class Renderer extends JPanel
     Vector<Item> items;
     Vector<Attack> currentAttacks = new Vector<Attack>();
     Graphics grphcs;
+
+    private Vector<JLabel> itemStatLabels;
 
     private int tileHeight;
     private int tileWidth;
@@ -148,9 +151,11 @@ public class Renderer extends JPanel
         this.player.setX(n/2*tileHeight);
         this.player.setY(m/2*tileWidth);
         currentRoomNode=level.getStartingRoom();
+        roomMatrix=level.getRoomMatrix();
         //player starts in the middle of the room
         initTiles();
         // calling init() is a temporary solution, as that also resets textures, realistically i only want the starting room's textures and layout
+        repaint();
         newFrameTimer.start();
     }
 
@@ -410,6 +415,13 @@ public class Renderer extends JPanel
         grphcs.fillRect(0, 0, 900, 600);
         drawRoom(grphcs);
         player.draw(grphcs);
+        if(this.itemStatLabels!=null)
+        {
+            for (JLabel label : itemStatLabels)
+            {
+                this.add(label);
+            }
+        }
         if(items!=null)
         {
             for (Item it : items) {
@@ -423,6 +435,7 @@ public class Renderer extends JPanel
         {
             att.draw(grphcs);
         }
+
 
         Graphics2D g2 = (Graphics2D)grphcs;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -577,7 +590,179 @@ public class Renderer extends JPanel
             }
         }
     }
+    private void generateItemStatLabels()
+    {
+        int verticalGapSize = Math.round( window_w*0.8f*0.33f);
+        for(Item item : items)
+        {
+            Color bgColor = new Color(200,200,200);
+            if(item.getName().equals("weapon"))
+            {
+                Weapon tmp = (Weapon)item;
+                JLabel itemStat = new JLabel(
+                        "Name: " + tmp.getName() +"\n"+
+                                "Rangemod: " + tmp.getRangeModifier()+ "%"+"\n"+
+                                "Damagemod: " + tmp.getDamageModifier()+ "%"+"\n"+
+                                "AttSpdmod: " + tmp.getAttackSpeedModifier()+ "%" +"\n"+
+                                "Price: " + tmp.getPrice()
+                        , null, SwingConstants.LEFT);
+                if(tmp.getPrice()!=0)
+                {
+                    itemStat.setText(
+                        "<html><body>" +
+                                "Name: " + tmp.getName() +"<br>"+
+                                "Range: +" + tmp.getRangeModifier()+ "<br>"+
+                                "Damage: +" + tmp.getDamageModifier()+ "<br>"+
+                                "Attackspeed: +" + tmp.getAttackSpeedModifier()*100+ "%" +"<br>"+
+                                "Price: " + tmp.getPrice() +
+                                "</body></html>");
+                }
+                else
+                {
+                    itemStat.setText(
+                            "<html><body>" +
+                                    "Name: " + tmp.getName() +"<br>"+
+                                    "Range: +" + tmp.getRangeModifier()+ "<br>"+
+                                    "Damage: +" + tmp.getDamageModifier()+ "<br>"+
+                                    "Attackspeed: +" + tmp.getAttackSpeedModifier()*100+ "%" +"<br>" +
+                                    "</body></html>");
+                }
+                itemStat.setBackground(bgColor);
+                itemStat.setOpaque(true);
+                int fontSize = itemStat.getFont().getSize();
+                int lineCount = 5;
+                if(tmp.getPrice()==0)lineCount--;
+                itemStat.setBounds(tmp.getX() + tmp.getWidth(),tmp.getY(),verticalGapSize-tmp.getWidth()/2,fontSize*lineCount + lineCount*4 );
+                this.itemStatLabels.add(itemStat);
+            }
+            if(item.getName().equals("statItem"))
+            {
+                StatItem tmp = (StatItem)item;
+                JLabel itemStat = new JLabel(
+                        "Name:" + tmp.getName() +"\n"+
+                                "Health: +" + tmp.getHealthModifier() + "\n"+
+                                "Range: +" +tmp.getRangeModifier()+"%"+"\n"+
+                                "Attack speed +: " +tmp.getRangeModifier()+"%"+"\n"+
+                                "Damage +: " +tmp.getDamageModifier()+"%"+"\n"+
+                                "Speed +: " + tmp.getSpeedModifier()+"%" +"\n"+
+                                "Price: " + tmp.getPrice()
+                        , null, SwingConstants.LEFT);
+                if(tmp.getPrice()!=0) {
+                    itemStat.setText(
+                            "<html><body>" +
+                                    "Name: " + tmp.getName() + "<br>" +
+                                    "Health: +" + tmp.getHealthModifier() + "<br>" +
+                                    "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
+                                    "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
+                                    "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                    "Move speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
+                                    "Price: " + tmp.getPrice() +
+                                    "</body></html>"
 
+                    );
+                }
+                else
+                {
+                    itemStat.setText(
+                            "<html><body>" +
+                                    "Name: " + tmp.getName() + "<br>" +
+                                    "Health: +" + tmp.getHealthModifier() + "<br>" +
+                                    "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
+                                    "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
+                                    "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                    "Move speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
+                                    "</body></html>");
+                }
+                itemStat.setBackground(bgColor);
+                itemStat.setOpaque(true);
+                int fontSize = itemStat.getFont().getSize();
+                int lineCount = 8;
+                if(tmp.getPrice()==0)lineCount--;
+                itemStat.setBounds(tmp.getX() + tmp.getWidth(),tmp.getY(),verticalGapSize-tmp.getWidth()/2,/*horizontalGapSize-Math.round(tmp.getHeight()*0.8f)*/ fontSize* lineCount + lineCount*4 );
+                this.itemStatLabels.add(itemStat);
+            }
+            if(item.getName().equals("potion"))
+            {
+
+                Potion tmp = (Potion)item;
+                JLabel itemStat;
+                if(tmp.getGrantExp()==0)
+                {
+                    itemStat = new JLabel(
+                            "Name:" + tmp.getName() + "\n" +
+                                    "Restores " + tmp.getHealthRestore() + " health." + "\n" +
+                                    "Price: " + tmp.getPrice()
+                            , null, SwingConstants.LEFT);
+                    itemStat.setText(
+                            "<html><body>" +
+                                    "Name: " + tmp.getName() +"<br>"+
+                                    "Restores " +tmp.getHealthRestore() +" health."+"<br>"+
+                                    "Price: " + tmp.getPrice() +
+                                    "</body></html>"
+
+                    );
+                }
+                else
+                {
+                    itemStat = new JLabel(
+                            "Name:" + tmp.getName() + "\n" +
+                                    "Grants " + tmp.getGrantExp() + "experience." + "\n" +
+                                    "Price: " + tmp.getPrice()
+                            , null, SwingConstants.LEFT);
+                    itemStat.setText(
+                            "<html><body>" +
+                                    "Name: " + tmp.getName() +"<br>"+
+                                    "Grants " +tmp.getGrantExp()+ " experience." +"<br>"+
+                                    "Price: " + tmp.getPrice() +
+                                    "</body></html>"
+
+                    );
+                }
+                itemStat.setBackground(bgColor);
+                itemStat.setOpaque(true);
+                int fontSize = itemStat.getFont().getSize();
+                final int lineCount = 3;
+                itemStat.setBounds(tmp.getX() + tmp.getWidth(),tmp.getY(),verticalGapSize-tmp.getWidth()/2,fontSize*lineCount +lineCount*4  );
+                //height of the label is exactly as big as the text filling it, at most 8 pixels taller
+                this.itemStatLabels.add(itemStat);
+            }
+        }
+    }
+
+    private void setItemPositions(boolean forShop)
+    {
+
+
+        //items will be displayed in 2 rows
+        //the ugly formulas for the x coordinates ensure an even spread
+        //within the middle 80% of the room, for both rows
+        //works for rows that contains 1, 2 or 3 items
+        if(forShop)
+        {
+            int half = (int)(Math.ceil(this.items.size()*0.5f));
+            for (int i = 0; i < half; ++i) {
+                this.items.get(i).setX(
+                        Math.round(window_h  /* *0.8f */ * (i + 1.0f) / (half + 1.0f)) /*+ Math.round(window_h   *0.1f)*/- Math.round(items.get(i).getWidth()/2.f)
+                );
+                this.items.get(i).setY(Math.round(window_w  /* * 0.8f  */ *0.33f) - Math.round(items.get(i).getHeight()/2.f));
+            }
+            for (int i = half; i < this.items.size(); ++i) {
+                this.items.get(i).setX(
+                        Math.round(window_h /* * 0.8f*/ * ((i - half) + 1.0f) / ((this.items.size() - half) + 1.0f)) + /*Math.round(window_h * 0.1f)*/ - Math.round(items.get(i).getWidth()/2.f)
+                );
+                this.items.get(i).setY(Math.round(window_w  /* * 0.8f*/ * 0.66f) - Math.round(items.get(i).getHeight()/2.f) );
+            }
+        }
+        else
+        {
+            items.get(0).setX( Math.round((window_h /*  *0.8f */ )*0.33f)  /* + Math.round(window_h*0.1f) */ - Math.round(items.get(0).getWidth()/2.f) );
+            items.get(0).setY(Math.round((window_w /* *0.8f */ )*0.5f) /* +Math.round(window_h*0.1f) */  - Math.round(items.get(0).getHeight()/2.f) );
+            items.get(1).setX(Math.round((window_h /* *0.8f */ )*0.66f) /* + Math.round(window_h*0.1f) */ - Math.round(items.get(1).getWidth()/2.f) );
+            items.get(1).setY(Math.round((window_w /* *0.8f */ )*0.5f) /* +Math.round(window_h*0.1f) */ - Math.round(items.get(1).getHeight()/2.f) );
+        }
+        System.out.println(items.get(0).getX());
+        System.out.println(items.get(1).getX());
+    }
 
     private void transition(int x, int y) {
 
@@ -622,18 +807,104 @@ public class Renderer extends JPanel
                     this.items = new Vector<Item>();
                     Shop temp = (Shop) currentRoomNode.getRoom(); // this casting doesn't work inline for some reason
                     this.items = temp.getItems();
-                } else if (currentRoomNode.getRoomType() == RoomType.ITEMROOM)
+
+                    //setting the position of the items
+                    setItemPositions(true);
+
+                    //guaranteed to not be out of bounds as there are at least 3 items
+
+
+
+                    this.itemStatLabels = new Vector<>();
+                    generateItemStatLabels();
+
+                }
+                if (currentRoomNode.getRoomType() == RoomType.ITEMROOM)
                 {
+                    this.itemStatLabels=new Vector<>();
                     this.items = new Vector<Item>();
+
                     ItemRoom temp = (ItemRoom) currentRoomNode.getRoom();
                     this.items.add(temp.getStatItem());
                     this.items.add(temp.getWeapon());
-                } else
+                    setItemPositions(false);
+                    generateItemStatLabels();
+                }
+                if(currentRoomNode.getRoomType()==RoomType.COMBATROOM||currentRoomNode.getRoomType()==RoomType.BOSSROOM||currentRoomNode.getRoomType()==RoomType.STARTROOM)
                     {
+                        if(itemStatLabels!=null) {
+                            for (JLabel label : itemStatLabels) {
+                                this.remove(label);
+                            }
+                            this.itemStatLabels= new Vector<>();
+                        }
 
+                        this.items = new Vector<Item>();
+                    }
+                for (int i = 0; i < m; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        Image actImage;
+                        Tile type;
+                        switch (currentRoomNode.getRoom().getLayout()[j][i])
+                        {
+                            case FLOOR:
+                                actImage = floorTexture;
+                                type = Tile.FLOOR;
+                                break;
+                            case DOOR_OPEN:
+                                actImage = openDoorTexture;
+                                type = Tile.DOOR_OPEN;
+                                break;
+                            case DOOR_CLOSED:
+                                actImage = closedDoorTexture;
+                                type = Tile.DOOR_CLOSED;
+                                break;
+                            case BOSSDOOR_OPEN:
+                                actImage = bossDoorOpenTexture;
+                                type = Tile.BOSSDOOR_OPEN;
+                                break;
+                            case BOSSDOOR_CLOSED:
+                                actImage = bossDoorClosedTexture;
+                                type = Tile.BOSSDOOR_CLOSED;
+                                break;
+                            case ITEMDOOR_OPEN:
+                                actImage = itemDoorOpenTexture;
+                                type = Tile.ITEMDOOR_OPEN;
+                                break;
+                            case ITEMDOOR_CLOSED:
+                                actImage = itemDoorClosedTexture;
+                                type = Tile.ITEMDOOR_CLOSED;
+                                break;
+                            case SHOPDOOR_OPEN:
+                                actImage = shopDoorOpenTexture;
+                                type = Tile.SHOPDOOR_OPEN;
+                                break;
+                            case SHOPDOOR_CLOSED:
+                                actImage = shopDoorClosedTexture;
+                                type = Tile.SHOPDOOR_CLOSED;
+                                break;
+                            case TRAPDOOR_CLOSED:
+                                actImage = trapDoorClosedTexture;
+                                type = Tile.TRAPDOOR_CLOSED;
+                                break;
+                            case TRAPDOOR_OPEN:
+                                actImage = trapDoorOpenTexture;
+                                type = Tile.TRAPDOOR_OPEN;
+                                break;
+                            default:
+                                actImage = wallTexture;
+                                type = Tile.WALL;
 
+                        }
+                        Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileWidth, tileHeight, actImage);
+                        act.setType(type);
 
-                    this.items = new Vector<Item>(); }
+                        tiles[j][i] = act;
+                    }
+                }
+                lastTransitionTime=LocalTime.now();
             }
 
 
@@ -641,70 +912,7 @@ public class Renderer extends JPanel
             //level.printLevelWithPlayerPos(currentRoomNode);
 
 
-            for (int i = 0; i < m; i++)
-            {
-                for (int j = 0; j < n; j++)
-                {
-                    Image actImage;
-                    Tile type;
-                    switch (currentRoomNode.getRoom().getLayout()[j][i])
-                    {
-                        case FLOOR:
-                            actImage = floorTexture;
-                            type = Tile.FLOOR;
-                            break;
-                        case DOOR_OPEN:
-                            actImage = openDoorTexture;
-                            type = Tile.DOOR_OPEN;
-                            break;
-                        case DOOR_CLOSED:
-                            actImage = closedDoorTexture;
-                            type = Tile.DOOR_CLOSED;
-                            break;
-                        case BOSSDOOR_OPEN:
-                            actImage = bossDoorOpenTexture;
-                            type = Tile.BOSSDOOR_OPEN;
-                            break;
-                        case BOSSDOOR_CLOSED:
-                            actImage = bossDoorClosedTexture;
-                            type = Tile.BOSSDOOR_CLOSED;
-                            break;
-                        case ITEMDOOR_OPEN:
-                            actImage = itemDoorOpenTexture;
-                            type = Tile.ITEMDOOR_OPEN;
-                            break;
-                        case ITEMDOOR_CLOSED:
-                            actImage = itemDoorClosedTexture;
-                            type = Tile.ITEMDOOR_CLOSED;
-                            break;
-                        case SHOPDOOR_OPEN:
-                            actImage = shopDoorOpenTexture;
-                            type = Tile.SHOPDOOR_OPEN;
-                            break;
-                        case SHOPDOOR_CLOSED:
-                            actImage = shopDoorClosedTexture;
-                            type = Tile.SHOPDOOR_CLOSED;
-                            break;
-                        case TRAPDOOR_CLOSED:
-                            actImage = trapDoorClosedTexture;
-                            type = Tile.TRAPDOOR_CLOSED;
-                            break;
-                        case TRAPDOOR_OPEN:
-                            actImage = trapDoorOpenTexture;
-                            type = Tile.TRAPDOOR_OPEN;
-                            break;
-                        default:
-                            actImage = wallTexture;
-                            type = Tile.WALL;
 
-                    }
-                    Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileWidth, tileHeight, actImage);
-                    act.setType(type);
-
-                    tiles[j][i] = act;
-                }
-            }
-            lastTransitionTime=LocalTime.now();
         }
 
     }
