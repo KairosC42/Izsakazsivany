@@ -662,7 +662,6 @@ public class Renderer extends JPanel
     }
     private void generateItemStatLabels()
     {
-        //todo: the label should be linked with the item it comes from, perhaps a map?
         int verticalGapSize = Math.round( window_w*0.8f*0.33f);
         for(Item item : items)
         {
