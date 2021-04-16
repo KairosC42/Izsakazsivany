@@ -11,7 +11,8 @@ public class Item extends Sprite
     {
 
     }
-
+    //todo make an ItemType enum, have every item contain an ItemType, and set that in its constructor to avoid using
+    //todo instanceofs
     public Item(int x, int y, int width, int height, Image image, int price, String name)
     {
         this.x = x;
