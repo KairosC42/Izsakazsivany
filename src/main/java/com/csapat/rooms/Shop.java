@@ -63,6 +63,18 @@ public class Shop extends Room
         return items;
     }
 
+    public void removeItem(Item item)
+    {
+        for (Item it: items)
+        {
+            if(it.equals(item))
+            {
+                items.remove(item);
+                break;
+            }
+        }
+    }
+
 
     //how should shop items be displayed?
 }
