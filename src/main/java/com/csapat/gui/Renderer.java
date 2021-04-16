@@ -13,7 +13,6 @@ import java.time.LocalTime;
 //import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.Border;
 //import javax.swing.ImageIcon;
 //import java.util.Scanner;
 //import java.io.*;
@@ -38,9 +37,12 @@ import com.csapat.rooms.RoomType;
 import com.csapat.rooms.Shop;
 import com.csapat.rooms.Tile;
 
+
 public class Renderer extends JPanel
 {
+    Item selectedItem;
 
+    boolean isAdded=false;
     private JFrame frame;
     private int window_w;
     private int window_h;
@@ -59,6 +61,7 @@ public class Renderer extends JPanel
     Vector<Item> items;
     Vector<Attack> currentAttacks = new Vector<Attack>();
     Graphics grphcs;
+    JLabel purchaseHint;
 
     private Vector<JLabel> itemStatLabels;
 
@@ -102,6 +105,9 @@ public class Renderer extends JPanel
         this.window_h = height;
         this.window_w = width;
         this.frame = frame;
+
+        purchaseHint= new JLabel();
+
 
         handleInputs();
         this.level = new Level(levelDepth);
@@ -260,6 +266,32 @@ public class Renderer extends JPanel
                 currentAttacks.add(attack);
             }
         });
+
+
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0, false), "pressed b");
+        this.getActionMap().put("pressed b", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if(selectedItem !=null)
+                if(player.getMoney()>= selectedItem.getPrice())
+                {
+                    player.buyItem(selectedItem);
+                    remove(itemStatLabels.get(items.indexOf(selectedItem)));
+                    itemStatLabels.remove(itemStatLabels.get(items.indexOf(selectedItem)));
+                    items.remove(selectedItem);
+                    if(currentRoomNode.getRoomType()==RoomType.SHOP)
+                    {
+                        ((Shop)currentRoomNode.getRoom()).removeItem(selectedItem);
+                    }
+                    if(currentRoomNode.getRoomType()==RoomType.ITEMROOM)
+                    {
+                        ((ItemRoom)currentRoomNode.getRoom()).removeItem(selectedItem);
+                    }
+
+                }
+            }
+        });
     }
 
     public void initGraphics()
@@ -414,7 +446,7 @@ public class Renderer extends JPanel
         super.paintComponent(grphcs);
         grphcs.fillRect(0, 0, 900, 600);
         drawRoom(grphcs);
-        player.draw(grphcs);
+
         if(this.itemStatLabels!=null)
         {
             for (JLabel label : itemStatLabels)
@@ -437,6 +469,7 @@ public class Renderer extends JPanel
         }
 
 
+
         Graphics2D g2 = (Graphics2D)grphcs;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
@@ -445,9 +478,9 @@ public class Renderer extends JPanel
         g2.setFont(font);
         hearthSprite.draw(grphcs);
         g2.drawString(Integer.toString(+player.getHealth()),window_w+230,40);
+        player.draw(grphcs);
 
         collide();
-
 
     }
 
@@ -589,9 +622,47 @@ public class Renderer extends JPanel
                 }
             }
         }
+        boolean didCollideWithItem = false;
+        if(items!=null)
+        {
+
+
+            for (Item item : items)
+            {
+                if (item.collides(player))
+                {
+                    didCollideWithItem= didCollideWithItem||item.collides(player);
+                    selectedItem = item;
+                    if(!isAdded) {
+                        purchaseHint = new JLabel();
+                        purchaseHint.setText("<html><body>If you want to buy an item<br> press <b>b</b> while on top of it!</body></html>");
+                        purchaseHint.setBounds(tileWidth, tileHeight, purchaseHint.getFont().getSize() * 15, purchaseHint.getFont().getSize() * 4);
+                        purchaseHint.setBackground(new Color(200, 200, 200));
+                        purchaseHint.setOpaque(true);
+                        this.add(purchaseHint);
+                        isAdded=true;
+                    }
+
+                }
+            }
+            if(!didCollideWithItem)
+            {
+                selectedItem = null;
+                if(purchaseHint!=null) remove(purchaseHint);
+
+                isAdded=false;
+            }
+        }
+        else
+        {
+            selectedItem = null;
+            if(purchaseHint!=null) remove(purchaseHint);
+            isAdded=false;
+        }
     }
     private void generateItemStatLabels()
     {
+        //todo: the label should be linked with the item it comes from, perhaps a map?
         int verticalGapSize = Math.round( window_w*0.8f*0.33f);
         for(Item item : items)
         {
@@ -804,19 +875,26 @@ public class Renderer extends JPanel
             {
                 if (currentRoomNode.getRoomType() == RoomType.SHOP)
                 {
-                    this.items = new Vector<Item>();
+
                     Shop temp = (Shop) currentRoomNode.getRoom(); // this casting doesn't work inline for some reason
-                    this.items = temp.getItems();
+                    items=new Vector<>();
+                    for(Item item : temp.getItems())
+                    {
+                        if (item!=null)
+                        {
+                            items.add(item);
+                        }
+                    }
 
-                    //setting the position of the items
-                    setItemPositions(true);
+                    if(!currentRoomNode.getRoom().getVisited())
+                    {
+                        setItemPositions(true);
+                        this.itemStatLabels = new Vector<>();
 
-                    //guaranteed to not be out of bounds as there are at least 3 items
-
-
-
-                    this.itemStatLabels = new Vector<>();
+                        currentRoomNode.getRoom().setVisited(true);
+                    }
                     generateItemStatLabels();
+
 
                 }
                 if (currentRoomNode.getRoomType() == RoomType.ITEMROOM)
@@ -825,10 +903,18 @@ public class Renderer extends JPanel
                     this.items = new Vector<Item>();
 
                     ItemRoom temp = (ItemRoom) currentRoomNode.getRoom();
-                    this.items.add(temp.getStatItem());
-                    this.items.add(temp.getWeapon());
-                    setItemPositions(false);
+                    if(temp.getStatItem()!=null) this.items.add(temp.getStatItem());
+                    if(temp.getWeapon()!=null)  this.items.add(temp.getWeapon());
+
+
+                    if(!currentRoomNode.getRoom().getVisited())
+                    {
+                        setItemPositions(false);
+
+                        currentRoomNode.getRoom().setVisited(true);
+                    }
                     generateItemStatLabels();
+
                 }
                 if(currentRoomNode.getRoomType()==RoomType.COMBATROOM||currentRoomNode.getRoomType()==RoomType.BOSSROOM||currentRoomNode.getRoomType()==RoomType.STARTROOM)
                     {
@@ -839,7 +925,8 @@ public class Renderer extends JPanel
                             this.itemStatLabels= new Vector<>();
                         }
 
-                        this.items = new Vector<Item>();
+                        this.items = null;
+                        currentRoomNode.getRoom().setVisited(true);
                     }
                 for (int i = 0; i < m; i++)
                 {
@@ -998,7 +1085,6 @@ public class Renderer extends JPanel
             delta_time = (int) ((time - last_time) / 1000000);
             last_time = time;
              */
-
             repaint();
         }
 
@@ -1014,5 +1100,6 @@ public class Renderer extends JPanel
         }
     }
 }
+
 
 
