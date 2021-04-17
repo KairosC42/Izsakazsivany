@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 //import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.TimerTask;
 import java.util.Vector;
 //import java.sql.Time;
 //import java.time.Duration;
@@ -99,6 +100,10 @@ public class Renderer extends JPanel
     private LocalTime lastTransitionTime= LocalTime.now();
 
     private Sprite hearthSprite;
+
+    private Boolean collide_timer_down=true;
+    private java.util.Timer collide_with_enemy;
+
 
     public Renderer(int height, int width, JFrame frame) {
         super();
@@ -504,57 +509,58 @@ public class Renderer extends JPanel
                 if(tiles[i][j].collides(player))
                 {
                     //case-l szebb lehet ez
-                    if(tiles[i][j].getType()==Tile.WALL)
+                    if (tiles[i][j].getType() == Tile.WALL)
                     {
                         //System.out.println("collided with WALL");
                         player.stepBack();
 
                     }
-                    if(tiles[i][j].getType()==Tile.DOOR_OPEN)
+                    if (tiles[i][j].getType() == Tile.DOOR_OPEN)
                     {
                         //System.out.println("collided with DOOR_OPEN");
-                        transition(i,j);
+                        transition(i, j);
                     }
-                    if(tiles[i][j].getType()==Tile.ITEMDOOR_OPEN)
+                    if (tiles[i][j].getType() == Tile.ITEMDOOR_OPEN)
                     {
                         //System.out.println("collided with ITEMDOOR_OPEN");
-                        transition(i,j);
+                        transition(i, j);
                     }
-                    if(tiles[i][j].getType()==Tile.SHOPDOOR_OPEN)
+                    if (tiles[i][j].getType() == Tile.SHOPDOOR_OPEN)
                     {
                         //System.out.println("collided with SHOPDOOR_OPEN");
-                        transition(i,j);
+                        transition(i, j);
                     }
-                    if(tiles[i][j].getType()==Tile.BOSSDOOR_OPEN)
+                    if (tiles[i][j].getType() == Tile.BOSSDOOR_OPEN)
                     {
                         //System.out.println("collided with BOSSDOOR_OPEN");
-                        transition(i,j);
+                        transition(i, j);
                     }
-                    if((tiles[i][j].getType()==Tile.DOOR_CLOSED))
+                    if ((tiles[i][j].getType() == Tile.DOOR_CLOSED))
                     {
                         //System.out.println("collided with DOOR_CLOSED");
                         player.stepBack();
                     }
-                    if((tiles[i][j].getType()==Tile.BOSSDOOR_CLOSED))
+                    if ((tiles[i][j].getType() == Tile.BOSSDOOR_CLOSED))
                     {
                         //System.out.println("collided with BOSSDOOR_CLOSED");
                         player.stepBack();
                     }
-                    if((tiles[i][j].getType()==Tile.ITEMDOOR_CLOSED))
+                    if ((tiles[i][j].getType() == Tile.ITEMDOOR_CLOSED))
                     {
                         //System.out.println("collided with ITEMDOOR_CLOSED");
                         player.stepBack();
                     }
-                    if((tiles[i][j].getType()==Tile.SHOPDOOR_CLOSED))
+                    if ((tiles[i][j].getType() == Tile.SHOPDOOR_CLOSED))
                     {
                         //System.out.println("collided with SHOPDOOR_CLOSED");
                         player.stepBack();
                     }
-                    if((tiles[i][j].getType()==Tile.TRAPDOOR_OPEN))
+                    if ((tiles[i][j].getType() == Tile.TRAPDOOR_OPEN))
                     {
                         newLevel();
                     }
 
+                }
                     for (int k = 0; k < enemies.size(); k++)
                     {
 
@@ -563,18 +569,10 @@ public class Renderer extends JPanel
 
                             //case-l szebb lehet ez,
 
-                            if (tiles[i][j].getType() == Tile.FLOOR)
-                            {
-                                System.out.println("collided with FLLOR");
-                                ((Enemy) enemies.get(k)).moveBack();
-
-                            }
-
                             if (tiles[i][j].getType() == Tile.WALL)
                             {
-                                System.out.println("collided with WALL");
                                 ((Enemy) enemies.get(k)).moveBack();
-
+                                ((Enemy) enemies.get(k)).randDirection();
                             }
                             if (tiles[i][j].getType() == Tile.DOOR_OPEN)
                             {
@@ -623,11 +621,16 @@ public class Renderer extends JPanel
                             }
                             if (enemies.get(k).collides(player))
                             {
-                                player.setHealth(((Enemy) enemies.get(k)).getDamage());
-                                ((Enemy) enemies.get(k)).moveBack();
+                                System.out.println(collide_timer_down);
+                                if(collide_timer_down)
+                                {
+                                    collide_timer_down=false;
+                                    player.setHealth(player.getHealth()-((Enemy)enemies.get(k)).getDamage());
+                                    collide_with_enemy = new java.util.Timer();
+                                    collide_with_enemy.schedule(new collideTask(),500);
+                                }
                             }
                         }
-                    }
                 }
             }
         }
@@ -1054,33 +1057,9 @@ public class Renderer extends JPanel
                 }
             }
 
-            for (int i = 0; i < enemies.size(); i++) {
+            for (int i = 0; i < enemies.size(); i++)
+            {
                 ((Enemy) enemies.get(i)).move();
-
-                if (10 > ((Enemy) enemies.get(i)).getX()) {
-                    ((Enemy) enemies.get(i)).moveBack();
-                    ((Enemy) enemies.get(i)).randDirection();
-                }
-                if (790 < ((Enemy) enemies.get(i)).getX()) {
-                    ((Enemy) enemies.get(i)).moveBack();
-                    ((Enemy) enemies.get(i)).randDirection();
-                }
-
-                if (10 > ((Enemy) enemies.get(i)).getY()) {
-                    ((Enemy) enemies.get(i)).moveBack();
-                    ((Enemy) enemies.get(i)).randDirection();
-                }
-
-                if (490 < ((Enemy) enemies.get(i)).getY()) {
-                    ((Enemy) enemies.get(i)).moveBack();
-                    ((Enemy) enemies.get(i)).randDirection();
-                }
-
-
-                if (enemies.get(i).collides(player)) {
-                    player.setHealth(((Enemy) enemies.get(i)).getDamage());
-                }
-
             }
 
 
@@ -1103,6 +1082,15 @@ public class Renderer extends JPanel
                     currentAttacks.remove(currentAttacks.get(i));
                 }
             }
+        }
+    }
+
+    class collideTask extends TimerTask
+    {
+        public void run()
+        {
+            System.out.println("Time's up!");
+            collide_timer_down = true;
         }
     }
 }
