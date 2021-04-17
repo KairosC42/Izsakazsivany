@@ -6,7 +6,7 @@ import java.util.Vector;
 public class Attack extends Sprite{
 
     private Sprite source;
-    private Vector<Sprite> target;
+    private Vector target;
     private int speed = 1;
     private boolean isEnded = false;
     private int range;
@@ -15,7 +15,7 @@ public class Attack extends Sprite{
     private Directions dir;
 
 
-    public Attack(int x, int y, int width, int height, Image image, Sprite source, Vector<Sprite> target, Directions dir, int range) {
+    public Attack(int x, int y, int width, int height, Image image, Sprite source, Vector target, Directions dir, int range) {
         if(dir==Directions.Down)
         {
             this.x = source.x + ((source.width/2) - (width/2));
@@ -55,6 +55,7 @@ public class Attack extends Sprite{
         this.dir = dir;
         this.range = range;
     }
+
 
     public void cast()
     {
