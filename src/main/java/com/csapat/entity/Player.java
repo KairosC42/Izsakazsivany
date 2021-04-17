@@ -15,8 +15,12 @@ public class Player extends Sprite
      *      -potions as a quippedItem? or in a separate Vector?
      *
      *
+     *
+     *
      *      -módosító külön
      */
+    //Todo: leveling system!
+
     private int healthPointsMax=100;
     private int healthPoints=100;
     private float range = 60;
@@ -28,7 +32,7 @@ public class Player extends Sprite
     //private Inventory inventory;
     private int velx;
     private int vely;
-    private int money;
+    private int money=100;
     Vector<StatItem> equippedItems = new Vector<>();
     Vector<Potion> potions=new Vector<>();
     Weapon equippedWeapon = new Weapon();
@@ -61,6 +65,12 @@ public class Player extends Sprite
     public void update(float deltaTime)
     {
         walkingTime += deltaTime;
+    }
+
+    public void buyItem(Item item)
+    {
+        this.money-=item.getPrice();
+        this.equipItem(item);
     }
 
     public void stepBack()
@@ -144,15 +154,23 @@ public class Player extends Sprite
         this.vely = vely;
     }
 
+    public void setMoveSpeed(int moveSpeed)
+    {
+        this.moveSpeed = moveSpeed;
+    }
+
+    /**
+     *
+     * @param money Should always be positive!
+     */
+    public void setMoney(int  money){this.money+=money;}
+
     public int getMoveSpeed()
     {
         return (int)(moveSpeed*moveSpeedModifier);
     }
 
-    public void setMoveSpeed(int moveSpeed)
-    {
-        this.moveSpeed = moveSpeed;
-    }
+
 
     public Directions getDirection()
     {
@@ -184,6 +202,9 @@ public class Player extends Sprite
         return experince;
     }
 
+    public int getMoney(){return money;}
+
+
     public void equipWeapon(Weapon weapon)
     {
         rangeModifier -= equippedWeapon.rangeModifier;
@@ -213,6 +234,10 @@ public class Player extends Sprite
         }
         else if(item instanceof Potion)
         {
+            if( ((Potion)item).getHealthRestore()==0)
+            {
+                experince+=((Potion)item).grantExp;
+            }
             potions.add((Potion) item);
         }
         else if(item instanceof Weapon)
@@ -230,16 +255,24 @@ public class Player extends Sprite
         }
     }
 
-    void usePotion(Potion potion)
+    public void useHealthPotion()
     {
-        experince+=potion.getGrantExp();
-        healthPoints+=potion.getHealthRestore();
-        if(healthPoints>getHealthPointsMax())
+        for(Potion pot : potions)
         {
-            healthPoints=getHealthPointsMax();
+            if(getExperince()==0)
+            {
+                healthPoints+=pot.getHealthRestore();
+                if(healthPoints>getHealthPointsMax())
+                {
+                    healthPoints=getHealthPointsMax();
+                }
+                potions.remove(pot);
+                break;
+            }
         }
-        potions.remove(potion);
     }
+
+
 
 
 

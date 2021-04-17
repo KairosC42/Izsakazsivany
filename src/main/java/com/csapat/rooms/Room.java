@@ -35,6 +35,7 @@ public abstract class Room
 
         N = 20;
         M = 30;
+        this.visited=false;
         layout = new Tile[N][M]; // used for background, eg: walls, floor, doors
         generateRoom();
     }
@@ -130,10 +131,11 @@ public abstract class Room
         this.layout = layout;
     }
 
+    public void setVisited(boolean visited){this.visited=visited;}
 
     //getters
 
-
+    public boolean getVisited() {return  visited;}
     public int getN() {
         return N;
     }

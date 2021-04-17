@@ -14,6 +14,10 @@ import java.util.Vector;
  * @author Ballai András
  */
 
+
+//todo: when colliding with a shop item (determined by price), purchase it
+    //also needed: item stats display
+    //also needed: item positioning in shops
 public class Shop extends Room
 {
     private int itemCount;
@@ -57,6 +61,18 @@ public class Shop extends Room
 
     public Vector<Item> getItems() {
         return items;
+    }
+
+    public void removeItem(Item item)
+    {
+        for (Item it: items)
+        {
+            if(it.equals(item))
+            {
+                items.remove(item);
+                break;
+            }
+        }
     }
 
 

@@ -53,4 +53,18 @@ public class ItemRoom extends Room
     public Item getWeapon() {
         return weapon;
     }
+
+    public void removeItem(Item item)
+    {
+        if(item.equals(statItem))
+        {
+            this.statItem=null;
+        }
+        if(item.equals(weapon))
+        {
+            this.weapon=null;
+        }
+
+    }
+
 }

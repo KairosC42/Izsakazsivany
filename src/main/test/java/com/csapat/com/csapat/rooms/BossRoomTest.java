@@ -16,7 +16,7 @@ class BossRoomTest {
         {
             for (int j=0;j< bossRoom.getM();++j)
             {
-                if(bossRoom.getLayout()[i][j]==Tile.TRAPDOOR_CLOSED)
+                if(bossRoom.getLayout()[i][j]==Tile.TRAPDOOR_OPEN)
                 {
                     hasTrapdoor=true;
                     break;
