@@ -23,7 +23,7 @@ import java.util.Random;
  */
 
 //todo: assign textures based on stats
-public  class ItemGenerator
+public class ItemGenerator
 {
     Random rand;
     Image i;
@@ -83,12 +83,12 @@ public  class ItemGenerator
         float price=25+  25 * (levelDepth-1)*0.4f;
         if(rand.nextBoolean())
         {
-            healthRestore= rand.nextInt(31)+20 +(levelDepth-1)*15 ;
+            healthRestore= rand.nextInt(31) +20 + ((levelDepth-1)*15) ;
             price *= healthRestore/35.f;
         }
         else
         {
-            grantExp = rand.nextInt(51)+30 +(levelDepth-1)*20 ;
+            grantExp = rand.nextInt(51)+30 + ((levelDepth-1)*20) ;
             price *= grantExp/55.f;
 
         }
