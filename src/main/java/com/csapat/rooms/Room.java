@@ -144,6 +144,8 @@ public abstract class Room
         return M;
     }
 
+    public Vector<Enemy> getEnemies(){return enemies;}
+
     public Tile[][] getLayout()
     {
         return layout;
