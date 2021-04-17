@@ -292,6 +292,15 @@ public class Renderer extends JPanel
                 }
             }
         });
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0, false), "pressed q");
+        this.getActionMap().put("pressed q", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                player.useHealthPotion();
+
+            }
+        });
     }
 
     public void initGraphics()
@@ -625,8 +634,6 @@ public class Renderer extends JPanel
         boolean didCollideWithItem = false;
         if(items!=null)
         {
-
-
             for (Item item : items)
             {
                 if (item.collides(player))
@@ -725,7 +732,7 @@ public class Renderer extends JPanel
                                     "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
                                     "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
                                     "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
-                                    "Move speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
+                                    "MoveMove speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
                                     "Price: " + tmp.getPrice() +
                                     "</body></html>"
 
@@ -1091,7 +1098,7 @@ public class Renderer extends JPanel
         {
             for(int i = 0; i < currentAttacks.size(); i++)
             {
-                if(currentAttacks.get(i).isEnded() == true)
+                if(currentAttacks.get(i).isEnded())
                 {
                     currentAttacks.remove(currentAttacks.get(i));
                 }
