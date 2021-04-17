@@ -33,10 +33,7 @@ import java.util.Vector;
 import com.csapat.entity.*;
 import com.csapat.levelLayoutGeneration.Level;
 import com.csapat.levelLayoutGeneration.RoomNode;
-import com.csapat.rooms.ItemRoom;
-import com.csapat.rooms.RoomType;
-import com.csapat.rooms.Shop;
-import com.csapat.rooms.Tile;
+import com.csapat.rooms.*;
 
 
 public class Renderer extends JPanel
@@ -91,7 +88,7 @@ public class Renderer extends JPanel
     private Image enemyTexture;
     private Image[] playerImages;
 
-    private Vector<Sprite> enemies = new Vector<>();
+    private Vector<Enemy> enemies = new Vector<>();
     // ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
 
 
@@ -112,7 +109,8 @@ public class Renderer extends JPanel
         this.frame = frame;
 
         purchaseHint= new JLabel();
-
+        itemStatLabels=new Vector<>();
+        items = new Vector<>();
 
         handleInputs();
         this.level = new Level(levelDepth);
@@ -121,13 +119,10 @@ public class Renderer extends JPanel
         roomMatrix=level.getRoomMatrix();
 
 
-        System.out.println(n);
-        System.out.println(m);
 
         this.window_h = tile_size*this.m;
         this.window_w = tile_size*this.n;
-        System.out.println(window_w);
-        System.out.println(window_h);
+
 
 
         tileHeight = tile_size;
@@ -140,10 +135,10 @@ public class Renderer extends JPanel
         initGraphics();
 
         player = new Player(450,100, player_height, player_width,playerImages,this.window_h,this.window_w);
-        for (int i = 0; i < levelDepth + 2; ++i)
+        /*for (int i = 0; i < levelDepth + 2; ++i)
         {
-            enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10));
-        }
+            enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10,10,10));
+        }*/
 
         initTiles();
 
@@ -293,6 +288,14 @@ public class Renderer extends JPanel
                     {
                         ((ItemRoom)currentRoomNode.getRoom()).removeItem(selectedItem);
                     }
+                    if(currentRoomNode.getRoomType()==RoomType.COMBATROOM)
+                    {
+                        ((CombatRoom)currentRoomNode.getRoom()).removeItem(selectedItem);
+                    }
+                    if(currentRoomNode.getRoomType()==RoomType.BOSSROOM)
+                    {
+                        ((BossRoom)currentRoomNode.getRoom()).removeItem(selectedItem);
+                    }
 
                 }
             }
@@ -303,6 +306,20 @@ public class Renderer extends JPanel
             @Override
             public void actionPerformed(ActionEvent ae) {
                 player.useHealthPotion();
+
+            }
+        });
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_K, 0, false), "pressed k");
+        this.getActionMap().put("pressed k", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if(currentRoomNode!=null &&enemies!=null) {
+                    for(Enemy enemy: enemies)
+                    {
+                        enemy.takeDamage(99999);
+                    }
+                }
 
             }
         });
@@ -341,9 +358,6 @@ public class Renderer extends JPanel
 
 
             hearthSprite = new Sprite(window_w+180,7,45,40,hearthTexture);
-
-            System.out.println(n);
-            System.out.println(m);
             currentRoomNode.getRoom().printRoom();
             level.printLevel();
 
@@ -474,8 +488,10 @@ public class Renderer extends JPanel
                 it.draw(grphcs);
             }
         }
-        for (int i = 0; i < enemies.size(); i++) {
-            enemies.get(i).draw(grphcs);
+        if(enemies!=null) {
+            for (int i = 0; i < enemies.size(); i++) {
+                enemies.get(i).draw(grphcs);
+            }
         }
         for (Attack att : currentAttacks)
         {
@@ -511,48 +527,38 @@ public class Renderer extends JPanel
                     //case-l szebb lehet ez
                     if (tiles[i][j].getType() == Tile.WALL)
                     {
-                        //System.out.println("collided with WALL");
                         player.stepBack();
 
                     }
                     if (tiles[i][j].getType() == Tile.DOOR_OPEN)
                     {
-                        //System.out.println("collided with DOOR_OPEN");
                         transition(i, j);
                     }
                     if (tiles[i][j].getType() == Tile.ITEMDOOR_OPEN)
                     {
-                        //System.out.println("collided with ITEMDOOR_OPEN");
                         transition(i, j);
                     }
                     if (tiles[i][j].getType() == Tile.SHOPDOOR_OPEN)
                     {
-                        //System.out.println("collided with SHOPDOOR_OPEN");
                         transition(i, j);
                     }
                     if (tiles[i][j].getType() == Tile.BOSSDOOR_OPEN)
                     {
-                        //System.out.println("collided with BOSSDOOR_OPEN");
                         transition(i, j);
                     }
                     if ((tiles[i][j].getType() == Tile.DOOR_CLOSED))
                     {
-                        //System.out.println("collided with DOOR_CLOSED");
                         player.stepBack();
                     }
                     if ((tiles[i][j].getType() == Tile.BOSSDOOR_CLOSED))
                     {
-                        //System.out.println("collided with BOSSDOOR_CLOSED");
                         player.stepBack();
                     }
                     if ((tiles[i][j].getType() == Tile.ITEMDOOR_CLOSED))
                     {
-                        //System.out.println("collided with ITEMDOOR_CLOSED");
-                        player.stepBack();
                     }
                     if ((tiles[i][j].getType() == Tile.SHOPDOOR_CLOSED))
                     {
-                        //System.out.println("collided with SHOPDOOR_CLOSED");
                         player.stepBack();
                     }
                     if ((tiles[i][j].getType() == Tile.TRAPDOOR_OPEN))
@@ -561,76 +567,55 @@ public class Renderer extends JPanel
                     }
 
                 }
-                    for (int k = 0; k < enemies.size(); k++)
-                    {
+                if(enemies!=null) {
+                    for (int k = 0; k < enemies.size(); k++) {
 
-                        if (tiles[i][j].collides(enemies.get(k)))
-                        {
+                        if (tiles[i][j].collides(enemies.get(k))) {
 
-                            //case-l szebb lehet ez,
 
-                            if (tiles[i][j].getType() == Tile.WALL)
-                            {
-                                ((Enemy) enemies.get(k)).moveBack();
-                                ((Enemy) enemies.get(k)).randDirection();
+                            if (tiles[i][j].getType() == Tile.WALL) {
+                               enemies.get(k).moveBack();
+                               enemies.get(k).randDirection();
                             }
-                            if (tiles[i][j].getType() == Tile.DOOR_OPEN)
-                            {
-                                //System.out.println("collided with DOOR_OPEN");
-                                ((Enemy) enemies.get(k)).moveBack();
+                            if (tiles[i][j].getType() == Tile.DOOR_OPEN) {
+                                enemies.get(k).moveBack();
                             }
-                            if (tiles[i][j].getType() == Tile.ITEMDOOR_OPEN)
-                            {
-                                //System.out.println("collided with ITEMDOOR_OPEN");
-                                ((Enemy) enemies.get(k)).moveBack();
+                            if (tiles[i][j].getType() == Tile.ITEMDOOR_OPEN) {
+                                enemies.get(k).moveBack();
                             }
-                            if (tiles[i][j].getType() == Tile.SHOPDOOR_OPEN)
-                            {
-                                //System.out.println("collided with SHOPDOOR_OPEN");
-                                ((Enemy) enemies.get(k)).moveBack();
+                            if (tiles[i][j].getType() == Tile.SHOPDOOR_OPEN) {
+
+                                enemies.get(k).moveBack();
                             }
-                            if (tiles[i][j].getType() == Tile.BOSSDOOR_OPEN)
-                            {
-                                //System.out.println("collided with BOSSDOOR_OPEN");
-                                ((Enemy) enemies.get(k)).moveBack();
+                            if (tiles[i][j].getType() == Tile.BOSSDOOR_OPEN) {
+                                enemies.get(k).moveBack();
                             }
-                            if ((tiles[i][j].getType() == Tile.DOOR_CLOSED))
-                            {
-                                //System.out.println("collided with DOOR_CLOSED");
-                                ((Enemy) enemies.get(k)).moveBack();
+                            if ((tiles[i][j].getType() == Tile.DOOR_CLOSED)) {
+                                enemies.get(k).moveBack();
                             }
-                            if ((tiles[i][j].getType() == Tile.BOSSDOOR_CLOSED))
-                            {
-                                //System.out.println("collided with BOSSDOOR_CLOSED");
-                                ((Enemy) enemies.get(k)).moveBack();
+                            if ((tiles[i][j].getType() == Tile.BOSSDOOR_CLOSED)) {
+                                enemies.get(k).moveBack();
                             }
-                            if ((tiles[i][j].getType() == Tile.ITEMDOOR_CLOSED))
-                            {
-                                //System.out.println("collided with ITEMDOOR_CLOSED");
-                                ((Enemy) enemies.get(k)).moveBack();
+                            if ((tiles[i][j].getType() == Tile.ITEMDOOR_CLOSED)) {
+                                enemies.get(k).moveBack();
                             }
-                            if ((tiles[i][j].getType() == Tile.SHOPDOOR_CLOSED))
-                            {
-                                //System.out.println("collided with SHOPDOOR_CLOSED");
-                                ((Enemy) enemies.get(k)).moveBack();
+                            if ((tiles[i][j].getType() == Tile.SHOPDOOR_CLOSED)) {
+                                enemies.get(k).moveBack();
                             }
-                            if ((tiles[i][j].getType() == Tile.TRAPDOOR_OPEN))
-                            {
-                                ((Enemy) enemies.get(k)).moveBack();
+                            if ((tiles[i][j].getType() == Tile.TRAPDOOR_OPEN)) {
+                                enemies.get(k).moveBack();
 
                             }
-                            if (enemies.get(k).collides(player))
-                            {
-                                System.out.println(collide_timer_down);
-                                if(collide_timer_down)
-                                {
-                                    collide_timer_down=false;
-                                    player.setHealth(player.getHealth()-((Enemy)enemies.get(k)).getDamage());
+                            if (enemies.get(k).collides(player)) {
+                                if (collide_timer_down) {
+                                    collide_timer_down = false;
+                                    player.setHealth(player.getHealth() - enemies.get(k).getDamage());
                                     collide_with_enemy = new java.util.Timer();
-                                    collide_with_enemy.schedule(new collideTask(),500);
+                                    collide_with_enemy.schedule(new collideTask(), 500);
                                 }
                             }
                         }
+                    }
                 }
             }
         }
@@ -672,7 +657,7 @@ public class Renderer extends JPanel
     }
     private void generateItemStatLabels()
     {
-        int verticalGapSize = Math.round( window_w*0.8f*0.33f);
+        int verticalGapSize = Math.round( window_w*0.33f);
         for(Item item : items)
         {
             Color bgColor = new Color(200,200,200);
@@ -768,35 +753,63 @@ public class Renderer extends JPanel
                 JLabel itemStat;
                 if(tmp.getGrantExp()==0)
                 {
-                    itemStat = new JLabel(
-                            "Name:" + tmp.getName() + "\n" +
-                                    "Restores " + tmp.getHealthRestore() + " health." + "\n" +
-                                    "Price: " + tmp.getPrice()
-                            , null, SwingConstants.LEFT);
-                    itemStat.setText(
-                            "<html><body>" +
-                                    "Name: " + tmp.getName() +"<br>"+
-                                    "Restores " +tmp.getHealthRestore() +" health."+"<br>"+
-                                    "Price: " + tmp.getPrice() +
-                                    "</body></html>"
+                    if(tmp.getPrice()!=0) {
+                        itemStat = new JLabel(
+                                "Name:" + tmp.getName() + "\n" +
+                                        "Restores " + tmp.getHealthRestore() + " health." + "\n" +
+                                        "Price: " + tmp.getPrice()
+                                , null, SwingConstants.LEFT);
+                        itemStat.setText(
+                                "<html><body>" +
+                                        "Name: " + tmp.getName() + "<br>" +
+                                        "Restores " + tmp.getHealthRestore() + " health." + "<br>" +
+                                        "Price: " + tmp.getPrice() +
+                                        "</body></html>"
 
-                    );
+                        );
+                    }
+                    else {
+                            itemStat = new JLabel(
+                                    "Name:" + tmp.getName() + "\n" +
+                                            "Restores " + tmp.getHealthRestore() + " health." + "\n" +
+                                            "Price: " + tmp.getPrice()
+                                    , null, SwingConstants.LEFT);
+                            itemStat.setText(
+                                    "<html><body>" +
+                                            "Name: " + tmp.getName() + "<br>" +
+                                            "Restores " + tmp.getHealthRestore() + " health." + "<br>" +
+                                            "</body></html>");
+                    }
                 }
                 else
                 {
-                    itemStat = new JLabel(
-                            "Name:" + tmp.getName() + "\n" +
-                                    "Grants " + tmp.getGrantExp() + "experience." + "\n" +
-                                    "Price: " + tmp.getPrice()
-                            , null, SwingConstants.LEFT);
-                    itemStat.setText(
-                            "<html><body>" +
-                                    "Name: " + tmp.getName() +"<br>"+
-                                    "Grants " +tmp.getGrantExp()+ " experience." +"<br>"+
-                                    "Price: " + tmp.getPrice() +
-                                    "</body></html>"
+                    if(tmp.getPrice()!=0) {
+                        itemStat = new JLabel(
+                                "Name:" + tmp.getName() + "\n" +
+                                        "Grants " + tmp.getGrantExp() + "experience." + "\n" +
+                                        "Price: " + tmp.getPrice()
+                                , null, SwingConstants.LEFT);
+                        itemStat.setText(
+                                "<html><body>" +
+                                        "Name: " + tmp.getName() + "<br>" +
+                                        "Grants " + tmp.getGrantExp() + " experience." + "<br>" +
+                                        "Price: " + tmp.getPrice() +
+                                        "</body></html>"
 
-                    );
+                        );
+                    }
+                    else {
+                        itemStat = new JLabel(
+                                "Name:" + tmp.getName() + "\n" +
+                                        "Restores " + tmp.getHealthRestore() + " health." + "\n" +
+                                        "Price: " + tmp.getPrice()
+                                , null, SwingConstants.LEFT);
+                        itemStat.setText(
+                                "<html><body>" +
+                                        "Name: " + tmp.getName() + "<br>" +
+                                        "Grants " + tmp.getGrantExp() + " experience." + "<br>" +
+                                        "</body></html>");
+                    }
                 }
                 itemStat.setBackground(bgColor);
                 itemStat.setOpaque(true);
@@ -840,8 +853,6 @@ public class Renderer extends JPanel
             items.get(1).setX(Math.round((window_h /* *0.8f */ )*0.66f) /* + Math.round(window_h*0.1f) */ - Math.round(items.get(1).getWidth()/2.f) );
             items.get(1).setY(Math.round((window_w /* *0.8f */ )*0.5f) /* +Math.round(window_h*0.1f) */ - Math.round(items.get(1).getHeight()/2.f) );
         }
-        System.out.println(items.get(0).getX());
-        System.out.println(items.get(1).getX());
     }
 
     private void transition(int x, int y) {
@@ -852,16 +863,12 @@ public class Renderer extends JPanel
             Date date1 = format.parse(lastTransitionTime.toString());
             Date date2 = format.parse(LocalTime.now().toString());
             difference = date2.getTime() - date1.getTime();
-            System.out.println(date1);
-            System.out.println(date2);
-            System.out.println(difference);
         } catch (Exception e) {
             difference = 1000000;
         }
 
 
         if (difference >= 200) {
-            //System.out.println(x +" "+ y);
             if (x == 0) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i - 1][currentRoomNode.getCoordinate().j];
                 player.stepBackAfterLeveltransition(player.getX(), window_w / m * (m - 4));
@@ -880,44 +887,39 @@ public class Renderer extends JPanel
 
             }
 
-            if(currentRoomNode!=null)
-            {
-                if (currentRoomNode.getRoomType() == RoomType.SHOP)
+            if(currentRoomNode!=null) {
+                if(!currentRoomNode.getRoom().getVisited()) enemies= currentRoomNode.getRoom().getEnemies();
+                for(JLabel itemStatLabel:itemStatLabels)
                 {
+                    remove(itemStatLabel);
+                }
+                itemStatLabels.removeAllElements();
+                items.removeAllElements();
 
+                if (currentRoomNode.getRoomType() == RoomType.SHOP) {
                     Shop temp = (Shop) currentRoomNode.getRoom(); // this casting doesn't work inline for some reason
-                    items=new Vector<>();
-                    for(Item item : temp.getItems())
-                    {
-                        if (item!=null)
-                        {
+                    for (Item item : temp.getItems()) {
+                        if (item != null) {
                             items.add(item);
                         }
                     }
 
-                    if(!currentRoomNode.getRoom().getVisited())
-                    {
+                    if (!currentRoomNode.getRoom().getVisited()) {
                         setItemPositions(true);
-                        this.itemStatLabels = new Vector<>();
-
+                        itemStatLabels.removeAllElements();
                         currentRoomNode.getRoom().setVisited(true);
                     }
                     generateItemStatLabels();
 
 
                 }
-                if (currentRoomNode.getRoomType() == RoomType.ITEMROOM)
-                {
-                    this.itemStatLabels=new Vector<>();
-                    this.items = new Vector<Item>();
-
+                if (currentRoomNode.getRoomType() == RoomType.ITEMROOM) {
                     ItemRoom temp = (ItemRoom) currentRoomNode.getRoom();
-                    if(temp.getStatItem()!=null) this.items.add(temp.getStatItem());
-                    if(temp.getWeapon()!=null)  this.items.add(temp.getWeapon());
+                    if (temp.getStatItem() != null) this.items.add(temp.getStatItem());
+                    if (temp.getWeapon() != null) this.items.add(temp.getWeapon());
 
 
-                    if(!currentRoomNode.getRoom().getVisited())
-                    {
+                    if (!currentRoomNode.getRoom().getVisited()) {
                         setItemPositions(false);
 
                         currentRoomNode.getRoom().setVisited(true);
@@ -925,18 +927,19 @@ public class Renderer extends JPanel
                     generateItemStatLabels();
 
                 }
-                if(currentRoomNode.getRoomType()==RoomType.COMBATROOM||currentRoomNode.getRoomType()==RoomType.BOSSROOM||currentRoomNode.getRoomType()==RoomType.STARTROOM)
+                if (currentRoomNode.getRoomType() == RoomType.COMBATROOM || currentRoomNode.getRoomType() == RoomType.BOSSROOM)
+                {
+                    if(!currentRoomNode.getRoom().getVisited())
                     {
-                        if(itemStatLabels!=null) {
-                            for (JLabel label : itemStatLabels) {
-                                this.remove(label);
-                            }
-                            this.itemStatLabels= new Vector<>();
-                        }
-
-                        this.items = null;
-                        currentRoomNode.getRoom().setVisited(true);
+                        changeDoors(currentRoomNode.getRoom());
                     }
+                    if(currentRoomNode.getRoomType()==RoomType.COMBATROOM){items =new Vector<>(((CombatRoom)currentRoomNode.getRoom()).getItems()); generateItemStatLabels();}
+                    if(currentRoomNode.getRoomType()==RoomType.BOSSROOM){items = new Vector<>(((BossRoom)currentRoomNode.getRoom()).getItems()); generateItemStatLabels();}
+                }
+                if( currentRoomNode.getRoomType() == RoomType.STARTROOM)
+                {
+                    currentRoomNode.getRoom().setVisited(true);
+                }
                 for (int i = 0; i < m; i++)
                 {
                     for (int j = 0; j < n; j++)
@@ -1039,6 +1042,131 @@ public class Renderer extends JPanel
     {
         this.tiles = tiles;
     }
+    /**
+     * Changes all doors of a room from closed to open or vice-versa, based on current state
+     * @param room
+     */public void changeDoors(Room room)
+    {
+
+        Tile northernDoor=room.getLayout()[0][room.getM()/2-1];
+        Tile southernDoor=room.getLayout()[room.getN()-1][room.getM()/2-1];
+        Tile easternDoor=room.getLayout()[room.getN()/2-1][room.getM()-1];
+        Tile westernDoor=room.getLayout()[room.getN()/2-1][0];
+
+        switch (northernDoor) {
+            case BOSSDOOR_CLOSED:
+                northernDoor = Tile.BOSSDOOR_OPEN;
+                break;
+            case ITEMDOOR_CLOSED:
+                northernDoor = Tile.ITEMDOOR_OPEN;
+                break;
+            case SHOPDOOR_CLOSED:
+                northernDoor = Tile.SHOPDOOR_OPEN;
+                break;
+            case DOOR_CLOSED:
+                northernDoor = Tile.DOOR_OPEN;
+                break;
+            case BOSSDOOR_OPEN:
+                northernDoor = Tile.BOSSDOOR_CLOSED;
+                break;
+            case ITEMDOOR_OPEN:
+                northernDoor = Tile.ITEMDOOR_CLOSED;
+                break;
+            case SHOPDOOR_OPEN:
+                northernDoor = Tile.SHOPDOOR_CLOSED;
+                break;
+            case DOOR_OPEN:
+                northernDoor = Tile.DOOR_CLOSED;
+                break;
+            }
+        switch (southernDoor) {
+            case BOSSDOOR_CLOSED:
+                southernDoor = Tile.BOSSDOOR_OPEN;
+                break;
+            case ITEMDOOR_CLOSED:
+                southernDoor = Tile.ITEMDOOR_OPEN;
+                break;
+            case SHOPDOOR_CLOSED:
+                southernDoor = Tile.SHOPDOOR_OPEN;
+                break;
+            case DOOR_CLOSED:
+                southernDoor = Tile.DOOR_OPEN;
+                break;
+            case BOSSDOOR_OPEN:
+                southernDoor = Tile.BOSSDOOR_CLOSED;
+                break;
+            case ITEMDOOR_OPEN:
+                southernDoor = Tile.ITEMDOOR_CLOSED;
+                break;
+            case SHOPDOOR_OPEN:
+                southernDoor = Tile.SHOPDOOR_CLOSED;
+                break;
+            case DOOR_OPEN:
+                southernDoor = Tile.DOOR_CLOSED;
+                break;
+        }
+        switch (easternDoor) {
+            case BOSSDOOR_CLOSED:
+                easternDoor = Tile.BOSSDOOR_OPEN;
+                break;
+            case ITEMDOOR_CLOSED:
+                easternDoor = Tile.ITEMDOOR_OPEN;
+                break;
+            case SHOPDOOR_CLOSED:
+                easternDoor = Tile.SHOPDOOR_OPEN;
+                break;
+            case DOOR_CLOSED:
+                easternDoor = Tile.DOOR_OPEN;
+                break;
+            case BOSSDOOR_OPEN:
+                easternDoor = Tile.BOSSDOOR_CLOSED;
+                break;
+            case ITEMDOOR_OPEN:
+                easternDoor = Tile.ITEMDOOR_CLOSED;
+                break;
+            case SHOPDOOR_OPEN:
+                easternDoor = Tile.SHOPDOOR_CLOSED;
+                break;
+            case DOOR_OPEN:
+                easternDoor = Tile.DOOR_CLOSED;
+                break;
+        }
+        switch (westernDoor) {
+            case BOSSDOOR_CLOSED:
+                westernDoor = Tile.BOSSDOOR_OPEN;
+                break;
+            case ITEMDOOR_CLOSED:
+                westernDoor = Tile.ITEMDOOR_OPEN;
+                break;
+            case SHOPDOOR_CLOSED:
+                westernDoor = Tile.SHOPDOOR_OPEN;
+                break;
+            case DOOR_CLOSED:
+                westernDoor = Tile.DOOR_OPEN;
+                break;
+            case BOSSDOOR_OPEN:
+                westernDoor = Tile.BOSSDOOR_CLOSED;
+                break;
+            case ITEMDOOR_OPEN:
+                westernDoor = Tile.ITEMDOOR_CLOSED;
+                break;
+            case SHOPDOOR_OPEN:
+                westernDoor = Tile.SHOPDOOR_CLOSED;
+                break;
+            case DOOR_OPEN:
+                westernDoor = Tile.DOOR_CLOSED;
+                break;
+        }
+
+        Tile[][] roomLayout = room.getLayout();
+        roomLayout[0][room.getM()/2-1]=northernDoor;
+        roomLayout[room.getN()-1][room.getM()/2-1]=southernDoor;
+        roomLayout[room.getN()/2-1][room.getM()-1]=easternDoor;
+        roomLayout[room.getN()/2-1][0]=westernDoor;
+        room.setLayout(roomLayout);
+        currentRoomNode.getRoom().setLayout(roomLayout);
+        initTiles();
+    }
 
     //Maguktól mozgó dolgokat kell ebben az osztályban kezelni, illetve ha a mozgó objecktek ütköznek valamivel, azt is itt.
     class NewFrameListener implements ActionListener
@@ -1056,10 +1184,42 @@ public class Renderer extends JPanel
                     attack.cast();
                 }
             }
-
-            for (int i = 0; i < enemies.size(); i++)
+            if(enemies!=null) {
+                Vector<Enemy> enemiesCopy = new Vector<Enemy>(enemies);
+                for (Enemy enemy:enemies)
+                {
+                    if(enemy.getHealthPoints()==0)
+                    {
+                        Item loot =enemy.dropLoot(player);
+                        if(loot!=null)
+                        {
+                            loot.setX(enemy.getX());
+                            loot.setY(enemy.getY());
+                            ((CombatRoom) currentRoomNode.getRoom()).getItems().add(loot);
+                            items.add(loot);
+                            generateItemStatLabels();
+                        }
+                        enemiesCopy.remove(enemy);
+                    }
+                    else {
+                        enemy.move();
+                    }
+                }
+                enemies=enemiesCopy;
+                if(enemies.size()==0)
+                {
+                    enemies=null;
+                }
+            }
+            else
             {
-                ((Enemy) enemies.get(i)).move();
+                if(currentRoomNode.getRoomType()==RoomType.COMBATROOM||currentRoomNode.getRoomType()==RoomType.BOSSROOM)
+                {
+                    if(!currentRoomNode.getRoom().getVisited()) {
+                        currentRoomNode.getRoom().setVisited(true);
+                        changeDoors(currentRoomNode.getRoom());
+                    }
+                }
             }
 
 
@@ -1089,7 +1249,6 @@ public class Renderer extends JPanel
     {
         public void run()
         {
-            System.out.println("Time's up!");
             collide_timer_down = true;
         }
     }
