@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class Enemy extends Sprite {
     private String direction = "left";
-    private int speed = 2;
+    private float speed = 2;
     private String lastMove = "left";
     private int healthPoints;
     private int attackRange;
@@ -13,11 +13,23 @@ public class Enemy extends Sprite {
     private String name;
     private int velx;
     private int vely;
+    private int visionRange;
+    private int levelDepth;
 
-
-    public Enemy(int x, int y, int width, int height, Image image, int damage) {
+    public Enemy(int x, int y, int width, int height, Image image, int damage, int visionRange, int attackRange, int healthPoints, float speed,int levelDepth) {
         super(x, y, width, height, image);
         this.damage = damage;
+        this.visionRange=visionRange;
+        this.attackRange=attackRange;
+        this.healthPoints=healthPoints;
+        this.speed=speed;
+        this.levelDepth=levelDepth;
+    }
+
+    public void takeDamage(int damage)
+    {
+        healthPoints-=damage;
+        if(healthPoints<0)healthPoints=0;
     }
 
 
@@ -88,6 +100,23 @@ public class Enemy extends Sprite {
     public void attack() {
     }
 
+    public Item dropLoot(Player player)
+    {
+        Random rand = new Random();
+        int experience=10 + 15*levelDepth;
+        int money = 5 + 8*levelDepth;
+        player.giveExperience(experience);
+        player.giveMoney(money);
+
+        if(rand.nextInt(10)==2) //the chance of it landing on any single value should be equal at 10%
+        {
+            ItemGenerator generator = new ItemGenerator();
+            return generator.generateSomething(levelDepth,false);
+        }
+        return null;
+
+    }
+
 
     //Getterek és szetterek az enemyhez
 
@@ -100,7 +129,7 @@ public class Enemy extends Sprite {
         this.direction = direction;
     }
 
-    public int getSpeed() {
+    public float getSpeed() {
         return speed;
     }
 
