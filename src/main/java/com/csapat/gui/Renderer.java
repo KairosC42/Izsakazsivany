@@ -50,7 +50,7 @@ public class Renderer extends JPanel
     private int tile_size =30;
     private Timer newFrameTimer;
     //private Timer animationTimer;
-    private final int FPS = 240;
+    private final int FPS = 120;
     //private Image background;
     private Player player;
     private int player_width = 40;
@@ -621,7 +621,6 @@ public class Renderer extends JPanel
                             }
                             if (enemies.get(k).collides(player))
                             {
-                                System.out.println(collide_timer_down);
                                 if(collide_timer_down)
                                 {
                                     collide_timer_down=false;
@@ -652,14 +651,12 @@ public class Renderer extends JPanel
                         this.add(purchaseHint);
                         isAdded=true;
                     }
-
                 }
             }
             if(!didCollideWithItem)
             {
                 selectedItem = null;
                 if(purchaseHint!=null) remove(purchaseHint);
-
                 isAdded=false;
             }
         }
@@ -1002,13 +999,7 @@ public class Renderer extends JPanel
                 }
                 lastTransitionTime=LocalTime.now();
             }
-
-
-
             //level.printLevelWithPlayerPos(currentRoomNode);
-
-
-
         }
 
     }

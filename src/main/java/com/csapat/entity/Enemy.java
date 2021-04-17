@@ -2,6 +2,8 @@ package com.csapat.entity;
 
 import java.awt.*;
 import java.util.Random;
+import java.util.TimerTask;
+import java.util.Timer;
 
 public class Enemy extends Sprite {
     private String direction = "left";
@@ -13,11 +15,14 @@ public class Enemy extends Sprite {
     private String name;
     private int velx;
     private int vely;
+    private Timer moveTimer;
 
 
     public Enemy(int x, int y, int width, int height, Image image, int damage) {
         super(x, y, width, height, image);
         this.damage = damage;
+        moveTimer = new Timer();
+        moveTimer.schedule(new collideTask(), 0, 2000);
     }
 
 
@@ -26,8 +31,8 @@ public class Enemy extends Sprite {
 
     }
 
-    public void move() {
-
+    public void move()
+    {
         //todo move:  if ( x<850 && y<800 ) {   }
         switch (direction) {
             case "up":
@@ -162,5 +167,14 @@ public class Enemy extends Sprite {
 
     public void setVely(int vely) {
         this.vely = vely;
+    }
+
+    class collideTask extends TimerTask
+    {
+        public void run()
+        {
+            System.out.println("Time's up!");
+            randDirection();
+        }
     }
 }
