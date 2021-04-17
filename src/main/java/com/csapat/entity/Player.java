@@ -104,6 +104,16 @@ public class Player extends Sprite
             x += velx;
     }
 
+    public void giveMoney(int money)
+    {
+        this.money+=money;
+    }
+
+    public void giveExperience(int experince)
+    {
+        this.experince+=experince;
+    }
+
     public void moveY()
     {
             if (vely > 0)
