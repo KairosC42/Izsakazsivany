@@ -27,7 +27,9 @@ public class Player extends Sprite
     private float attackSpeed = 1;
     private float damage = 20;
     private int moveSpeed = 2;
-    private int experince = 0;
+    private int experience = 0;
+    private int nextLevelThreshold;
+    private int playerLevel=1;
     private Directions direction = Directions.Down;
     //private Inventory inventory;
     private int velx;
@@ -60,6 +62,7 @@ public class Player extends Sprite
         this.image = playerImages[0];
         this.frameHeight = frameHeight;
         this.frameWidth = frameWidth;
+        nextLevelThreshold=200;
     }
 
     public void update(float deltaTime)
@@ -109,9 +112,21 @@ public class Player extends Sprite
         this.money+=money;
     }
 
-    public void giveExperience(int experince)
+    public void giveExperience(int experience)
     {
-        this.experince+=experince;
+        this.experience +=experience;
+        if(this.experience>nextLevelThreshold)
+        {
+            raisePlayerLevel(experience-nextLevelThreshold);
+        }
+    }
+    public void raisePlayerLevel(int experienceOverFlow)
+    {
+        ++playerLevel;
+        experience=experienceOverFlow;
+        nextLevelThreshold= (int)Math.round(Math.pow(nextLevelThreshold,1.2));
+        healthPointsMaxModifier+=20;
+        healthPoints=getHealthPointsMax();
     }
 
     public void moveY()
@@ -207,9 +222,9 @@ public class Player extends Sprite
         return damage*damageModifier;
     }
 
-    public int getExperince()
+    public int getExperience()
     {
-        return experince;
+        return experience;
     }
 
     public int getMoney(){return money;}
@@ -246,7 +261,7 @@ public class Player extends Sprite
         {
             if( ((Potion)item).getHealthRestore()==0)
             {
-                experince+=((Potion)item).grantExp;
+                experience +=((Potion)item).grantExp;
             }
             potions.add((Potion) item);
         }
@@ -269,7 +284,7 @@ public class Player extends Sprite
     {
         for(Potion pot : potions)
         {
-            if(getExperince()==0)
+            if(getExperience()==0)
             {
                 healthPoints+=pot.getHealthRestore();
                 if(healthPoints>getHealthPointsMax())
