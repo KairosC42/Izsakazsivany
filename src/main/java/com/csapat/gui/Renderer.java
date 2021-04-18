@@ -69,6 +69,7 @@ public class Renderer extends JPanel
 
 
     private Sprite tiles[][];
+    private Vector<Sprite> tilesVector;
     private int n;
     private int m;
     private int levelDepth = 1;
@@ -111,6 +112,8 @@ public class Renderer extends JPanel
         purchaseHint= new JLabel();
         itemStatLabels=new Vector<>();
         items = new Vector<>();
+
+        tilesVector=new Vector<>();
 
         handleInputs();
         this.level = new Level(levelDepth);
@@ -366,65 +369,78 @@ public class Renderer extends JPanel
     }
     //Kezdő állapotban lévő elemenk létrehozása.
     public void initTiles() {
-            for (int i = 0; i < m; i++) {
-                for (int j = 0; j < n; j++) {
-                    Image actImage;
-                    Tile type;
-                    //getstarting
-                    switch (currentRoomNode.getRoom().getLayout()[j][i]) {
-                        case FLOOR:
-                            actImage = floorTexture;
-                            type = Tile.FLOOR;
-                            break;
-                        case DOOR_OPEN:
-                            actImage = openDoorTexture;
-                            type = Tile.DOOR_OPEN;
-                            break;
-                        case DOOR_CLOSED:
-                            actImage = closedDoorTexture;
-                            type = Tile.DOOR_CLOSED;
-                            break;
-                        case BOSSDOOR_OPEN:
-                            actImage = bossDoorOpenTexture;
-                            type = Tile.BOSSDOOR_OPEN;
-                            break;
-                        case BOSSDOOR_CLOSED:
-                            actImage = bossDoorClosedTexture;
-                            type = Tile.BOSSDOOR_CLOSED;
-                            break;
-                        case ITEMDOOR_OPEN:
-                            actImage = itemDoorOpenTexture;
-                            type = Tile.ITEMDOOR_OPEN;
-                            break;
-                        case ITEMDOOR_CLOSED:
-                            actImage = itemDoorClosedTexture;
-                            type = Tile.ITEMDOOR_CLOSED;
-                            break;
-                        case SHOPDOOR_OPEN:
-                            actImage = shopDoorOpenTexture;
-                            type = Tile.SHOPDOOR_OPEN;
-                            break;
-                        case SHOPDOOR_CLOSED:
-                            actImage = shopDoorClosedTexture;
-                            type = Tile.SHOPDOOR_CLOSED;
-                            break;
-                        case TRAPDOOR_OPEN:
-                            actImage = trapDoorOpenTexture;
-                            type = Tile.TRAPDOOR_OPEN;
-                            break;
-                        case TRAPDOOR_CLOSED:
-                            actImage = trapDoorClosedTexture;
-                            type = Tile.TRAPDOOR_CLOSED;
-                            break;
-                        default:
-                            actImage = wallTexture;
-                            type = Tile.WALL;
-                    }
-                    Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileWidth ,tileHeight, actImage);
-                    act.setType(type);
-                    tiles[j][i] = act;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                Image actImage;
+                Tile type;
+                //getstarting
+                switch (currentRoomNode.getRoom().getLayout()[j][i]) {
+                    case FLOOR:
+                        actImage = floorTexture;
+                        type = Tile.FLOOR;
+                        break;
+                    case DOOR_OPEN:
+                        actImage = openDoorTexture;
+                        type = Tile.DOOR_OPEN;
+                        break;
+                    case DOOR_CLOSED:
+                        actImage = closedDoorTexture;
+                        type = Tile.DOOR_CLOSED;
+                        break;
+                    case BOSSDOOR_OPEN:
+                        actImage = bossDoorOpenTexture;
+                        type = Tile.BOSSDOOR_OPEN;
+                        break;
+                    case BOSSDOOR_CLOSED:
+                        actImage = bossDoorClosedTexture;
+                        type = Tile.BOSSDOOR_CLOSED;
+                        break;
+                    case ITEMDOOR_OPEN:
+                        actImage = itemDoorOpenTexture;
+                        type = Tile.ITEMDOOR_OPEN;
+                        break;
+                    case ITEMDOOR_CLOSED:
+                        actImage = itemDoorClosedTexture;
+                        type = Tile.ITEMDOOR_CLOSED;
+                        break;
+                    case SHOPDOOR_OPEN:
+                        actImage = shopDoorOpenTexture;
+                        type = Tile.SHOPDOOR_OPEN;
+                        break;
+                    case SHOPDOOR_CLOSED:
+                        actImage = shopDoorClosedTexture;
+                        type = Tile.SHOPDOOR_CLOSED;
+                        break;
+                    case TRAPDOOR_OPEN:
+                        actImage = trapDoorOpenTexture;
+                        type = Tile.TRAPDOOR_OPEN;
+                        break;
+                    case TRAPDOOR_CLOSED:
+                        actImage = trapDoorClosedTexture;
+                        type = Tile.TRAPDOOR_CLOSED;
+                        break;
+                    default:
+                        actImage = wallTexture;
+                        type = Tile.WALL;
+                }
+                Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileWidth, tileHeight, actImage);
+                act.setType(type);
+                tiles[j][i] = act;
+            }
+        }
+        tilesVector.removeAllElements();
+        for (int i = 0; i < m; ++i)
+        {
+            for(int j=0;j<n;++j)
+            {
+                if(i==0||j==0||i==m-1||j==n-1||tiles[j][i].getType()==Tile.TRAPDOOR_OPEN||tiles[j][i].getType()==Tile.TRAPDOOR_CLOSED)
+                {
+                    tilesVector.add(tiles[j][i]);
                 }
             }
+        }
+
+
     }
     public void nextRoom()
     {
@@ -517,6 +533,7 @@ public class Renderer extends JPanel
 
     public void collide()
     {
+        /*
         for(int i = 0; i <n; i++)
         {
             for(int j = 0; j < m; j++)
@@ -613,6 +630,112 @@ public class Renderer extends JPanel
                                     collide_with_enemy = new java.util.Timer();
                                     collide_with_enemy.schedule(new collideTask(), 500);
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        }*/
+
+        for(Sprite tile : tilesVector)
+        {
+            if(tile.collides(player))
+            {
+                if (tile.getType() == Tile.WALL)
+                {
+                    player.stepBack();
+                    break;
+
+                }
+                if (tile.getType() == Tile.DOOR_OPEN)
+                {
+                    transition(tile);
+                    break;
+                }
+                if (tile.getType() == Tile.ITEMDOOR_OPEN)
+                {
+                    transition(tile);
+                    break;
+                }
+                if (tile.getType() == Tile.SHOPDOOR_OPEN)
+                {
+                    transition(tile);
+                    break;
+                }
+                if (tile.getType() == Tile.BOSSDOOR_OPEN)
+                {
+                    transition(tile);
+                    break;
+                }
+                if ((tile.getType() == Tile.DOOR_CLOSED))
+                {
+                    player.stepBack();
+                    break;
+                }
+                if ((tile.getType() == Tile.BOSSDOOR_CLOSED))
+                {
+                    player.stepBack();
+                    break;
+                }
+                if ((tile.getType() == Tile.ITEMDOOR_CLOSED))
+                {
+                    player.stepBack();
+                    break;
+                }
+                if ((tile.getType() == Tile.SHOPDOOR_CLOSED))
+                {
+                    player.stepBack();
+                    break;
+                }
+                if ((tile.getType() == Tile.TRAPDOOR_OPEN))
+                {
+                    newLevel();
+                    break;
+                }
+            }
+            if(enemies!=null) {
+                for (int k = 0; k < enemies.size(); k++) {
+
+                    if (tile.collides(enemies.get(k))) {
+                        if (tile.getType() == Tile.WALL) {
+                            enemies.get(k).moveBack();
+                            enemies.get(k).randDirection();
+                        }
+                        if (tile.getType() == Tile.DOOR_OPEN) {
+                            enemies.get(k).moveBack();
+                        }
+                        if (tile.getType() == Tile.ITEMDOOR_OPEN) {
+                            enemies.get(k).moveBack();
+                        }
+                        if (tile.getType() == Tile.SHOPDOOR_OPEN) {
+
+                            enemies.get(k).moveBack();
+                        }
+                        if (tile.getType() == Tile.BOSSDOOR_OPEN) {
+                            enemies.get(k).moveBack();
+                        }
+                        if ((tile.getType() == Tile.DOOR_CLOSED)) {
+                            enemies.get(k).moveBack();
+                        }
+                        if ((tile.getType() == Tile.BOSSDOOR_CLOSED)) {
+                            enemies.get(k).moveBack();
+                        }
+                        if ((tile.getType() == Tile.ITEMDOOR_CLOSED)) {
+                            enemies.get(k).moveBack();
+                        }
+                        if ((tile.getType() == Tile.SHOPDOOR_CLOSED)) {
+                            enemies.get(k).moveBack();
+                        }
+                        if ((tile.getType() == Tile.TRAPDOOR_OPEN)) {
+                            enemies.get(k).moveBack();
+
+                        }
+                        if (enemies.get(k).collides(player)) {
+                            if (collide_timer_down) {
+                                collide_timer_down = false;
+                                player.setHealth(player.getHealth() - enemies.get(k).getDamage());
+                                collide_with_enemy = new java.util.Timer();
+                                collide_with_enemy.schedule(new collideTask(), 500);
                             }
                         }
                     }
@@ -855,8 +978,31 @@ public class Renderer extends JPanel
         }
     }
 
-    private void transition(int x, int y) {
 
+    private int[] getTileCoords(Sprite tile)
+    {
+        for(int i=0;i<m;++i)
+        {
+            for(int j=0;j<n;++j)
+            {
+                if(tiles[j][i]==tile)
+                {
+                    int ret[] = new int[2];
+                    ret[0]=i;
+                    ret[1]=j;
+                    return ret;
+                }
+            }
+        }
+        //this is bad practice, but if getTileCoords is called properly, this will never be reached
+        return null;
+    }
+
+    private void transition(Sprite tile) {
+
+        int[] coords = getTileCoords(tile);
+        int x = coords[1];
+        int y = coords[0];
         long difference = 1000000;
         try {
             SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
@@ -940,69 +1086,8 @@ public class Renderer extends JPanel
                 {
                     currentRoomNode.getRoom().setVisited(true);
                 }
-                for (int i = 0; i < m; i++)
-                {
-                    for (int j = 0; j < n; j++)
-                    {
-                        Image actImage;
-                        Tile type;
-                        switch (currentRoomNode.getRoom().getLayout()[j][i])
-                        {
-                            case FLOOR:
-                                actImage = floorTexture;
-                                type = Tile.FLOOR;
-                                break;
-                            case DOOR_OPEN:
-                                actImage = openDoorTexture;
-                                type = Tile.DOOR_OPEN;
-                                break;
-                            case DOOR_CLOSED:
-                                actImage = closedDoorTexture;
-                                type = Tile.DOOR_CLOSED;
-                                break;
-                            case BOSSDOOR_OPEN:
-                                actImage = bossDoorOpenTexture;
-                                type = Tile.BOSSDOOR_OPEN;
-                                break;
-                            case BOSSDOOR_CLOSED:
-                                actImage = bossDoorClosedTexture;
-                                type = Tile.BOSSDOOR_CLOSED;
-                                break;
-                            case ITEMDOOR_OPEN:
-                                actImage = itemDoorOpenTexture;
-                                type = Tile.ITEMDOOR_OPEN;
-                                break;
-                            case ITEMDOOR_CLOSED:
-                                actImage = itemDoorClosedTexture;
-                                type = Tile.ITEMDOOR_CLOSED;
-                                break;
-                            case SHOPDOOR_OPEN:
-                                actImage = shopDoorOpenTexture;
-                                type = Tile.SHOPDOOR_OPEN;
-                                break;
-                            case SHOPDOOR_CLOSED:
-                                actImage = shopDoorClosedTexture;
-                                type = Tile.SHOPDOOR_CLOSED;
-                                break;
-                            case TRAPDOOR_CLOSED:
-                                actImage = trapDoorClosedTexture;
-                                type = Tile.TRAPDOOR_CLOSED;
-                                break;
-                            case TRAPDOOR_OPEN:
-                                actImage = trapDoorOpenTexture;
-                                type = Tile.TRAPDOOR_OPEN;
-                                break;
-                            default:
-                                actImage = wallTexture;
-                                type = Tile.WALL;
+                initTiles();
 
-                        }
-                        Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileWidth, tileHeight, actImage);
-                        act.setType(type);
-
-                        tiles[j][i] = act;
-                    }
-                }
                 lastTransitionTime=LocalTime.now();
             }
 
