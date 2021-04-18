@@ -25,7 +25,6 @@ import java.util.Vector;
 * @author: Ballai András
  */
 
-//todo: assign textures based on stats
 public class ItemGenerator
 {
     Random rand;
