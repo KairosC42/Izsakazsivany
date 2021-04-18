@@ -1,5 +1,6 @@
 package com.csapat.entity;
 
+import javax.imageio.ImageIO;
 import java.awt.Image;
 import java.util.Vector;
 
@@ -23,9 +24,9 @@ public class Player extends Sprite
 
     private int healthPointsMax=100;
     private int healthPoints=100;
-    private float range = 60;
-    private float attackSpeed = 1;
-    private float damage = 20;
+    private float range = 0;
+    private float attackSpeed = 0;
+    private float damage = 0;
     private int moveSpeed = 2;
     private int experince = 0;
     private Directions direction = Directions.Down;
@@ -52,6 +53,15 @@ public class Player extends Sprite
 
     public Player(int x, int y, int width, int height, Image playerImages[],int frameHeight, int frameWidth)
     {
+        Image weaponImage=null;
+        try{
+            weaponImage = ImageIO.read(this.getClass().getClassLoader().getResource("sword.png"));
+        }
+        catch (Exception e)
+        {
+            System.out.println("Missing texture!");
+        }
+        equipItem(new Weapon(0,0,0,0,weaponImage,0,"starting weapon",60,20,1));
         this.x = x;
         this.y = y;
         this.width = width;
@@ -243,16 +253,18 @@ public class Player extends Sprite
         else if(item instanceof Weapon)
         {
             Weapon weapon=(Weapon) item;
-            rangeModifier -= equippedWeapon.rangeModifier;
-            attackSpeedModifier -= equippedWeapon.attackSpeedModifier;
-            attackSpeedModifier -= equippedWeapon.damageModifier;
+            range -= equippedWeapon.rangeModifier;
+            attackSpeed -= equippedWeapon.attackSpeedModifier;
+            damage -= equippedWeapon.damageModifier;
 
-            rangeModifier += weapon.rangeModifier;
-            attackSpeedModifier += weapon.attackSpeedModifier;
-            attackSpeedModifier += weapon.damageModifier;
+            range += weapon.rangeModifier;
+            attackSpeed += weapon.attackSpeedModifier;
+            damage += weapon.damageModifier;
             equippedWeapon = weapon;
 
         }
+        System.out.println(range);
+        System.out.println(rangeModifier);
     }
 
     public void useHealthPotion()
