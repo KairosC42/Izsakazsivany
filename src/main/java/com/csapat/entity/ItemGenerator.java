@@ -4,7 +4,6 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.util.Objects;
 import java.util.Random;
-import java.util.Vector;
 
 /**
 * ItemGenerator class
@@ -21,8 +20,6 @@ import java.util.Vector;
 *  levelDepth is just freshly implemented, and is also subject to change just like the rest of the statistics are.
 *  for now the per-level scaling isn't very high, that's because enemies can drop items too
 *
-*
-* @author: Ballai András
  */
 
 public class ItemGenerator
@@ -194,7 +191,7 @@ public class ItemGenerator
         int healthRestore =0;
         int grantExp=0;
         float price=25+  25 * (levelDepth-1)*0.4f;
-        Image potionImage=null;
+        Image potionImage;
         if(rand.nextBoolean())
         {
             healthRestore= rand.nextInt(31) +20 + ((levelDepth-1)*15) ;
