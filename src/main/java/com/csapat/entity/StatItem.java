@@ -11,6 +11,7 @@ public class StatItem extends Item
     float damageModifier=1.f;
     float speedModifier=1.f;
 
+
     public StatItem(int x, int y, int width, int height, Image image, int price, String name,int healthModifier, float rangeModifier, float attackSpeedModifier, float damageModifier, float speedModifier)
     {
         this.x = x;
@@ -25,6 +26,7 @@ public class StatItem extends Item
         this.speedModifier=speedModifier;
         this.rangeModifier=rangeModifier;
         this.damageModifier=damageModifier;
+        this.type=ItemType.STATITEM;
 
     }
 

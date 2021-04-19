@@ -15,6 +15,7 @@ public class Weapon extends Item
         rangeModifier=0;
         damageModifier=0;
         attackSpeedModifier=0;
+        this.type=ItemType.WEAPON;
     }
 
     public Weapon(int x, int y, int width, int height, Image image, int price, String name, int rangeModifier, int damageModifier, float attackSpeedModifier)
@@ -29,6 +30,7 @@ public class Weapon extends Item
         this.rangeModifier=rangeModifier;
         this.attackSpeedModifier=attackSpeedModifier;
         this.damageModifier=damageModifier;
+        this.type=ItemType.WEAPON;
     }
 
     //getters
