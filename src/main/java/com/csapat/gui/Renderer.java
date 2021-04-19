@@ -294,6 +294,7 @@ public class Renderer extends JPanel
                             items.add(tmp);
                             currentRoomNode.getRoom().getDroppedItems().add(tmp);
                             generateItemStatLabels();
+                            addLabels();
                         }
                     }
                     player.buyItem(selectedItem);
@@ -348,6 +349,18 @@ public class Renderer extends JPanel
     public boolean overTheEdge(int originX, int originY, int addedX, int addedY)
     {
         return originX+addedX>window_h-tileWidth||originY+addedY>window_w-tileHeight;
+    }
+
+    public void addLabels()
+    {
+        if(itemStatLabels!=null)
+        {
+            for (JLabel label : itemStatLabels) {
+                if (label.getParent() == null) {
+                    add(label);
+                }
+            }
+        }
     }
 
     /**
@@ -534,13 +547,6 @@ public class Renderer extends JPanel
         grphcs.fillRect(0, 0, 900, 600);
         drawRoom(grphcs);
 
-        if(this.itemStatLabels!=null)
-        {
-            for (JLabel label : itemStatLabels)
-            {
-                this.add(label);
-            }
-        }
         if(items!=null)
         {
             for (Item it : items) {
@@ -999,6 +1005,7 @@ public class Renderer extends JPanel
                         currentRoomNode.getRoom().setVisited(true);
                     }
                     generateItemStatLabels();
+                    addLabels();
 
 
                 }
@@ -1014,6 +1021,7 @@ public class Renderer extends JPanel
                         currentRoomNode.getRoom().setVisited(true);
                     }
                     generateItemStatLabels();
+                    addLabels();
 
                 }
                 if (currentRoomNode.getRoomType() == RoomType.COMBATROOM || currentRoomNode.getRoomType() == RoomType.BOSSROOM)
@@ -1023,6 +1031,7 @@ public class Renderer extends JPanel
                         changeDoors(currentRoomNode.getRoom());
                     }
                     generateItemStatLabels();
+                    addLabels();
                 }
                 if( currentRoomNode.getRoomType() == RoomType.STARTROOM)
                 {
@@ -1234,6 +1243,7 @@ public class Renderer extends JPanel
                     }
                 }
                 generateItemStatLabels();
+                addLabels();
                 enemies=enemiesCopy;
                 if(enemies.size()==0)
                 {
