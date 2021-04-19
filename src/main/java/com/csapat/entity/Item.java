@@ -6,6 +6,7 @@ public class Item extends Sprite
 {
     int price;
     String name;
+    ItemType type;
 
     Item()
     {
@@ -35,6 +36,8 @@ public class Item extends Sprite
     {
         return name;
     }
+
+    public ItemType getItemType() {return type;}
 
 
     //setters
