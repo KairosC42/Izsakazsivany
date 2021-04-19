@@ -279,6 +279,23 @@ public class Renderer extends JPanel
                 if(selectedItem !=null)
                 if(player.getMoney()>= selectedItem.getPrice())
                 {
+                    if(selectedItem instanceof Weapon)
+                    {
+                        Item tmp = player.dropCurrentWeapon();
+                        System.out.println(tmp);
+                        if(tmp!=null) {
+                            if (!overTheEdge(tmp.getX(), tmp.getY(), tmp.getWidth(), tmp.getHeight())) {
+                                tmp.setX(safeSetX(player.getX() + tmp.getWidth(), tmp.getWidth()));
+                                tmp.setY(safeSetY(player.getY() + tmp.getHeight(), tmp.getHeight()));
+                            } else {
+                                tmp.setX(player.getX() - tmp.getWidth());
+                                tmp.setY(player.getY() - tmp.getHeight());
+                            }
+                            items.add(tmp);
+                            currentRoomNode.getRoom().getDroppedItems().add(tmp);
+                            generateItemStatLabels();
+                        }
+                    }
                     player.buyItem(selectedItem);
                     remove(itemStatLabels.get(items.indexOf(selectedItem)));
                     itemStatLabels.remove(itemStatLabels.get(items.indexOf(selectedItem)));
@@ -327,6 +344,32 @@ public class Renderer extends JPanel
             }
         });
     }
+
+    public boolean overTheEdge(int originX, int originY, int addedX, int addedY)
+    {
+        return originX+addedX>window_h-tileWidth||originY+addedY>window_w-tileHeight;
+    }
+
+    /**
+     * Functions safeSetX and safeSetY
+     *
+     * @param posX
+     * @param width
+     * @return posX(Y) or the closest value to it that is in-bounds
+     */
+    public int safeSetX(int posX, int width)
+    {
+        if(posX>window_h-tileWidth-width) return window_h-tileWidth-width;
+        if(posX<tileWidth+width) return tileWidth+width;
+        return posX;
+    }
+    public int safeSetY(int posY, int height)
+    {
+        if(posY>window_w-tileWidth-height) return window_w-tileHeight-height;
+        if(posY<tileWidth+height) return tileHeight+height;
+        return posY;
+    }
+
 
     public void initGraphics()
     {
@@ -533,110 +576,6 @@ public class Renderer extends JPanel
 
     public void collide()
     {
-        /*
-        for(int i = 0; i <n; i++)
-        {
-            for(int j = 0; j < m; j++)
-            {
-                //Player
-                if(tiles[i][j].collides(player))
-                {
-                    //case-l szebb lehet ez
-                    if (tiles[i][j].getType() == Tile.WALL)
-                    {
-                        player.stepBack();
-
-                    }
-                    if (tiles[i][j].getType() == Tile.DOOR_OPEN)
-                    {
-                        transition(i, j);
-                    }
-                    if (tiles[i][j].getType() == Tile.ITEMDOOR_OPEN)
-                    {
-                        transition(i, j);
-                    }
-                    if (tiles[i][j].getType() == Tile.SHOPDOOR_OPEN)
-                    {
-                        transition(i, j);
-                    }
-                    if (tiles[i][j].getType() == Tile.BOSSDOOR_OPEN)
-                    {
-                        transition(i, j);
-                    }
-                    if ((tiles[i][j].getType() == Tile.DOOR_CLOSED))
-                    {
-                        player.stepBack();
-                    }
-                    if ((tiles[i][j].getType() == Tile.BOSSDOOR_CLOSED))
-                    {
-                        player.stepBack();
-                    }
-                    if ((tiles[i][j].getType() == Tile.ITEMDOOR_CLOSED))
-                    {
-                    }
-                    if ((tiles[i][j].getType() == Tile.SHOPDOOR_CLOSED))
-                    {
-                        player.stepBack();
-                    }
-                    if ((tiles[i][j].getType() == Tile.TRAPDOOR_OPEN))
-                    {
-                        newLevel();
-                    }
-
-                }
-                if(enemies!=null) {
-                    for (int k = 0; k < enemies.size(); k++) {
-
-                        if (tiles[i][j].collides(enemies.get(k))) {
-
-
-                            if (tiles[i][j].getType() == Tile.WALL) {
-                               enemies.get(k).moveBack();
-                               enemies.get(k).randDirection();
-                            }
-                            if (tiles[i][j].getType() == Tile.DOOR_OPEN) {
-                                enemies.get(k).moveBack();
-                            }
-                            if (tiles[i][j].getType() == Tile.ITEMDOOR_OPEN) {
-                                enemies.get(k).moveBack();
-                            }
-                            if (tiles[i][j].getType() == Tile.SHOPDOOR_OPEN) {
-
-                                enemies.get(k).moveBack();
-                            }
-                            if (tiles[i][j].getType() == Tile.BOSSDOOR_OPEN) {
-                                enemies.get(k).moveBack();
-                            }
-                            if ((tiles[i][j].getType() == Tile.DOOR_CLOSED)) {
-                                enemies.get(k).moveBack();
-                            }
-                            if ((tiles[i][j].getType() == Tile.BOSSDOOR_CLOSED)) {
-                                enemies.get(k).moveBack();
-                            }
-                            if ((tiles[i][j].getType() == Tile.ITEMDOOR_CLOSED)) {
-                                enemies.get(k).moveBack();
-                            }
-                            if ((tiles[i][j].getType() == Tile.SHOPDOOR_CLOSED)) {
-                                enemies.get(k).moveBack();
-                            }
-                            if ((tiles[i][j].getType() == Tile.TRAPDOOR_OPEN)) {
-                                enemies.get(k).moveBack();
-
-                            }
-                            if (enemies.get(k).collides(player)) {
-                                if (collide_timer_down) {
-                                    collide_timer_down = false;
-                                    player.setHealth(player.getHealth() - enemies.get(k).getDamage());
-                                    collide_with_enemy = new java.util.Timer();
-                                    collide_with_enemy.schedule(new collideTask(), 500);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
-
         for(Sprite tile : tilesVector)
         {
             if(tile.collides(player))
@@ -645,7 +584,6 @@ public class Renderer extends JPanel
                 {
                     player.stepBack();
                     break;
-
                 }
                 if (tile.getType() == Tile.DOOR_OPEN)
                 {
@@ -780,118 +718,116 @@ public class Renderer extends JPanel
     }
     private void generateItemStatLabels()
     {
-        int verticalGapSize = Math.round( window_w*0.33f);
-        for(Item item : items)
-        {
-            Color bgColor = new Color(200,200,200);
-            if(item.getName().equals("weapon"))
-            {
-                Weapon tmp = (Weapon)item;
-                JLabel itemStat = new JLabel(
-                        "Name: " + tmp.getName() +"\n"+
-                                "Rangemod: " + tmp.getRangeModifier()+ "%"+"\n"+
-                                "Damagemod: " + tmp.getDamageModifier()+ "%"+"\n"+
-                                "AttSpdmod: " + tmp.getAttackSpeedModifier()+ "%" +"\n"+
-                                "Price: " + tmp.getPrice()
-                        , null, SwingConstants.LEFT);
-                if(tmp.getPrice()!=0)
-                {
-                    itemStat.setText(
-                        "<html><body>" +
-                                "Name: " + tmp.getName() +"<br>"+
-                                "Range: +" + tmp.getRangeModifier()+ "<br>"+
-                                "Damage: +" + tmp.getDamageModifier()+ "<br>"+
-                                "Attackspeed: +" + tmp.getAttackSpeedModifier()*100+ "%" +"<br>"+
-                                "Price: " + tmp.getPrice() +
-                                "</body></html>");
-                }
-                else
-                {
-                    itemStat.setText(
-                            "<html><body>" +
-                                    "Name: " + tmp.getName() +"<br>"+
-                                    "Range: +" + tmp.getRangeModifier()+ "<br>"+
-                                    "Damage: +" + tmp.getDamageModifier()+ "<br>"+
-                                    "Attackspeed: +" + tmp.getAttackSpeedModifier()*100+ "%" +"<br>" +
-                                    "</body></html>");
-                }
-                itemStat.setBackground(bgColor);
-                itemStat.setOpaque(true);
-                int fontSize = itemStat.getFont().getSize();
-                int lineCount = 5;
-                if(tmp.getPrice()==0)lineCount--;
-                itemStat.setBounds(tmp.getX() + tmp.getWidth(),tmp.getY(),verticalGapSize-tmp.getWidth()/2,fontSize*lineCount + lineCount*4 );
-                this.itemStatLabels.add(itemStat);
-            }
-            if(item.getName().equals("statItem"))
-            {
-                StatItem tmp = (StatItem)item;
-                JLabel itemStat = new JLabel(
-                        "Name:" + tmp.getName() +"\n"+
-                                "Health: +" + tmp.getHealthModifier() + "\n"+
-                                "Range: +" +tmp.getRangeModifier()+"%"+"\n"+
-                                "Attack speed +: " +tmp.getRangeModifier()+"%"+"\n"+
-                                "Damage +: " +tmp.getDamageModifier()+"%"+"\n"+
-                                "Speed +: " + tmp.getSpeedModifier()+"%" +"\n"+
-                                "Price: " + tmp.getPrice()
-                        , null, SwingConstants.LEFT);
-                if(tmp.getPrice()!=0) {
-                    itemStat.setText(
-                            "<html><body>" +
-                                    "Name: " + tmp.getName() + "<br>" +
-                                    "Health: +" + tmp.getHealthModifier() + "<br>" +
-                                    "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
-                                    "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
-                                    "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
-                                    "MoveMove speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
-                                    "Price: " + tmp.getPrice() +
-                                    "</body></html>"
-
-                    );
-                }
-                else
-                {
-                    itemStat.setText(
-                            "<html><body>" +
-                                    "Name: " + tmp.getName() + "<br>" +
-                                    "Health: +" + tmp.getHealthModifier() + "<br>" +
-                                    "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
-                                    "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
-                                    "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
-                                    "Move speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
-                                    "</body></html>");
-                }
-                itemStat.setBackground(bgColor);
-                itemStat.setOpaque(true);
-                int fontSize = itemStat.getFont().getSize();
-                int lineCount = 8;
-                if(tmp.getPrice()==0)lineCount--;
-                itemStat.setBounds(tmp.getX() + tmp.getWidth(),tmp.getY(),verticalGapSize-tmp.getWidth()/2,/*horizontalGapSize-Math.round(tmp.getHeight()*0.8f)*/ fontSize* lineCount + lineCount*4 );
-                this.itemStatLabels.add(itemStat);
-            }
-            if(item.getName().equals("potion"))
-            {
-
-                Potion tmp = (Potion)item;
-                JLabel itemStat;
-                if(tmp.getGrantExp()==0)
-                {
-                    if(tmp.getPrice()!=0) {
-                        itemStat = new JLabel(
-                                "Name:" + tmp.getName() + "\n" +
-                                        "Restores " + tmp.getHealthRestore() + " health." + "\n" +
-                                        "Price: " + tmp.getPrice()
-                                , null, SwingConstants.LEFT);
+        if(itemStatLabels.size()<items.size()) {
+            int verticalGapSize = Math.round(window_w * 0.33f);
+            for( int i = itemStatLabels.size(); i<items.size();++i){
+                Color bgColor = new Color(200, 200, 200);
+                if (items.get(i).getItemType()==ItemType.WEAPON) {
+                    Weapon tmp = (Weapon) items.get(i);
+                    JLabel itemStat = new JLabel(
+                            "Name: " + tmp.getName() + "\n" +
+                                    "Rangemod: " + tmp.getRangeModifier() + "%" + "\n" +
+                                    "Damagemod: " + tmp.getDamageModifier() + "%" + "\n" +
+                                    "AttSpdmod: " + tmp.getAttackSpeedModifier() + "%" + "\n" +
+                                    "Price: " + tmp.getPrice()
+                            , null, SwingConstants.LEFT);
+                    if (tmp.getPrice() != 0) {
                         itemStat.setText(
                                 "<html><body>" +
                                         "Name: " + tmp.getName() + "<br>" +
-                                        "Restores " + tmp.getHealthRestore() + " health." + "<br>" +
+                                        "Range: +" + tmp.getRangeModifier() + "<br>" +
+                                        "Damage: +" + tmp.getDamageModifier() + "<br>" +
+                                        "Attackspeed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                        "Price: " + tmp.getPrice() +
+                                        "</body></html>");
+                    } else {
+                        itemStat.setText(
+                                "<html><body>" +
+                                        "Name: " + tmp.getName() + "<br>" +
+                                        "Range: +" + tmp.getRangeModifier() + "<br>" +
+                                        "Damage: +" + tmp.getDamageModifier() + "<br>" +
+                                        "Attackspeed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                        "</body></html>");
+                    }
+                    itemStat.setBackground(bgColor);
+                    itemStat.setOpaque(true);
+                    int fontSize = itemStat.getFont().getSize();
+                    int lineCount = 5;
+                    if (tmp.getPrice() == 0) lineCount--;
+                    if (!overTheEdge(tmp.getX(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4)) {
+                        itemStat.setBounds(tmp.getX() + tmp.getWidth(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
+                    } else {
+                        itemStat.setBounds(tmp.getX() - verticalGapSize, tmp.getY() - fontSize * lineCount + lineCount * 4, verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
+                    }
+                    this.itemStatLabels.add(itemStat);
+                }
+                if (items.get(i).getItemType()==ItemType.STATITEM) {
+                    StatItem tmp = (StatItem) items.get(i);
+                    JLabel itemStat = new JLabel(
+                            "Name:" + tmp.getName() + "\n" +
+                                    "Health: +" + tmp.getHealthModifier() + "\n" +
+                                    "Range: +" + tmp.getRangeModifier() + "%" + "\n" +
+                                    "Attack speed +: " + tmp.getRangeModifier() + "%" + "\n" +
+                                    "Damage +: " + tmp.getDamageModifier() + "%" + "\n" +
+                                    "Speed +: " + tmp.getSpeedModifier() + "%" + "\n" +
+                                    "Price: " + tmp.getPrice()
+                            , null, SwingConstants.LEFT);
+                    if (tmp.getPrice() != 0) {
+                        itemStat.setText(
+                                "<html><body>" +
+                                        "Name: " + tmp.getName() + "<br>" +
+                                        "Health: +" + tmp.getHealthModifier() + "<br>" +
+                                        "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
+                                        "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
+                                        "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                        "MoveMove speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
                                         "Price: " + tmp.getPrice() +
                                         "</body></html>"
 
                         );
+                    } else {
+                        itemStat.setText(
+                                "<html><body>" +
+                                        "Name: " + tmp.getName() + "<br>" +
+                                        "Health: +" + tmp.getHealthModifier() + "<br>" +
+                                        "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
+                                        "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
+                                        "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                        "Move speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
+                                        "</body></html>");
                     }
-                    else {
+                    itemStat.setBackground(bgColor);
+                    itemStat.setOpaque(true);
+                    int fontSize = itemStat.getFont().getSize();
+                    int lineCount = 8;
+                    if (tmp.getPrice() == 0) lineCount--;
+                    if (!overTheEdge(tmp.getX(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4)) {
+                        itemStat.setBounds(tmp.getX() + tmp.getWidth(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
+                    } else {
+                        itemStat.setBounds(tmp.getX() - verticalGapSize, tmp.getY() - fontSize * lineCount + lineCount * 4, verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
+                    }
+                    this.itemStatLabels.add(itemStat);
+                }
+                if (items.get(i).getItemType()==ItemType.POTION) {
+
+                    Potion tmp = (Potion) items.get(i);
+                    JLabel itemStat;
+                    if (tmp.getGrantExp() == 0) {
+                        if (tmp.getPrice() != 0) {
+                            itemStat = new JLabel(
+                                    "Name:" + tmp.getName() + "\n" +
+                                            "Restores " + tmp.getHealthRestore() + " health." + "\n" +
+                                            "Price: " + tmp.getPrice()
+                                    , null, SwingConstants.LEFT);
+                            itemStat.setText(
+                                    "<html><body>" +
+                                            "Name: " + tmp.getName() + "<br>" +
+                                            "Restores " + tmp.getHealthRestore() + " health." + "<br>" +
+                                            "Price: " + tmp.getPrice() +
+                                            "</body></html>"
+
+                            );
+                        } else {
                             itemStat = new JLabel(
                                     "Name:" + tmp.getName() + "\n" +
                                             "Restores " + tmp.getHealthRestore() + " health." + "\n" +
@@ -902,45 +838,47 @@ public class Renderer extends JPanel
                                             "Name: " + tmp.getName() + "<br>" +
                                             "Restores " + tmp.getHealthRestore() + " health." + "<br>" +
                                             "</body></html>");
-                    }
-                }
-                else
-                {
-                    if(tmp.getPrice()!=0) {
-                        itemStat = new JLabel(
-                                "Name:" + tmp.getName() + "\n" +
-                                        "Grants " + tmp.getGrantExp() + "experience." + "\n" +
-                                        "Price: " + tmp.getPrice()
-                                , null, SwingConstants.LEFT);
-                        itemStat.setText(
-                                "<html><body>" +
-                                        "Name: " + tmp.getName() + "<br>" +
-                                        "Grants " + tmp.getGrantExp() + " experience." + "<br>" +
-                                        "Price: " + tmp.getPrice() +
-                                        "</body></html>"
+                        }
+                    } else {
+                        if (tmp.getPrice() != 0) {
+                            itemStat = new JLabel(
+                                    "Name:" + tmp.getName() + "\n" +
+                                            "Grants " + tmp.getGrantExp() + "experience." + "\n" +
+                                            "Price: " + tmp.getPrice()
+                                    , null, SwingConstants.LEFT);
+                            itemStat.setText(
+                                    "<html><body>" +
+                                            "Name: " + tmp.getName() + "<br>" +
+                                            "Grants " + tmp.getGrantExp() + " experience." + "<br>" +
+                                            "Price: " + tmp.getPrice() +
+                                            "</body></html>"
 
-                        );
+                            );
+                        } else {
+                            itemStat = new JLabel(
+                                    "Name:" + tmp.getName() + "\n" +
+                                            "Restores " + tmp.getHealthRestore() + " health." + "\n" +
+                                            "Price: " + tmp.getPrice()
+                                    , null, SwingConstants.LEFT);
+                            itemStat.setText(
+                                    "<html><body>" +
+                                            "Name: " + tmp.getName() + "<br>" +
+                                            "Grants " + tmp.getGrantExp() + " experience." + "<br>" +
+                                            "</body></html>");
+                        }
                     }
-                    else {
-                        itemStat = new JLabel(
-                                "Name:" + tmp.getName() + "\n" +
-                                        "Restores " + tmp.getHealthRestore() + " health." + "\n" +
-                                        "Price: " + tmp.getPrice()
-                                , null, SwingConstants.LEFT);
-                        itemStat.setText(
-                                "<html><body>" +
-                                        "Name: " + tmp.getName() + "<br>" +
-                                        "Grants " + tmp.getGrantExp() + " experience." + "<br>" +
-                                        "</body></html>");
+                    itemStat.setBackground(bgColor);
+                    itemStat.setOpaque(true);
+                    int fontSize = itemStat.getFont().getSize();
+                    final int lineCount = 3;
+                    if (!overTheEdge(tmp.getX(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4)) {
+                        itemStat.setBounds(tmp.getX() + tmp.getWidth(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
+                    } else {
+                        itemStat.setBounds(tmp.getX() - verticalGapSize, tmp.getY() - fontSize * lineCount + lineCount * 4, verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
                     }
+                    //height of the label is exactly as big as the text filling it, at most 8 pixels taller
+                    this.itemStatLabels.add(itemStat);
                 }
-                itemStat.setBackground(bgColor);
-                itemStat.setOpaque(true);
-                int fontSize = itemStat.getFont().getSize();
-                final int lineCount = 3;
-                itemStat.setBounds(tmp.getX() + tmp.getWidth(),tmp.getY(),verticalGapSize-tmp.getWidth()/2,fontSize*lineCount +lineCount*4  );
-                //height of the label is exactly as big as the text filling it, at most 8 pixels taller
-                this.itemStatLabels.add(itemStat);
             }
         }
     }
@@ -1041,7 +979,12 @@ public class Renderer extends JPanel
                 }
                 itemStatLabels.removeAllElements();
                 items.removeAllElements();
-
+                for(Item item: currentRoomNode.getRoom().getDroppedItems())
+                {
+                    if (item != null) {
+                        items.add(item);
+                    }
+                }
                 if (currentRoomNode.getRoomType() == RoomType.SHOP) {
                     Shop temp = (Shop) currentRoomNode.getRoom(); // this casting doesn't work inline for some reason
                     for (Item item : temp.getItems()) {
@@ -1079,8 +1022,7 @@ public class Renderer extends JPanel
                     {
                         changeDoors(currentRoomNode.getRoom());
                     }
-                    if(currentRoomNode.getRoomType()==RoomType.COMBATROOM){items =new Vector<>(((CombatRoom)currentRoomNode.getRoom()).getItems()); generateItemStatLabels();}
-                    if(currentRoomNode.getRoomType()==RoomType.BOSSROOM){items = new Vector<>(((BossRoom)currentRoomNode.getRoom()).getItems()); generateItemStatLabels();}
+                    generateItemStatLabels();
                 }
                 if( currentRoomNode.getRoomType() == RoomType.STARTROOM)
                 {
@@ -1280,16 +1222,18 @@ public class Renderer extends JPanel
                         {
                             loot.setX(enemy.getX());
                             loot.setY(enemy.getY());
-                            ((CombatRoom) currentRoomNode.getRoom()).getItems().add(loot);
+                            currentRoomNode.getRoom().getDroppedItems().add(loot);
                             items.add(loot);
-                            generateItemStatLabels();
+
                         }
+
                         enemiesCopy.remove(enemy);
                     }
                     else {
                         enemy.move();
                     }
                 }
+                generateItemStatLabels();
                 enemies=enemiesCopy;
                 if(enemies.size()==0)
                 {
