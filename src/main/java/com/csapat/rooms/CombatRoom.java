@@ -17,13 +17,11 @@ public class CombatRoom extends Room
 
     Random rand= new Random();
     private int enemyCount;
-    private Vector<Item> items;
 
 
     public CombatRoom(int levelDepth)
     {
         super(levelDepth);
-        items = new Vector<>();
         enemyCount=rand.nextInt(4)+3;
         enemies= new Vector<Enemy>();
         this.roomSpecificGen();
@@ -53,19 +51,8 @@ public class CombatRoom extends Room
 
         }
     }
-    public void removeItem(Item item)
-    {
-        for (Item it: items)
-        {
-            if(it.equals(item))
-            {
-                items.remove(item);
-                break;
-            }
-        }
-    }
 
-    public Vector<Item> getItems(){return items;}
+
     //does a combat room prevent you from leaving while enemies are alive?
     //if so, make that
 
