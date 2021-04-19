@@ -37,11 +37,12 @@ public class Player extends Sprite
     private int money=100;
     Vector<StatItem> equippedItems = new Vector<>();
     Vector<Potion> potions=new Vector<>();
-    Weapon equippedWeapon = new Weapon();
+    Weapon equippedWeapon;
     int walkingTime;
     Image playerImages[];
     private int frameHeight;
     private int frameWidth;
+
 
     private int healthPointsMaxModifier=0;
 
@@ -261,16 +262,18 @@ public class Player extends Sprite
         {
             if( ((Potion)item).getHealthRestore()==0)
             {
-                experience +=((Potion)item).grantExp;
+                giveExperience(((Potion)item).grantExp);
             }
             potions.add((Potion) item);
         }
         else if(item instanceof Weapon)
         {
             Weapon weapon=(Weapon) item;
-            rangeModifier -= equippedWeapon.rangeModifier;
-            attackSpeedModifier -= equippedWeapon.attackSpeedModifier;
-            attackSpeedModifier -= equippedWeapon.damageModifier;
+            if(equippedWeapon!=null) {
+                rangeModifier -= equippedWeapon.rangeModifier;
+                attackSpeedModifier -= equippedWeapon.attackSpeedModifier;
+                attackSpeedModifier -= equippedWeapon.damageModifier;
+            }
 
             rangeModifier += weapon.rangeModifier;
             attackSpeedModifier += weapon.attackSpeedModifier;
@@ -278,6 +281,11 @@ public class Player extends Sprite
             equippedWeapon = weapon;
 
         }
+    }
+
+    public Item dropCurrentWeapon()
+    {
+        return equippedWeapon;
     }
 
     public void useHealthPotion()
