@@ -140,7 +140,10 @@ public class Renderer extends JPanel
         initGraphics();
 
         player = new Player(450,100, player_height, player_width,playerImages,this.window_h,this.window_w);
-        for (int i = 0; i < levelDepth + 2; ++i)
+        //levelDepth + 2
+        //testing for only 1 enemy
+
+        for (int i = 0; i < 1; ++i)
         {
             enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10));
         }

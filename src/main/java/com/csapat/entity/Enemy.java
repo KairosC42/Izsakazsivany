@@ -51,11 +51,13 @@ public class Enemy extends Sprite {
             y_dist = y - player_y;
         }
         System.out.println("x dist: " + x_dist + " y_dist " + y_dist);
-        if (y_dist < 100 && x_dist < 100) {
+        if (y_dist < 200 && x_dist < 200) {
             System.out.println("Közel van!!!!");
-            x = player_x;
-            y = player_x;
+            x = player_x-Math.round(x_dist/3);
+            y = player_x-Math.round(y_dist/3);
             System.out.println("benne " + x + "és" + y);
+
+
 
         }
         System.out.println(x + "és" + y);
