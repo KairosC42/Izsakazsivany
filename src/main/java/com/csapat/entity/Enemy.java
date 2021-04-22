@@ -27,7 +27,40 @@ public class Enemy extends Sprite {
 
 
     //todo this functions
-    public void behaviour() {
+//todo this functions
+    public void behaviour(int player_x, int player_y) {
+        System.out.println("player_x: " + player_x + "Enemy_x: " + x);
+        System.out.println("pl_x: " + (player_x - x));
+        System.out.println("player: " + player_y + "Enemy: " + y);
+        System.out.println("pl_y: " + (y - player_y));
+
+
+        int x_dist = 0;
+        int y_dist = 0;
+        if (player_x > x) {
+            x_dist = player_x - x;
+        }
+        if (player_x < x) {
+            x_dist = x - player_x;
+        }
+
+        if (player_y > y) {
+            y_dist = player_y - y;
+        }
+        if (player_y < y) {
+            y_dist = y - player_y;
+        }
+        System.out.println("x dist: " + x_dist + " y_dist " + y_dist);
+        if (y_dist < 100 && x_dist < 100) {
+            System.out.println("Közel van!!!!");
+            x = player_x;
+            y = player_x;
+            System.out.println("benne " + x + "és" + y);
+
+        }
+        System.out.println(x + "és" + y);
+        System.out.println("--------------------");
+
 
     }
 

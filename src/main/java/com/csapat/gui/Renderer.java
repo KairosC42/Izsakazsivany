@@ -1051,6 +1051,8 @@ public class Renderer extends JPanel
             for (int i = 0; i < enemies.size(); i++)
             {
                 ((Enemy) enemies.get(i)).move();
+                ((Enemy) enemies.get(i)).behaviour(player.getX(),player.getY());
+
             }
 
 
@@ -1080,7 +1082,7 @@ public class Renderer extends JPanel
     {
         public void run()
         {
-            System.out.println("Time's up!");
+            //System.out.println("Time's up!");
             collide_timer_down = true;
         }
     }
