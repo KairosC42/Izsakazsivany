@@ -26,6 +26,8 @@ jobs:
       run: mvn test
     - name: Report
       run: mvn surefire-report:report -DoutputDirectory=newpath
+    - name: checkstyle
+      run: mvn checkstyle:checkstyle
     - name: javadoc
       run: mvn javadoc:javadoc
     - name: Upload artifacts
