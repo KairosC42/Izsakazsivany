@@ -19,16 +19,17 @@
         </dependency>
     </dependencies>
     <reporting>
-         <plugins>
-             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-surefire-report-plugin</artifactId>
-                 <version>3.0.0-M5</version>
-                 <configuration>
-                     <outputDirectory>${basedir}/target/newsite</outputDirectory>
-                 </configuration>
-             </plugin>
-         </plugins>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>3.0.0-M5</version>
+                <configuration>
+                    <outputDirectory>${basedir}/target/newsite</outputDirectory>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+                </configuration>
+            </plugin>
+        </plugins>
     </reporting>
     <build>
         <testSourceDirectory>src/main/test/java/com/csapat</testSourceDirectory>
@@ -49,6 +50,15 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>

@@ -302,7 +302,6 @@ public class Renderer extends JPanel
                     if(selectedItem instanceof Weapon)
                     {
                         Item tmp = player.dropCurrentWeapon();
-                        System.out.println(tmp);
                         if(tmp!=null) {
                             tmp.setPrice(0);
                             if (!overTheEdge(tmp.getX(), tmp.getY(), tmp.getWidth(), tmp.getHeight())) {

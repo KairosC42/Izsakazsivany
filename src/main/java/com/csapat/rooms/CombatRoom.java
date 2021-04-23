@@ -9,7 +9,7 @@ import java.util.Random;
 import java.util.Vector;
 
 /**
- * <h1>CombatRoom</h1>
+ * CombatRoom
  * contains 3-7 enemies, all of which have random stats that scale with levelDepth
  */
 public class CombatRoom extends Room

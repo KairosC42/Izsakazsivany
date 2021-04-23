@@ -6,7 +6,7 @@ import java.util.Random;
 import java.util.Vector;
 
 /**
- * <h1>Shop class</h1>
+ * Shop class
  * contains a random amount of items (between 3 and 6)
  * some of these will be statItems, some will be Weapons, the rest are potions
  * generates its items via ItemGenerator

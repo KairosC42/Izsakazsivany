@@ -298,7 +298,6 @@ public class Enemy extends Sprite {
     {
         public void run()
         {
-            System.out.println("Time's up!");
             randDirection();
         }
     }

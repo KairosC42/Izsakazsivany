@@ -8,7 +8,7 @@ import java.util.Vector;
 
 
 /**
- * <h1>Room class</h1>
+ * Room class
  * Creates a new N*M level, wall tiles all along the perimeter, floor everywhere else
  * The following classes extend Room:
  *               Shop Room: Place to buy new Items, Weapons, Potions

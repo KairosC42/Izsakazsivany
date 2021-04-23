@@ -8,7 +8,7 @@ import java.util.Random;
 
 
 /**
- * <h1>Level class</h1>
+ * Level class
  * Level Generator class. Generate a level layout with placed down com.csapat.rooms.
  * Also dictates place of the special com.csapat.rooms:
  *               Boss room: furthest from start room
@@ -38,6 +38,9 @@ public class Level
     private int levelDepth;
 
 
+
+
+
     /**
      * The constructor will automatically generate a level.
      *
@@ -45,21 +48,13 @@ public class Level
      *                   The number must be a positive integer
      *
      */
-
     public Level(int levelDepth)
     {
         this.levelDepth=levelDepth;
         generateLevel(levelDepth);
     }
 
-    /**
-     * If you want to generate a new level invoke this method
-     *
-     * @param levelDepth The depth of the current level eq. 1st floor, 2nd floor, 3rd flot etc.
-     *                   The number must be a positive integer
-     *
-     * The number of com.csapat.rooms will be: 3 * levelDepth + 6 to 8
-     */
+
 
     public void generateDoors()
     {
@@ -189,6 +184,14 @@ public class Level
         }
     }
 
+    /**
+     * If you want to generate a new level invoke this method
+     *
+     * @param levelDepth The depth of the current level eq. 1st floor, 2nd floor, 3rd flot etc.
+     *                   The number must be a positive integer
+     *
+     * The number of com.csapat.rooms will be: 3 * levelDepth + 6 to 8
+     */
     public void generateLevel(int levelDepth)
     {
         roomVector = new Vector<>();
