@@ -31,12 +31,5 @@ jobs:
       with:
         name: out
         path: target
-    - name: Upload artifacts to branch
-      uses: s0/git-publish-subdir-action@master
-      env:
-        REPO: self
-        BRANCH: test3
-        FOLDER: dist
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
     
