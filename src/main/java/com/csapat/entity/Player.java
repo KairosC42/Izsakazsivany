@@ -25,7 +25,7 @@ public class Player extends Sprite
     private int healthPointsMax=100;
     private int healthPoints=100;
     private float range = 0;
-    private float attackSpeed = 0;
+    private float attackSpeed = 1;
     private float damage = 0;
     private int moveSpeed = 2;
     private int experince = 0;
@@ -254,17 +254,17 @@ public class Player extends Sprite
         {
             Weapon weapon=(Weapon) item;
             range -= equippedWeapon.rangeModifier;
-            attackSpeed -= equippedWeapon.attackSpeedModifier;
+            attackSpeedModifier -= equippedWeapon.attackSpeedModifier;
             damage -= equippedWeapon.damageModifier;
 
             range += weapon.rangeModifier;
-            attackSpeed += weapon.attackSpeedModifier;
+            attackSpeedModifier += weapon.attackSpeedModifier;
             damage += weapon.damageModifier;
             equippedWeapon = weapon;
 
         }
-        System.out.println(range);
-        System.out.println(rangeModifier);
+        
+
     }
 
     public void useHealthPotion()
