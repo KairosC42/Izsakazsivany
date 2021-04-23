@@ -9,13 +9,17 @@ public class Enemy extends Sprite {
     private String direction = "left";
     private int speed = 2;
     private String lastMove = "left";
-    private int healthPoints;
+    private int healthPoints =100;
     private int attackRange;
     private int damage = 10;
     private String name;
     private int velx;
     private int vely;
     private Timer moveTimer;
+    private java.util.Timer enemy_attacked;
+
+
+    private Boolean gotAttacked=false;
 
 
     public Enemy(int x, int y, int width, int height, Image image, int damage) {
@@ -129,6 +133,23 @@ public class Enemy extends Sprite {
     }
 
 
+    public Boolean damaged(float dmg,float attack_speed)
+    {
+        this.healthPoints-=dmg;
+        enemy_attacked = new java.util.Timer();
+        enemy_attacked.schedule(new gotDamagedTask(),(int)(1000/attack_speed));
+        if(this.healthPoints<=0)
+        {
+            //died
+            this.healthPoints=0;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     //Getterek és szetterek az enemyhez
 
 
@@ -204,12 +225,30 @@ public class Enemy extends Sprite {
         this.vely = vely;
     }
 
+    public Boolean getGotAttacked()
+    {
+        return gotAttacked;
+    }
+
+    public void setGotAttacked(Boolean gotAttacked)
+    {
+        this.gotAttacked = gotAttacked;
+    }
+
     class collideTask extends TimerTask
     {
         public void run()
         {
             System.out.println("Time's up!");
             randDirection();
+        }
+    }
+
+    class gotDamagedTask extends TimerTask
+    {
+        public void run()
+        {
+            gotAttacked = false;
         }
     }
 }

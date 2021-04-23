@@ -109,6 +109,7 @@ public class Renderer extends JPanel
 
 
 
+
     public Renderer(int height, int width, JFrame frame) {
         super();
         this.window_h = height;
@@ -679,6 +680,24 @@ public class Renderer extends JPanel
             if(purchaseHint!=null) remove(purchaseHint);
             isAdded=false;
         }
+
+        for(int a = 0; a < currentAttacks.size(); a++)
+        {
+            for(int e = 0; e < enemies.size(); e++)
+            {
+                if(enemies.get(e).collides(currentAttacks.get(a))&&!((Enemy)(enemies.get(e))).getGotAttacked())
+                {
+                    Enemy en= ((Enemy)(enemies.get(e)));
+                    en.setGotAttacked(true);
+                    if(en.damaged(player.getDamage(), player.getAttackSpeed()))
+                    {
+                        //meghalt
+                        enemies.remove(en);
+                    }
+                }
+            }
+        }
+
     }
     private void generateItemStatLabels()
     {
