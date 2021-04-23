@@ -26,6 +26,8 @@ jobs:
       run: mvn test
     - name: Report
       run: mvn surefire-report:report -DoutputDirectory=newpath
+    - name: javadoc
+      run: mvn javadoc:javadoc
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
