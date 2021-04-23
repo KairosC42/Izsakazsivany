@@ -41,9 +41,40 @@ public class Enemy extends Sprite {
         if(healthPoints<0)healthPoints=0;
     }
 
+    public boolean isPlayerInVisionRange(int posX, int posY)
+    {
+        return visionRange>= Math.abs(x-posX)+ Math.abs(y-posY);
+    }
+    public void followPlayer(int posX, int posY)
+    {
+        int relX = x-posX;
+        int relY = y-posY;
+        if(Math.max(Math.abs(relX), Math.abs(relY))==Math.abs(relX))
+        {
+            if(relX>0)
+            {
+                direction="left";
+            }
+            else
+            {
+                direction="right";
+            }
+        }
+        else
+        {
+            if(relY>0)
+            {
+                direction="up";
+            }
+            else
+            {
+                direction="down";
+            }
 
-    //todo this functions
-//todo this functions
+        }
+
+    }
+    /*
     public void behaviour(int player_x, int player_y) {
         System.out.println("player_x: " + player_x + "Enemy_x: " + x);
         System.out.println("pl_x: " + (player_x - x));
@@ -78,6 +109,8 @@ public class Enemy extends Sprite {
         System.out.println(x + "és" + y);
         System.out.println("--------------------");
     }
+    */
+
 
     public void move() {
 
