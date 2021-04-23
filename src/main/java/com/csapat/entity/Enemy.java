@@ -1,14 +1,17 @@
 package com.csapat.entity;
 
+
 import java.awt.*;
 import java.util.Random;
 import java.util.TimerTask;
 import java.util.Timer;
 
+import static java.lang.Math.abs;
+
 public class Enemy extends Sprite {
-    private String direction = "left";
-    private int speed = 2;
-    private String lastMove = "left";
+    private Directions direction = Directions.Left;
+    private int speed = 1;
+    private Directions lastMove = Directions.Left;
     private int healthPoints =100;
     private int attackRange;
     private int damage = 10;
@@ -17,7 +20,11 @@ public class Enemy extends Sprite {
     private int vely;
     private Timer moveTimer;
     private java.util.Timer enemy_attacked;
+    private int vision_range = 200;
 
+    public Boolean changed_direction=false;
+    private java.util.Timer change_dir;
+    public Boolean isPlayerNearby = false;
 
     private Boolean gotAttacked=false;
 
@@ -26,20 +33,15 @@ public class Enemy extends Sprite {
         super(x, y, width, height, image);
         this.damage = damage;
         moveTimer = new Timer();
-        moveTimer.schedule(new collideTask(), 0, 2000);
+        moveTimer.schedule(new collideTask(), 0, 1000);
     }
 
 
     //todo this functions
 //todo this functions
-    public void behaviour(int player_x, int player_y) {
-        System.out.println("player_x: " + player_x + "Enemy_x: " + x);
-        System.out.println("pl_x: " + (player_x - x));
-        System.out.println("player: " + player_y + "Enemy: " + y);
-        System.out.println("pl_y: " + (y - player_y));
-
-
-        int x_dist = 0;
+    public void behaviour(int player_x, int player_y)
+    {
+        /*int x_dist = 0;
         int y_dist = 0;
         if (player_x > x) {
             x_dist = player_x - x;
@@ -56,35 +58,73 @@ public class Enemy extends Sprite {
         }
         System.out.println("x dist: " + x_dist + " y_dist " + y_dist);
         if (y_dist < 200 && x_dist < 200) {
+        */
+
+        double x1 = x;
+        double y1 = y;
+        double x2 = player_x;
+        double y2 = player_y;
+        double distance = Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
+        if (distance < vision_range && !changed_direction)
+        {
+            isPlayerNearby = true;
+            changed_direction=true;
+            change_dir=new Timer();
+            change_dir.schedule(new changeDir(), 500);
             System.out.println("Közel van!!!!");
-            x = player_x-Math.round(x_dist/3);
-            y = player_x-Math.round(y_dist/3);
-            System.out.println("benne " + x + "és" + y);
-
-
-
+            int y_dist = abs(player_y - y);
+            int x_dist = abs(player_x - x);
+            System.out.println(x_dist+","+y_dist);
+            if (y_dist >= x_dist)
+            {
+                if (y < player_y)
+                {
+                    direction = Directions.Down;
+                } else if (y >player_y)
+                {
+                    direction = Directions.Up;
+                }
+                else
+                {
+                    direction = Directions.Still;
+                }
+            } else
+            {
+                if (x < player_x)
+                {
+                    direction = Directions.Right;
+                } else if(x>player_x)
+                {
+                    direction = Directions.Left;
+                }
+                else
+                {
+                    direction = Directions.Still;
+                }
+            }
         }
-        System.out.println(x + "és" + y);
-        System.out.println("--------------------");
-
-
+        else
+        {
+            isPlayerNearby = false;
+        }
     }
 
     public void move()
     {
-        //todo move:  if ( x<850 && y<800 ) {   }
         switch (direction) {
-            case "up":
+            case Up:
                 y -= speed;
                 break;
-            case "down":
+            case Down:
                 y += speed;
                 break;
-            case "left":
+            case Left:
                 x -= speed;
                 break;
-            case "right":
+            case Right:
                 x += speed;
+                break;
+            case Still:
                 break;
         }
         lastMove = direction;
@@ -93,37 +133,39 @@ public class Enemy extends Sprite {
 
     public void randDirection() {
         Random rand = new Random();
-        int randD = rand.nextInt(4);
+        int randD = rand.nextInt(5);
         switch (randD) {
             case 0:
-                direction = "up";
+                direction = Directions.Up;
                 break;
             case 1:
-                direction = "down";
+                direction = Directions.Down;
                 break;
             case 2:
-                direction = "left";
+                direction = Directions.Left;
                 break;
             case 3:
-                direction = "right";
+                direction = Directions.Right;
                 break;
-
+            case 4:
+                direction = Directions.Still;
+                break;
         }
     }
 
 
     public void moveBack() {
         switch (lastMove) {
-            case "up":
+            case Up:
                 y += speed;
                 break;
-            case "down":
+            case Down:
                 y -= speed;;
                 break;
-            case "left":
+            case Left:
                 x += speed;
                 break;
-            case "right":
+            case Right:
                 x -= speed;
                 break;
         }
@@ -153,11 +195,11 @@ public class Enemy extends Sprite {
     //Getterek és szetterek az enemyhez
 
 
-    public String getDirection() {
+    public Directions getDirection() {
         return direction;
     }
 
-    public void setDirection(String direction) {
+    public void setDirection(Directions direction) {
         this.direction = direction;
     }
 
@@ -169,11 +211,11 @@ public class Enemy extends Sprite {
         this.speed = speed;
     }
 
-    public String getLastMove() {
+    public Directions getLastMove() {
         return lastMove;
     }
 
-    public void setLastMove(String lastMove) {
+    public void setLastMove(Directions lastMove) {
         this.lastMove = lastMove;
     }
 
@@ -239,8 +281,10 @@ public class Enemy extends Sprite {
     {
         public void run()
         {
-            System.out.println("Time's up!");
-            randDirection();
+            if(!isPlayerNearby)
+            {
+                randDirection();
+            }
         }
     }
 
@@ -249,6 +293,14 @@ public class Enemy extends Sprite {
         public void run()
         {
             gotAttacked = false;
+        }
+    }
+
+    class changeDir extends TimerTask
+    {
+        public void run()
+        {
+            changed_direction=false;
         }
     }
 }

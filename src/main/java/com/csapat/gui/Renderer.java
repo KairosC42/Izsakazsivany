@@ -1084,7 +1084,6 @@ public class Renderer extends JPanel
             {
                 ((Enemy) enemies.get(i)).move();
                 ((Enemy) enemies.get(i)).behaviour(player.getX(),player.getY());
-
             }
 
 
