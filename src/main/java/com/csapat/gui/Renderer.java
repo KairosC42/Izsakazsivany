@@ -37,6 +37,9 @@ import com.csapat.rooms.ItemRoom;
 import com.csapat.rooms.RoomType;
 import com.csapat.rooms.Shop;
 import com.csapat.rooms.Tile;
+import com.csapat.rooms.BossRoom;
+import com.csapat.rooms.CombatRoom;
+import com.csapat.rooms.Room;
 
 
 public class Renderer extends JPanel
@@ -107,6 +110,9 @@ public class Renderer extends JPanel
 
     private Boolean attack_timer_down=true;
     private java.util.Timer attack_timer;
+
+    private Boolean moveTimeOut = true;
+    private java.util.Timer enemyMoveTimer;
 
 
 
@@ -298,6 +304,7 @@ public class Renderer extends JPanel
                         Item tmp = player.dropCurrentWeapon();
                         System.out.println(tmp);
                         if(tmp!=null) {
+                            tmp.setPrice(0);
                             if (!overTheEdge(tmp.getX(), tmp.getY(), tmp.getWidth(), tmp.getHeight())) {
                                 tmp.setX(safeSetX(player.getX() + tmp.getWidth(), tmp.getWidth()));
                                 tmp.setY(safeSetY(player.getY() + tmp.getHeight(), tmp.getHeight()));
@@ -738,6 +745,7 @@ public class Renderer extends JPanel
 
         for(int a = 0; a < currentAttacks.size(); a++)
         {
+            if(enemies!=null)
             for(int e = 0; e < enemies.size(); e++)
             {
                 if(enemies.get(e).collides(currentAttacks.get(a))&&!((Enemy)(enemies.get(e))).getGotAttacked())
@@ -1254,6 +1262,14 @@ public class Renderer extends JPanel
             }
             if(enemies!=null) {
                 Vector<Enemy> enemiesCopy = new Vector<Enemy>(enemies);
+
+                if(moveTimeOut)
+                {
+                    moveTimeOut=false;
+                    for(Enemy enemy: enemies) {if(!enemy.isPlayerInVisionRange(player.getX(),player.getY())) enemy.randDirection();}
+                    enemyMoveTimer= new java.util.Timer();
+                    enemyMoveTimer.schedule(new enemyMoveTask(), 250);
+                }
                 for (Enemy enemy:enemies)
                 {
                     if(enemy.getHealthPoints()==0)
@@ -1271,8 +1287,13 @@ public class Renderer extends JPanel
                         enemiesCopy.remove(enemy);
                     }
                     else {
+                        if(enemy.isPlayerInVisionRange(player.getX(),player.getY()))
+                        {
+                            enemy.followPlayer(player.getX(), player.getY());
+
+                        }
                         enemy.move();
-                        enemy.behaviour(player.getX(),player.getY());
+
                     }
                 }
                 generateItemStatLabels();
@@ -1331,6 +1352,15 @@ public class Renderer extends JPanel
         public void run()
         {
            attack_timer_down=true;
+        }
+    }
+    class enemyMoveTask extends TimerTask
+    {
+
+        @Override
+        public void run()
+        {
+            moveTimeOut = true;
         }
     }
 }
