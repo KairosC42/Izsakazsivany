@@ -104,6 +104,10 @@ public class Renderer extends JPanel
     private Boolean collide_timer_down=true;
     private java.util.Timer collide_with_enemy;
 
+    private Boolean attack_timer_down=true;
+    private java.util.Timer attack_timer;
+
+
 
     public Renderer(int height, int width, JFrame frame) {
         super();
@@ -270,8 +274,14 @@ public class Renderer extends JPanel
         {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                Attack attack = new Attack(player.getX(), player.getY(), 10,50, attackImg , player, enemies, player.getDirection(), player.getRange());
-                currentAttacks.add(attack);
+                if(attack_timer_down)
+                {
+                    attack_timer_down = false;
+                    Attack attack = new Attack(player.getX(), player.getY(), 10,50, attackImg , player, enemies, player.getDirection(), player.getRange());
+                    currentAttacks.add(attack);
+                    attack_timer = new java.util.Timer();
+                    attack_timer.schedule(new attackTask(), (int)(1000/player.getAttackSpeed()));
+                }
             }
         });
 
@@ -1087,6 +1097,15 @@ public class Renderer extends JPanel
         {
             //System.out.println("Time's up!");
             collide_timer_down = true;
+        }
+    }
+
+    class attackTask extends TimerTask
+    {
+        @Override
+        public void run()
+        {
+           attack_timer_down=true;
         }
     }
 }
