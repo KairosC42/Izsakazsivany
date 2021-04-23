@@ -23,3 +23,4 @@ public class BossRoom extends CombatRoom
         //boss should be an enemy which is bigger with 10-20x the HP and 1-1.5x the damage of normal enemies
     }
 }
+

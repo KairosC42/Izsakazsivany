@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ fixThisBranch ]
+    branches: [ test ]
   pull_request:
-    branches: [ fixThisBranch ]
+    branches: [ test ]
 
 jobs:
   build:
@@ -22,3 +22,5 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: javadoc
+      run: mvn javadoc:javadoc

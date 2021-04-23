@@ -23,6 +23,7 @@ public class Potion extends Item
         this.name=name;
         this.healthRestore=healthRestore;
         this.grantExp=grantExp;
+        this.type=ItemType.POTION;
     }
 
     //getters

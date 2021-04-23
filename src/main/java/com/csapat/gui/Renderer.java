@@ -37,6 +37,9 @@ import com.csapat.rooms.ItemRoom;
 import com.csapat.rooms.RoomType;
 import com.csapat.rooms.Shop;
 import com.csapat.rooms.Tile;
+import com.csapat.rooms.BossRoom;
+import com.csapat.rooms.CombatRoom;
+import com.csapat.rooms.Room;
 
 
 public class Renderer extends JPanel
@@ -72,6 +75,7 @@ public class Renderer extends JPanel
 
 
     private Sprite tiles[][];
+    private Vector<Sprite> tilesVector;
     private int n;
     private int m;
     private int levelDepth = 1;
@@ -91,7 +95,7 @@ public class Renderer extends JPanel
     private Image enemyTexture;
     private Image[] playerImages;
 
-    private Vector<Sprite> enemies = new Vector<>();
+    private Vector<Enemy> enemies = new Vector<>();
     // ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
 
 
@@ -104,6 +108,14 @@ public class Renderer extends JPanel
     private Boolean collide_timer_down=true;
     private java.util.Timer collide_with_enemy;
 
+    private Boolean attack_timer_down=true;
+    private java.util.Timer attack_timer;
+
+    private Boolean moveTimeOut = true;
+    private java.util.Timer enemyMoveTimer;
+
+
+
 
     public Renderer(int height, int width, JFrame frame) {
         super();
@@ -112,7 +124,10 @@ public class Renderer extends JPanel
         this.frame = frame;
 
         purchaseHint= new JLabel();
+        itemStatLabels=new Vector<>();
+        items = new Vector<>();
 
+        tilesVector=new Vector<>();
 
         handleInputs();
         this.level = new Level(levelDepth);
@@ -121,13 +136,10 @@ public class Renderer extends JPanel
         roomMatrix=level.getRoomMatrix();
 
 
-        System.out.println(n);
-        System.out.println(m);
 
         this.window_h = tile_size*this.m;
         this.window_w = tile_size*this.n;
-        System.out.println(window_w);
-        System.out.println(window_h);
+
 
 
         tileHeight = tile_size;
@@ -140,10 +152,10 @@ public class Renderer extends JPanel
         initGraphics();
 
         player = new Player(450,100, player_height, player_width,playerImages,this.window_h,this.window_w);
-        for (int i = 0; i < levelDepth + 2; ++i)
+        /*for (int i = 0; i < levelDepth + 2; ++i)
         {
-            enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10));
-        }
+            enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10,10,10));
+        }*/
 
         initTiles();
 
@@ -267,8 +279,14 @@ public class Renderer extends JPanel
         {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                Attack attack = new Attack(player.getX(), player.getY(), 10,50, attackImg , player, enemies, player.getDirection(), player.getRange());
-                currentAttacks.add(attack);
+                if(attack_timer_down)
+                {
+                    attack_timer_down = false;
+                    Attack attack = new Attack(player.getX(), player.getY(), 10,50, attackImg , player, enemies, player.getDirection(), player.getRange());
+                    currentAttacks.add(attack);
+                    attack_timer = new java.util.Timer();
+                    attack_timer.schedule(new attackTask(), (int)(1000/player.getAttackSpeed()));
+                }
             }
         });
 
@@ -281,6 +299,24 @@ public class Renderer extends JPanel
                 if(selectedItem !=null)
                 if(player.getMoney()>= selectedItem.getPrice())
                 {
+                    if(selectedItem instanceof Weapon)
+                    {
+                        Item tmp = player.dropCurrentWeapon();
+                        if(tmp!=null) {
+                            tmp.setPrice(0);
+                            if (!overTheEdge(tmp.getX(), tmp.getY(), tmp.getWidth(), tmp.getHeight())) {
+                                tmp.setX(safeSetX(player.getX() + tmp.getWidth(), tmp.getWidth()));
+                                tmp.setY(safeSetY(player.getY() + tmp.getHeight(), tmp.getHeight()));
+                            } else {
+                                tmp.setX(player.getX() - tmp.getWidth());
+                                tmp.setY(player.getY() - tmp.getHeight());
+                            }
+                            items.add(tmp);
+                            currentRoomNode.getRoom().getDroppedItems().add(tmp);
+                            generateItemStatLabels();
+                            addLabels();
+                        }
+                    }
                     player.buyItem(selectedItem);
                     remove(itemStatLabels.get(items.indexOf(selectedItem)));
                     itemStatLabels.remove(itemStatLabels.get(items.indexOf(selectedItem)));
@@ -292,6 +328,14 @@ public class Renderer extends JPanel
                     if(currentRoomNode.getRoomType()==RoomType.ITEMROOM)
                     {
                         ((ItemRoom)currentRoomNode.getRoom()).removeItem(selectedItem);
+                    }
+                    if(currentRoomNode.getRoomType()==RoomType.COMBATROOM)
+                    {
+                        ((CombatRoom)currentRoomNode.getRoom()).removeItem(selectedItem);
+                    }
+                    if(currentRoomNode.getRoomType()==RoomType.BOSSROOM)
+                    {
+                        ((BossRoom)currentRoomNode.getRoom()).removeItem(selectedItem);
                     }
 
                 }
@@ -306,7 +350,59 @@ public class Renderer extends JPanel
 
             }
         });
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_K, 0, false), "pressed k");
+        this.getActionMap().put("pressed k", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if(currentRoomNode!=null &&enemies!=null) {
+                    for(Enemy enemy: enemies)
+                    {
+                        enemy.takeDamage(99999);
+                    }
+                }
+
+            }
+        });
     }
+
+    public boolean overTheEdge(int originX, int originY, int addedX, int addedY)
+    {
+        return originX+addedX>window_h-tileWidth||originY+addedY>window_w-tileHeight;
+    }
+
+    public void addLabels()
+    {
+        if(itemStatLabels!=null)
+        {
+            for (JLabel label : itemStatLabels) {
+                if (label.getParent() == null) {
+                    add(label);
+                }
+            }
+        }
+    }
+
+    /**
+     * Functions safeSetX and safeSetY
+     *
+     * @param posX
+     * @param width
+     * @return posX(Y) or the closest value to it that is in-bounds
+     */
+    public int safeSetX(int posX, int width)
+    {
+        if(posX>window_h-tileWidth-width) return window_h-tileWidth-width;
+        if(posX<tileWidth+width) return tileWidth+width;
+        return posX;
+    }
+    public int safeSetY(int posY, int height)
+    {
+        if(posY>window_w-tileWidth-height) return window_w-tileHeight-height;
+        if(posY<tileWidth+height) return tileHeight+height;
+        return posY;
+    }
+
 
     public void initGraphics()
     {
@@ -341,9 +437,6 @@ public class Renderer extends JPanel
 
 
             hearthSprite = new Sprite(window_w+180,7,45,40,hearthTexture);
-
-            System.out.println(n);
-            System.out.println(m);
             currentRoomNode.getRoom().printRoom();
             level.printLevel();
 
@@ -352,65 +445,78 @@ public class Renderer extends JPanel
     }
     //Kezdő állapotban lévő elemenk létrehozása.
     public void initTiles() {
-            for (int i = 0; i < m; i++) {
-                for (int j = 0; j < n; j++) {
-                    Image actImage;
-                    Tile type;
-                    //getstarting
-                    switch (currentRoomNode.getRoom().getLayout()[j][i]) {
-                        case FLOOR:
-                            actImage = floorTexture;
-                            type = Tile.FLOOR;
-                            break;
-                        case DOOR_OPEN:
-                            actImage = openDoorTexture;
-                            type = Tile.DOOR_OPEN;
-                            break;
-                        case DOOR_CLOSED:
-                            actImage = closedDoorTexture;
-                            type = Tile.DOOR_CLOSED;
-                            break;
-                        case BOSSDOOR_OPEN:
-                            actImage = bossDoorOpenTexture;
-                            type = Tile.BOSSDOOR_OPEN;
-                            break;
-                        case BOSSDOOR_CLOSED:
-                            actImage = bossDoorClosedTexture;
-                            type = Tile.BOSSDOOR_CLOSED;
-                            break;
-                        case ITEMDOOR_OPEN:
-                            actImage = itemDoorOpenTexture;
-                            type = Tile.ITEMDOOR_OPEN;
-                            break;
-                        case ITEMDOOR_CLOSED:
-                            actImage = itemDoorClosedTexture;
-                            type = Tile.ITEMDOOR_CLOSED;
-                            break;
-                        case SHOPDOOR_OPEN:
-                            actImage = shopDoorOpenTexture;
-                            type = Tile.SHOPDOOR_OPEN;
-                            break;
-                        case SHOPDOOR_CLOSED:
-                            actImage = shopDoorClosedTexture;
-                            type = Tile.SHOPDOOR_CLOSED;
-                            break;
-                        case TRAPDOOR_OPEN:
-                            actImage = trapDoorOpenTexture;
-                            type = Tile.TRAPDOOR_OPEN;
-                            break;
-                        case TRAPDOOR_CLOSED:
-                            actImage = trapDoorClosedTexture;
-                            type = Tile.TRAPDOOR_CLOSED;
-                            break;
-                        default:
-                            actImage = wallTexture;
-                            type = Tile.WALL;
-                    }
-                    Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileWidth ,tileHeight, actImage);
-                    act.setType(type);
-                    tiles[j][i] = act;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                Image actImage;
+                Tile type;
+                //getstarting
+                switch (currentRoomNode.getRoom().getLayout()[j][i]) {
+                    case FLOOR:
+                        actImage = floorTexture;
+                        type = Tile.FLOOR;
+                        break;
+                    case DOOR_OPEN:
+                        actImage = openDoorTexture;
+                        type = Tile.DOOR_OPEN;
+                        break;
+                    case DOOR_CLOSED:
+                        actImage = closedDoorTexture;
+                        type = Tile.DOOR_CLOSED;
+                        break;
+                    case BOSSDOOR_OPEN:
+                        actImage = bossDoorOpenTexture;
+                        type = Tile.BOSSDOOR_OPEN;
+                        break;
+                    case BOSSDOOR_CLOSED:
+                        actImage = bossDoorClosedTexture;
+                        type = Tile.BOSSDOOR_CLOSED;
+                        break;
+                    case ITEMDOOR_OPEN:
+                        actImage = itemDoorOpenTexture;
+                        type = Tile.ITEMDOOR_OPEN;
+                        break;
+                    case ITEMDOOR_CLOSED:
+                        actImage = itemDoorClosedTexture;
+                        type = Tile.ITEMDOOR_CLOSED;
+                        break;
+                    case SHOPDOOR_OPEN:
+                        actImage = shopDoorOpenTexture;
+                        type = Tile.SHOPDOOR_OPEN;
+                        break;
+                    case SHOPDOOR_CLOSED:
+                        actImage = shopDoorClosedTexture;
+                        type = Tile.SHOPDOOR_CLOSED;
+                        break;
+                    case TRAPDOOR_OPEN:
+                        actImage = trapDoorOpenTexture;
+                        type = Tile.TRAPDOOR_OPEN;
+                        break;
+                    case TRAPDOOR_CLOSED:
+                        actImage = trapDoorClosedTexture;
+                        type = Tile.TRAPDOOR_CLOSED;
+                        break;
+                    default:
+                        actImage = wallTexture;
+                        type = Tile.WALL;
+                }
+                Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileWidth, tileHeight, actImage);
+                act.setType(type);
+                tiles[j][i] = act;
+            }
+        }
+        tilesVector.removeAllElements();
+        for (int i = 0; i < m; ++i)
+        {
+            for(int j=0;j<n;++j)
+            {
+                if(i==0||j==0||i==m-1||j==n-1||tiles[j][i].getType()==Tile.TRAPDOOR_OPEN||tiles[j][i].getType()==Tile.TRAPDOOR_CLOSED)
+                {
+                    tilesVector.add(tiles[j][i]);
                 }
             }
+        }
+
+
     }
     public void nextRoom()
     {
@@ -461,21 +567,16 @@ public class Renderer extends JPanel
         grphcs.fillRect(0, 0, 900, 600);
         drawRoom(grphcs);
 
-        if(this.itemStatLabels!=null)
-        {
-            for (JLabel label : itemStatLabels)
-            {
-                this.add(label);
-            }
-        }
         if(items!=null)
         {
             for (Item it : items) {
                 it.draw(grphcs);
             }
         }
-        for (int i = 0; i < enemies.size(); i++) {
-            enemies.get(i).draw(grphcs);
+        if(enemies!=null) {
+            for (int i = 0; i < enemies.size(); i++) {
+                enemies.get(i).draw(grphcs);
+            }
         }
         for (Attack att : currentAttacks)
         {
@@ -501,136 +602,107 @@ public class Renderer extends JPanel
 
     public void collide()
     {
-        for(int i = 0; i <n; i++)
+        for(Sprite tile : tilesVector)
         {
-            for(int j = 0; j < m; j++)
+            if(tile.collides(player))
             {
-                //Player
-                if(tiles[i][j].collides(player))
+                if (tile.getType() == Tile.WALL)
                 {
-                    //case-l szebb lehet ez
-                    if (tiles[i][j].getType() == Tile.WALL)
-                    {
-                        //System.out.println("collided with WALL");
-                        player.stepBack();
-
-                    }
-                    if (tiles[i][j].getType() == Tile.DOOR_OPEN)
-                    {
-                        //System.out.println("collided with DOOR_OPEN");
-                        transition(i, j);
-                    }
-                    if (tiles[i][j].getType() == Tile.ITEMDOOR_OPEN)
-                    {
-                        //System.out.println("collided with ITEMDOOR_OPEN");
-                        transition(i, j);
-                    }
-                    if (tiles[i][j].getType() == Tile.SHOPDOOR_OPEN)
-                    {
-                        //System.out.println("collided with SHOPDOOR_OPEN");
-                        transition(i, j);
-                    }
-                    if (tiles[i][j].getType() == Tile.BOSSDOOR_OPEN)
-                    {
-                        //System.out.println("collided with BOSSDOOR_OPEN");
-                        transition(i, j);
-                    }
-                    if ((tiles[i][j].getType() == Tile.DOOR_CLOSED))
-                    {
-                        //System.out.println("collided with DOOR_CLOSED");
-                        player.stepBack();
-                    }
-                    if ((tiles[i][j].getType() == Tile.BOSSDOOR_CLOSED))
-                    {
-                        //System.out.println("collided with BOSSDOOR_CLOSED");
-                        player.stepBack();
-                    }
-                    if ((tiles[i][j].getType() == Tile.ITEMDOOR_CLOSED))
-                    {
-                        //System.out.println("collided with ITEMDOOR_CLOSED");
-                        player.stepBack();
-                    }
-                    if ((tiles[i][j].getType() == Tile.SHOPDOOR_CLOSED))
-                    {
-                        //System.out.println("collided with SHOPDOOR_CLOSED");
-                        player.stepBack();
-                    }
-                    if ((tiles[i][j].getType() == Tile.TRAPDOOR_OPEN))
-                    {
-                        newLevel();
-                    }
-
+                    player.stepBack();
+                    break;
                 }
-                    for (int k = 0; k < enemies.size(); k++)
-                    {
+                if (tile.getType() == Tile.DOOR_OPEN)
+                {
+                    transition(tile);
+                    break;
+                }
+                if (tile.getType() == Tile.ITEMDOOR_OPEN)
+                {
+                    transition(tile);
+                    break;
+                }
+                if (tile.getType() == Tile.SHOPDOOR_OPEN)
+                {
+                    transition(tile);
+                    break;
+                }
+                if (tile.getType() == Tile.BOSSDOOR_OPEN)
+                {
+                    transition(tile);
+                    break;
+                }
+                if ((tile.getType() == Tile.DOOR_CLOSED))
+                {
+                    player.stepBack();
+                    break;
+                }
+                if ((tile.getType() == Tile.BOSSDOOR_CLOSED))
+                {
+                    player.stepBack();
+                    break;
+                }
+                if ((tile.getType() == Tile.ITEMDOOR_CLOSED))
+                {
+                    player.stepBack();
+                    break;
+                }
+                if ((tile.getType() == Tile.SHOPDOOR_CLOSED))
+                {
+                    player.stepBack();
+                    break;
+                }
+                if ((tile.getType() == Tile.TRAPDOOR_OPEN))
+                {
+                    newLevel();
+                    break;
+                }
+            }
+            if(enemies!=null) {
+                for (int k = 0; k < enemies.size(); k++) {
 
-                        if (tiles[i][j].collides(enemies.get(k)))
-                        {
+                    if (tile.collides(enemies.get(k))) {
+                        if (tile.getType() == Tile.WALL) {
+                            enemies.get(k).moveBack();
+                            enemies.get(k).randDirection();
+                        }
+                        if (tile.getType() == Tile.DOOR_OPEN) {
+                            enemies.get(k).moveBack();
+                        }
+                        if (tile.getType() == Tile.ITEMDOOR_OPEN) {
+                            enemies.get(k).moveBack();
+                        }
+                        if (tile.getType() == Tile.SHOPDOOR_OPEN) {
 
-                            //case-l szebb lehet ez,
+                            enemies.get(k).moveBack();
+                        }
+                        if (tile.getType() == Tile.BOSSDOOR_OPEN) {
+                            enemies.get(k).moveBack();
+                        }
+                        if ((tile.getType() == Tile.DOOR_CLOSED)) {
+                            enemies.get(k).moveBack();
+                        }
+                        if ((tile.getType() == Tile.BOSSDOOR_CLOSED)) {
+                            enemies.get(k).moveBack();
+                        }
+                        if ((tile.getType() == Tile.ITEMDOOR_CLOSED)) {
+                            enemies.get(k).moveBack();
+                        }
+                        if ((tile.getType() == Tile.SHOPDOOR_CLOSED)) {
+                            enemies.get(k).moveBack();
+                        }
+                        if ((tile.getType() == Tile.TRAPDOOR_OPEN)) {
+                            enemies.get(k).moveBack();
 
-                            if (tiles[i][j].getType() == Tile.WALL)
-                            {
-                                ((Enemy) enemies.get(k)).moveBack();
-                                ((Enemy) enemies.get(k)).randDirection();
-                            }
-                            if (tiles[i][j].getType() == Tile.DOOR_OPEN)
-                            {
-                                //System.out.println("collided with DOOR_OPEN");
-                                ((Enemy) enemies.get(k)).moveBack();
-                            }
-                            if (tiles[i][j].getType() == Tile.ITEMDOOR_OPEN)
-                            {
-                                //System.out.println("collided with ITEMDOOR_OPEN");
-                                ((Enemy) enemies.get(k)).moveBack();
-                            }
-                            if (tiles[i][j].getType() == Tile.SHOPDOOR_OPEN)
-                            {
-                                //System.out.println("collided with SHOPDOOR_OPEN");
-                                ((Enemy) enemies.get(k)).moveBack();
-                            }
-                            if (tiles[i][j].getType() == Tile.BOSSDOOR_OPEN)
-                            {
-                                //System.out.println("collided with BOSSDOOR_OPEN");
-                                ((Enemy) enemies.get(k)).moveBack();
-                            }
-                            if ((tiles[i][j].getType() == Tile.DOOR_CLOSED))
-                            {
-                                //System.out.println("collided with DOOR_CLOSED");
-                                ((Enemy) enemies.get(k)).moveBack();
-                            }
-                            if ((tiles[i][j].getType() == Tile.BOSSDOOR_CLOSED))
-                            {
-                                //System.out.println("collided with BOSSDOOR_CLOSED");
-                                ((Enemy) enemies.get(k)).moveBack();
-                            }
-                            if ((tiles[i][j].getType() == Tile.ITEMDOOR_CLOSED))
-                            {
-                                //System.out.println("collided with ITEMDOOR_CLOSED");
-                                ((Enemy) enemies.get(k)).moveBack();
-                            }
-                            if ((tiles[i][j].getType() == Tile.SHOPDOOR_CLOSED))
-                            {
-                                //System.out.println("collided with SHOPDOOR_CLOSED");
-                                ((Enemy) enemies.get(k)).moveBack();
-                            }
-                            if ((tiles[i][j].getType() == Tile.TRAPDOOR_OPEN))
-                            {
-                                ((Enemy) enemies.get(k)).moveBack();
-
-                            }
-                            if (enemies.get(k).collides(player))
-                            {
-                                System.out.println(collide_timer_down);
-                                if(collide_timer_down)
-                                {
-                                    collide_timer_down=false;
-                                    player.setHealth(player.getHealth()-((Enemy)enemies.get(k)).getDamage());
-                                    collide_with_enemy = new java.util.Timer();
-                                    collide_with_enemy.schedule(new collideTask(),500);
-                                }
+                        }
+                        if (enemies.get(k).collides(player)) {
+                            if (collide_timer_down) {
+                                collide_timer_down = false;
+                                player.setHealth(player.getHealth() - enemies.get(k).getDamage());
+                                collide_with_enemy = new java.util.Timer();
+                                collide_with_enemy.schedule(new collideTask(), 500);
                             }
                         }
+                    }
                 }
             }
         }
@@ -669,142 +741,189 @@ public class Renderer extends JPanel
             if(purchaseHint!=null) remove(purchaseHint);
             isAdded=false;
         }
+
+        for(int a = 0; a < currentAttacks.size(); a++)
+        {
+            if(enemies!=null)
+            for(int e = 0; e < enemies.size(); e++)
+            {
+                if(enemies.get(e).collides(currentAttacks.get(a))&&!((Enemy)(enemies.get(e))).getGotAttacked())
+                {
+                    Enemy en= ((Enemy)(enemies.get(e)));
+                    en.setGotAttacked(true);
+                    if(en.damaged(player.getDamage(), player.getAttackSpeed()))
+                    {
+                        //meghalt
+                        enemies.remove(en);
+                    }
+                }
+            }
+        }
+
     }
     private void generateItemStatLabels()
     {
-        int verticalGapSize = Math.round( window_w*0.8f*0.33f);
-        for(Item item : items)
-        {
-            Color bgColor = new Color(200,200,200);
-            if(item.getName().equals("weapon"))
-            {
-                Weapon tmp = (Weapon)item;
-                JLabel itemStat = new JLabel(
-                        "Name: " + tmp.getName() +"\n"+
-                                "Rangemod: " + tmp.getRangeModifier()+ "%"+"\n"+
-                                "Damagemod: " + tmp.getDamageModifier()+ "%"+"\n"+
-                                "AttSpdmod: " + tmp.getAttackSpeedModifier()+ "%" +"\n"+
-                                "Price: " + tmp.getPrice()
-                        , null, SwingConstants.LEFT);
-                if(tmp.getPrice()!=0)
-                {
-                    itemStat.setText(
-                        "<html><body>" +
-                                "Name: " + tmp.getName() +"<br>"+
-                                "Range: +" + tmp.getRangeModifier()+ "<br>"+
-                                "Damage: +" + tmp.getDamageModifier()+ "<br>"+
-                                "Attackspeed: +" + tmp.getAttackSpeedModifier()*100+ "%" +"<br>"+
-                                "Price: " + tmp.getPrice() +
-                                "</body></html>");
-                }
-                else
-                {
-                    itemStat.setText(
-                            "<html><body>" +
-                                    "Name: " + tmp.getName() +"<br>"+
-                                    "Range: +" + tmp.getRangeModifier()+ "<br>"+
-                                    "Damage: +" + tmp.getDamageModifier()+ "<br>"+
-                                    "Attackspeed: +" + tmp.getAttackSpeedModifier()*100+ "%" +"<br>" +
-                                    "</body></html>");
-                }
-                itemStat.setBackground(bgColor);
-                itemStat.setOpaque(true);
-                int fontSize = itemStat.getFont().getSize();
-                int lineCount = 5;
-                if(tmp.getPrice()==0)lineCount--;
-                itemStat.setBounds(tmp.getX() + tmp.getWidth(),tmp.getY(),verticalGapSize-tmp.getWidth()/2,fontSize*lineCount + lineCount*4 );
-                this.itemStatLabels.add(itemStat);
-            }
-            if(item.getName().equals("statItem"))
-            {
-                StatItem tmp = (StatItem)item;
-                JLabel itemStat = new JLabel(
-                        "Name:" + tmp.getName() +"\n"+
-                                "Health: +" + tmp.getHealthModifier() + "\n"+
-                                "Range: +" +tmp.getRangeModifier()+"%"+"\n"+
-                                "Attack speed +: " +tmp.getRangeModifier()+"%"+"\n"+
-                                "Damage +: " +tmp.getDamageModifier()+"%"+"\n"+
-                                "Speed +: " + tmp.getSpeedModifier()+"%" +"\n"+
-                                "Price: " + tmp.getPrice()
-                        , null, SwingConstants.LEFT);
-                if(tmp.getPrice()!=0) {
-                    itemStat.setText(
-                            "<html><body>" +
-                                    "Name: " + tmp.getName() + "<br>" +
-                                    "Health: +" + tmp.getHealthModifier() + "<br>" +
-                                    "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
-                                    "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
-                                    "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
-                                    "MoveMove speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
-                                    "Price: " + tmp.getPrice() +
-                                    "</body></html>"
-
-                    );
-                }
-                else
-                {
-                    itemStat.setText(
-                            "<html><body>" +
-                                    "Name: " + tmp.getName() + "<br>" +
-                                    "Health: +" + tmp.getHealthModifier() + "<br>" +
-                                    "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
-                                    "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
-                                    "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
-                                    "Move speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
-                                    "</body></html>");
-                }
-                itemStat.setBackground(bgColor);
-                itemStat.setOpaque(true);
-                int fontSize = itemStat.getFont().getSize();
-                int lineCount = 8;
-                if(tmp.getPrice()==0)lineCount--;
-                itemStat.setBounds(tmp.getX() + tmp.getWidth(),tmp.getY(),verticalGapSize-tmp.getWidth()/2,/*horizontalGapSize-Math.round(tmp.getHeight()*0.8f)*/ fontSize* lineCount + lineCount*4 );
-                this.itemStatLabels.add(itemStat);
-            }
-            if(item.getName().equals("potion"))
-            {
-
-                Potion tmp = (Potion)item;
-                JLabel itemStat;
-                if(tmp.getGrantExp()==0)
-                {
-                    itemStat = new JLabel(
-                            "Name:" + tmp.getName() + "\n" +
-                                    "Restores " + tmp.getHealthRestore() + " health." + "\n" +
+        if(itemStatLabels.size()<items.size()) {
+            int verticalGapSize = Math.round(window_w * 0.33f);
+            for( int i = itemStatLabels.size(); i<items.size();++i){
+                Color bgColor = new Color(200, 200, 200);
+                if (items.get(i).getItemType()==ItemType.WEAPON) {
+                    Weapon tmp = (Weapon) items.get(i);
+                    JLabel itemStat = new JLabel(
+                            "Name: " + tmp.getName() + "\n" +
+                                    "Rangemod: " + tmp.getRangeModifier() + "%" + "\n" +
+                                    "Damagemod: " + tmp.getDamageModifier() + "%" + "\n" +
+                                    "AttSpdmod: " + tmp.getAttackSpeedModifier() + "%" + "\n" +
                                     "Price: " + tmp.getPrice()
                             , null, SwingConstants.LEFT);
-                    itemStat.setText(
-                            "<html><body>" +
-                                    "Name: " + tmp.getName() +"<br>"+
-                                    "Restores " +tmp.getHealthRestore() +" health."+"<br>"+
-                                    "Price: " + tmp.getPrice() +
-                                    "</body></html>"
-
-                    );
+                    if (tmp.getPrice() != 0) {
+                        itemStat.setText(
+                                "<html><body>" +
+                                        "Name: " + tmp.getName() + "<br>" +
+                                        "Range: +" + tmp.getRangeModifier() + "<br>" +
+                                        "Damage: +" + tmp.getDamageModifier() + "<br>" +
+                                        "Attackspeed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                        "Price: " + tmp.getPrice() +
+                                        "</body></html>");
+                    } else {
+                        itemStat.setText(
+                                "<html><body>" +
+                                        "Name: " + tmp.getName() + "<br>" +
+                                        "Range: +" + tmp.getRangeModifier() + "<br>" +
+                                        "Damage: +" + tmp.getDamageModifier() + "<br>" +
+                                        "Attackspeed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                        "</body></html>");
+                    }
+                    itemStat.setBackground(bgColor);
+                    itemStat.setOpaque(true);
+                    int fontSize = itemStat.getFont().getSize();
+                    int lineCount = 5;
+                    if (tmp.getPrice() == 0) lineCount--;
+                    if (!overTheEdge(tmp.getX(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4)) {
+                        itemStat.setBounds(tmp.getX() + tmp.getWidth(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
+                    } else {
+                        itemStat.setBounds(tmp.getX() - verticalGapSize, tmp.getY() - fontSize * lineCount + lineCount * 4, verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
+                    }
+                    this.itemStatLabels.add(itemStat);
                 }
-                else
-                {
-                    itemStat = new JLabel(
+                if (items.get(i).getItemType()==ItemType.STATITEM) {
+                    StatItem tmp = (StatItem) items.get(i);
+                    JLabel itemStat = new JLabel(
                             "Name:" + tmp.getName() + "\n" +
-                                    "Grants " + tmp.getGrantExp() + "experience." + "\n" +
+                                    "Health: +" + tmp.getHealthModifier() + "\n" +
+                                    "Range: +" + tmp.getRangeModifier() + "%" + "\n" +
+                                    "Attack speed +: " + tmp.getRangeModifier() + "%" + "\n" +
+                                    "Damage +: " + tmp.getDamageModifier() + "%" + "\n" +
+                                    "Speed +: " + tmp.getSpeedModifier() + "%" + "\n" +
                                     "Price: " + tmp.getPrice()
                             , null, SwingConstants.LEFT);
-                    itemStat.setText(
-                            "<html><body>" +
-                                    "Name: " + tmp.getName() +"<br>"+
-                                    "Grants " +tmp.getGrantExp()+ " experience." +"<br>"+
-                                    "Price: " + tmp.getPrice() +
-                                    "</body></html>"
+                    if (tmp.getPrice() != 0) {
+                        itemStat.setText(
+                                "<html><body>" +
+                                        "Name: " + tmp.getName() + "<br>" +
+                                        "Health: +" + tmp.getHealthModifier() + "<br>" +
+                                        "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
+                                        "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
+                                        "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                        "MoveMove speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
+                                        "Price: " + tmp.getPrice() +
+                                        "</body></html>"
 
-                    );
+                        );
+                    } else {
+                        itemStat.setText(
+                                "<html><body>" +
+                                        "Name: " + tmp.getName() + "<br>" +
+                                        "Health: +" + tmp.getHealthModifier() + "<br>" +
+                                        "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
+                                        "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
+                                        "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                        "Move speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
+                                        "</body></html>");
+                    }
+                    itemStat.setBackground(bgColor);
+                    itemStat.setOpaque(true);
+                    int fontSize = itemStat.getFont().getSize();
+                    int lineCount = 8;
+                    if (tmp.getPrice() == 0) lineCount--;
+                    if (!overTheEdge(tmp.getX(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4)) {
+                        itemStat.setBounds(tmp.getX() + tmp.getWidth(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
+                    } else {
+                        itemStat.setBounds(tmp.getX() - verticalGapSize, tmp.getY() - fontSize * lineCount + lineCount * 4, verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
+                    }
+                    this.itemStatLabels.add(itemStat);
                 }
-                itemStat.setBackground(bgColor);
-                itemStat.setOpaque(true);
-                int fontSize = itemStat.getFont().getSize();
-                final int lineCount = 3;
-                itemStat.setBounds(tmp.getX() + tmp.getWidth(),tmp.getY(),verticalGapSize-tmp.getWidth()/2,fontSize*lineCount +lineCount*4  );
-                //height of the label is exactly as big as the text filling it, at most 8 pixels taller
-                this.itemStatLabels.add(itemStat);
+                if (items.get(i).getItemType()==ItemType.POTION) {
+
+                    Potion tmp = (Potion) items.get(i);
+                    JLabel itemStat;
+                    if (tmp.getGrantExp() == 0) {
+                        if (tmp.getPrice() != 0) {
+                            itemStat = new JLabel(
+                                    "Name:" + tmp.getName() + "\n" +
+                                            "Restores " + tmp.getHealthRestore() + " health." + "\n" +
+                                            "Price: " + tmp.getPrice()
+                                    , null, SwingConstants.LEFT);
+                            itemStat.setText(
+                                    "<html><body>" +
+                                            "Name: " + tmp.getName() + "<br>" +
+                                            "Restores " + tmp.getHealthRestore() + " health." + "<br>" +
+                                            "Price: " + tmp.getPrice() +
+                                            "</body></html>"
+
+                            );
+                        } else {
+                            itemStat = new JLabel(
+                                    "Name:" + tmp.getName() + "\n" +
+                                            "Restores " + tmp.getHealthRestore() + " health." + "\n" +
+                                            "Price: " + tmp.getPrice()
+                                    , null, SwingConstants.LEFT);
+                            itemStat.setText(
+                                    "<html><body>" +
+                                            "Name: " + tmp.getName() + "<br>" +
+                                            "Restores " + tmp.getHealthRestore() + " health." + "<br>" +
+                                            "</body></html>");
+                        }
+                    } else {
+                        if (tmp.getPrice() != 0) {
+                            itemStat = new JLabel(
+                                    "Name:" + tmp.getName() + "\n" +
+                                            "Grants " + tmp.getGrantExp() + "experience." + "\n" +
+                                            "Price: " + tmp.getPrice()
+                                    , null, SwingConstants.LEFT);
+                            itemStat.setText(
+                                    "<html><body>" +
+                                            "Name: " + tmp.getName() + "<br>" +
+                                            "Grants " + tmp.getGrantExp() + " experience." + "<br>" +
+                                            "Price: " + tmp.getPrice() +
+                                            "</body></html>"
+
+                            );
+                        } else {
+                            itemStat = new JLabel(
+                                    "Name:" + tmp.getName() + "\n" +
+                                            "Restores " + tmp.getHealthRestore() + " health." + "\n" +
+                                            "Price: " + tmp.getPrice()
+                                    , null, SwingConstants.LEFT);
+                            itemStat.setText(
+                                    "<html><body>" +
+                                            "Name: " + tmp.getName() + "<br>" +
+                                            "Grants " + tmp.getGrantExp() + " experience." + "<br>" +
+                                            "</body></html>");
+                        }
+                    }
+                    itemStat.setBackground(bgColor);
+                    itemStat.setOpaque(true);
+                    int fontSize = itemStat.getFont().getSize();
+                    final int lineCount = 3;
+                    if (!overTheEdge(tmp.getX(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4)) {
+                        itemStat.setBounds(tmp.getX() + tmp.getWidth(), tmp.getY(), verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
+                    } else {
+                        itemStat.setBounds(tmp.getX() - verticalGapSize, tmp.getY() - fontSize * lineCount + lineCount * 4, verticalGapSize - tmp.getWidth() / 2, fontSize * lineCount + lineCount * 4);
+                    }
+                    //height of the label is exactly as big as the text filling it, at most 8 pixels taller
+                    this.itemStatLabels.add(itemStat);
+                }
             }
         }
     }
@@ -840,28 +959,45 @@ public class Renderer extends JPanel
             items.get(1).setX(Math.round((window_h /* *0.8f */ )*0.66f) /* + Math.round(window_h*0.1f) */ - Math.round(items.get(1).getWidth()/2.f) );
             items.get(1).setY(Math.round((window_w /* *0.8f */ )*0.5f) /* +Math.round(window_h*0.1f) */ - Math.round(items.get(1).getHeight()/2.f) );
         }
-        System.out.println(items.get(0).getX());
-        System.out.println(items.get(1).getX());
     }
 
-    private void transition(int x, int y) {
 
+    private int[] getTileCoords(Sprite tile)
+    {
+        for(int i=0;i<m;++i)
+        {
+            for(int j=0;j<n;++j)
+            {
+                if(tiles[j][i]==tile)
+                {
+                    int ret[] = new int[2];
+                    ret[0]=i;
+                    ret[1]=j;
+                    return ret;
+                }
+            }
+        }
+        //this is bad practice, but if getTileCoords is called properly, this will never be reached
+        return null;
+    }
+
+    private void transition(Sprite tile) {
+
+        int[] coords = getTileCoords(tile);
+        int x = coords[1];
+        int y = coords[0];
         long difference = 1000000;
         try {
             SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
             Date date1 = format.parse(lastTransitionTime.toString());
             Date date2 = format.parse(LocalTime.now().toString());
             difference = date2.getTime() - date1.getTime();
-            System.out.println(date1);
-            System.out.println(date2);
-            System.out.println(difference);
         } catch (Exception e) {
             difference = 1000000;
         }
 
 
         if (difference >= 200) {
-            //System.out.println(x +" "+ y);
             if (x == 0) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i - 1][currentRoomNode.getCoordinate().j];
                 player.stepBackAfterLeveltransition(player.getX(), window_w / m * (m - 4));
@@ -880,126 +1016,68 @@ public class Renderer extends JPanel
 
             }
 
-            if(currentRoomNode!=null)
-            {
-                if (currentRoomNode.getRoomType() == RoomType.SHOP)
+            if(currentRoomNode!=null) {
+                if(!currentRoomNode.getRoom().getVisited()) enemies= currentRoomNode.getRoom().getEnemies();
+                for(JLabel itemStatLabel:itemStatLabels)
                 {
-
+                    remove(itemStatLabel);
+                }
+                itemStatLabels.removeAllElements();
+                items.removeAllElements();
+                for(Item item: currentRoomNode.getRoom().getDroppedItems())
+                {
+                    if (item != null) {
+                        items.add(item);
+                    }
+                }
+                if (currentRoomNode.getRoomType() == RoomType.SHOP) {
                     Shop temp = (Shop) currentRoomNode.getRoom(); // this casting doesn't work inline for some reason
-                    items=new Vector<>();
-                    for(Item item : temp.getItems())
-                    {
-                        if (item!=null)
-                        {
+                    for (Item item : temp.getItems()) {
+                        if (item != null) {
                             items.add(item);
                         }
                     }
 
-                    if(!currentRoomNode.getRoom().getVisited())
-                    {
+                    if (!currentRoomNode.getRoom().getVisited()) {
                         setItemPositions(true);
-                        this.itemStatLabels = new Vector<>();
-
+                        itemStatLabels.removeAllElements();
                         currentRoomNode.getRoom().setVisited(true);
                     }
                     generateItemStatLabels();
+                    addLabels();
 
 
                 }
-                if (currentRoomNode.getRoomType() == RoomType.ITEMROOM)
-                {
-                    this.itemStatLabels=new Vector<>();
-                    this.items = new Vector<Item>();
-
+                if (currentRoomNode.getRoomType() == RoomType.ITEMROOM) {
                     ItemRoom temp = (ItemRoom) currentRoomNode.getRoom();
-                    if(temp.getStatItem()!=null) this.items.add(temp.getStatItem());
-                    if(temp.getWeapon()!=null)  this.items.add(temp.getWeapon());
+                    if (temp.getStatItem() != null) this.items.add(temp.getStatItem());
+                    if (temp.getWeapon() != null) this.items.add(temp.getWeapon());
 
 
-                    if(!currentRoomNode.getRoom().getVisited())
-                    {
+                    if (!currentRoomNode.getRoom().getVisited()) {
                         setItemPositions(false);
 
                         currentRoomNode.getRoom().setVisited(true);
                     }
                     generateItemStatLabels();
+                    addLabels();
 
                 }
-                if(currentRoomNode.getRoomType()==RoomType.COMBATROOM||currentRoomNode.getRoomType()==RoomType.BOSSROOM||currentRoomNode.getRoomType()==RoomType.STARTROOM)
-                    {
-                        if(itemStatLabels!=null) {
-                            for (JLabel label : itemStatLabels) {
-                                this.remove(label);
-                            }
-                            this.itemStatLabels= new Vector<>();
-                        }
-
-                        this.items = null;
-                        currentRoomNode.getRoom().setVisited(true);
-                    }
-                for (int i = 0; i < m; i++)
+                if (currentRoomNode.getRoomType() == RoomType.COMBATROOM || currentRoomNode.getRoomType() == RoomType.BOSSROOM)
                 {
-                    for (int j = 0; j < n; j++)
+                    if(!currentRoomNode.getRoom().getVisited())
                     {
-                        Image actImage;
-                        Tile type;
-                        switch (currentRoomNode.getRoom().getLayout()[j][i])
-                        {
-                            case FLOOR:
-                                actImage = floorTexture;
-                                type = Tile.FLOOR;
-                                break;
-                            case DOOR_OPEN:
-                                actImage = openDoorTexture;
-                                type = Tile.DOOR_OPEN;
-                                break;
-                            case DOOR_CLOSED:
-                                actImage = closedDoorTexture;
-                                type = Tile.DOOR_CLOSED;
-                                break;
-                            case BOSSDOOR_OPEN:
-                                actImage = bossDoorOpenTexture;
-                                type = Tile.BOSSDOOR_OPEN;
-                                break;
-                            case BOSSDOOR_CLOSED:
-                                actImage = bossDoorClosedTexture;
-                                type = Tile.BOSSDOOR_CLOSED;
-                                break;
-                            case ITEMDOOR_OPEN:
-                                actImage = itemDoorOpenTexture;
-                                type = Tile.ITEMDOOR_OPEN;
-                                break;
-                            case ITEMDOOR_CLOSED:
-                                actImage = itemDoorClosedTexture;
-                                type = Tile.ITEMDOOR_CLOSED;
-                                break;
-                            case SHOPDOOR_OPEN:
-                                actImage = shopDoorOpenTexture;
-                                type = Tile.SHOPDOOR_OPEN;
-                                break;
-                            case SHOPDOOR_CLOSED:
-                                actImage = shopDoorClosedTexture;
-                                type = Tile.SHOPDOOR_CLOSED;
-                                break;
-                            case TRAPDOOR_CLOSED:
-                                actImage = trapDoorClosedTexture;
-                                type = Tile.TRAPDOOR_CLOSED;
-                                break;
-                            case TRAPDOOR_OPEN:
-                                actImage = trapDoorOpenTexture;
-                                type = Tile.TRAPDOOR_OPEN;
-                                break;
-                            default:
-                                actImage = wallTexture;
-                                type = Tile.WALL;
-
-                        }
-                        Sprite act = new Sprite(i * tileHeight, j * tileWidth, tileWidth, tileHeight, actImage);
-                        act.setType(type);
-
-                        tiles[j][i] = act;
+                        changeDoors(currentRoomNode.getRoom());
                     }
+                    generateItemStatLabels();
+                    addLabels();
                 }
+                if( currentRoomNode.getRoomType() == RoomType.STARTROOM)
+                {
+                    currentRoomNode.getRoom().setVisited(true);
+                }
+                initTiles();
+
                 lastTransitionTime=LocalTime.now();
             }
 
@@ -1039,6 +1117,131 @@ public class Renderer extends JPanel
     {
         this.tiles = tiles;
     }
+    /**
+     * Changes all doors of a room from closed to open or vice-versa, based on current state
+     * @param room
+     */public void changeDoors(Room room)
+    {
+
+        Tile northernDoor=room.getLayout()[0][room.getM()/2-1];
+        Tile southernDoor=room.getLayout()[room.getN()-1][room.getM()/2-1];
+        Tile easternDoor=room.getLayout()[room.getN()/2-1][room.getM()-1];
+        Tile westernDoor=room.getLayout()[room.getN()/2-1][0];
+
+        switch (northernDoor) {
+            case BOSSDOOR_CLOSED:
+                northernDoor = Tile.BOSSDOOR_OPEN;
+                break;
+            case ITEMDOOR_CLOSED:
+                northernDoor = Tile.ITEMDOOR_OPEN;
+                break;
+            case SHOPDOOR_CLOSED:
+                northernDoor = Tile.SHOPDOOR_OPEN;
+                break;
+            case DOOR_CLOSED:
+                northernDoor = Tile.DOOR_OPEN;
+                break;
+            case BOSSDOOR_OPEN:
+                northernDoor = Tile.BOSSDOOR_CLOSED;
+                break;
+            case ITEMDOOR_OPEN:
+                northernDoor = Tile.ITEMDOOR_CLOSED;
+                break;
+            case SHOPDOOR_OPEN:
+                northernDoor = Tile.SHOPDOOR_CLOSED;
+                break;
+            case DOOR_OPEN:
+                northernDoor = Tile.DOOR_CLOSED;
+                break;
+            }
+        switch (southernDoor) {
+            case BOSSDOOR_CLOSED:
+                southernDoor = Tile.BOSSDOOR_OPEN;
+                break;
+            case ITEMDOOR_CLOSED:
+                southernDoor = Tile.ITEMDOOR_OPEN;
+                break;
+            case SHOPDOOR_CLOSED:
+                southernDoor = Tile.SHOPDOOR_OPEN;
+                break;
+            case DOOR_CLOSED:
+                southernDoor = Tile.DOOR_OPEN;
+                break;
+            case BOSSDOOR_OPEN:
+                southernDoor = Tile.BOSSDOOR_CLOSED;
+                break;
+            case ITEMDOOR_OPEN:
+                southernDoor = Tile.ITEMDOOR_CLOSED;
+                break;
+            case SHOPDOOR_OPEN:
+                southernDoor = Tile.SHOPDOOR_CLOSED;
+                break;
+            case DOOR_OPEN:
+                southernDoor = Tile.DOOR_CLOSED;
+                break;
+        }
+        switch (easternDoor) {
+            case BOSSDOOR_CLOSED:
+                easternDoor = Tile.BOSSDOOR_OPEN;
+                break;
+            case ITEMDOOR_CLOSED:
+                easternDoor = Tile.ITEMDOOR_OPEN;
+                break;
+            case SHOPDOOR_CLOSED:
+                easternDoor = Tile.SHOPDOOR_OPEN;
+                break;
+            case DOOR_CLOSED:
+                easternDoor = Tile.DOOR_OPEN;
+                break;
+            case BOSSDOOR_OPEN:
+                easternDoor = Tile.BOSSDOOR_CLOSED;
+                break;
+            case ITEMDOOR_OPEN:
+                easternDoor = Tile.ITEMDOOR_CLOSED;
+                break;
+            case SHOPDOOR_OPEN:
+                easternDoor = Tile.SHOPDOOR_CLOSED;
+                break;
+            case DOOR_OPEN:
+                easternDoor = Tile.DOOR_CLOSED;
+                break;
+        }
+        switch (westernDoor) {
+            case BOSSDOOR_CLOSED:
+                westernDoor = Tile.BOSSDOOR_OPEN;
+                break;
+            case ITEMDOOR_CLOSED:
+                westernDoor = Tile.ITEMDOOR_OPEN;
+                break;
+            case SHOPDOOR_CLOSED:
+                westernDoor = Tile.SHOPDOOR_OPEN;
+                break;
+            case DOOR_CLOSED:
+                westernDoor = Tile.DOOR_OPEN;
+                break;
+            case BOSSDOOR_OPEN:
+                westernDoor = Tile.BOSSDOOR_CLOSED;
+                break;
+            case ITEMDOOR_OPEN:
+                westernDoor = Tile.ITEMDOOR_CLOSED;
+                break;
+            case SHOPDOOR_OPEN:
+                westernDoor = Tile.SHOPDOOR_CLOSED;
+                break;
+            case DOOR_OPEN:
+                westernDoor = Tile.DOOR_CLOSED;
+                break;
+        }
+
+        Tile[][] roomLayout = room.getLayout();
+        roomLayout[0][room.getM()/2-1]=northernDoor;
+        roomLayout[room.getN()-1][room.getM()/2-1]=southernDoor;
+        roomLayout[room.getN()/2-1][room.getM()-1]=easternDoor;
+        roomLayout[room.getN()/2-1][0]=westernDoor;
+        room.setLayout(roomLayout);
+        currentRoomNode.getRoom().setLayout(roomLayout);
+        initTiles();
+    }
 
     //Maguktól mozgó dolgokat kell ebben az osztályban kezelni, illetve ha a mozgó objecktek ütköznek valamivel, azt is itt.
     class NewFrameListener implements ActionListener
@@ -1056,10 +1259,59 @@ public class Renderer extends JPanel
                     attack.cast();
                 }
             }
+            if(enemies!=null) {
+                Vector<Enemy> enemiesCopy = new Vector<Enemy>(enemies);
 
-            for (int i = 0; i < enemies.size(); i++)
+                if(moveTimeOut)
+                {
+                    moveTimeOut=false;
+                    for(Enemy enemy: enemies) {if(!enemy.isPlayerInVisionRange(player.getX(),player.getY())) enemy.randDirection();}
+                    enemyMoveTimer= new java.util.Timer();
+                    enemyMoveTimer.schedule(new enemyMoveTask(), 250);
+                }
+                for (Enemy enemy:enemies)
+                {
+                    if(enemy.getHealthPoints()==0)
+                    {
+                        Item loot =enemy.dropLoot(player);
+                        if(loot!=null)
+                        {
+                            loot.setX(enemy.getX());
+                            loot.setY(enemy.getY());
+                            currentRoomNode.getRoom().getDroppedItems().add(loot);
+                            items.add(loot);
+
+                        }
+
+                        enemiesCopy.remove(enemy);
+                    }
+                    else {
+                        if(enemy.isPlayerInVisionRange(player.getX(),player.getY()))
+                        {
+                            enemy.followPlayer(player.getX(), player.getY());
+
+                        }
+                        enemy.move();
+
+                    }
+                }
+                generateItemStatLabels();
+                addLabels();
+                enemies=enemiesCopy;
+                if(enemies.size()==0)
+                {
+                    enemies=null;
+                }
+            }
+            else
             {
-                ((Enemy) enemies.get(i)).move();
+                if(currentRoomNode.getRoomType()==RoomType.COMBATROOM||currentRoomNode.getRoomType()==RoomType.BOSSROOM)
+                {
+                    if(!currentRoomNode.getRoom().getVisited()) {
+                        currentRoomNode.getRoom().setVisited(true);
+                        changeDoors(currentRoomNode.getRoom());
+                    }
+                }
             }
 
 
@@ -1089,8 +1341,25 @@ public class Renderer extends JPanel
     {
         public void run()
         {
-            System.out.println("Time's up!");
             collide_timer_down = true;
+        }
+    }
+
+    class attackTask extends TimerTask
+    {
+        @Override
+        public void run()
+        {
+           attack_timer_down=true;
+        }
+    }
+    class enemyMoveTask extends TimerTask
+    {
+
+        @Override
+        public void run()
+        {
+            moveTimeOut = true;
         }
     }
 }

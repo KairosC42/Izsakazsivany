@@ -4,7 +4,7 @@ import com.csapat.entity.Item;
 import com.csapat.entity.ItemGenerator;
 
 /**
- * <h1>ItemRoom class</h1>
+ * ItemRoom class
  * Is next to spawn
  * contains 2 items - 1 statitem and 1 weapon
  * these have randomly generated stats scaling with levelDepth

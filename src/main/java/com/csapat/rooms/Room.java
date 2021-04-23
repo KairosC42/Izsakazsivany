@@ -1,13 +1,14 @@
 package com.csapat.rooms;
 
 import com.csapat.entity.Enemy;
+import com.csapat.entity.Item;
 import com.csapat.entity.Sprite;
 
 import java.util.Vector;
 
 
 /**
- * <h1>Room class</h1>
+ * Room class
  * Creates a new N*M level, wall tiles all along the perimeter, floor everywhere else
  * The following classes extend Room:
  *               Shop Room: Place to buy new Items, Weapons, Potions
@@ -29,6 +30,7 @@ public abstract class Room
     int levelDepth;
     Tile[][] layout; // used for background, eg: walls, floor, doors
     Vector<Enemy> enemies;
+    Vector<Item> droppedItems;
     //could be private with setters and getters, but room is quite far down, for ease of access its public.
     public Room()
     {
@@ -36,6 +38,7 @@ public abstract class Room
         N = 20;
         M = 30;
         this.visited=false;
+        droppedItems = new Vector<>();
         layout = new Tile[N][M]; // used for background, eg: walls, floor, doors
         generateRoom();
     }
@@ -44,6 +47,7 @@ public abstract class Room
         this.N =20;
         this.M = 30;
         layout = new Tile[N][M];
+        droppedItems = new Vector<>();
         this.visited=false;
         this.levelDepth=levelDepth;
         generateRoom();
@@ -66,7 +70,17 @@ public abstract class Room
 
     Sprite[][] overlay= new Sprite[N][M]; //used for displaying over background, for sprites with variable positions
 
-
+    public void removeItem(Item item)
+    {
+        for (Item it: droppedItems)
+        {
+            if(it.equals(item))
+            {
+                droppedItems.remove(item);
+                break;
+            }
+        }
+    }
     public void printRoom()
     {
         for (int i=0;i<N;++i)
@@ -143,6 +157,13 @@ public abstract class Room
     public int getM() {
         return M;
     }
+
+
+    public Vector<Item> getDroppedItems() {
+        return droppedItems;
+    }
+
+    public Vector<Enemy> getEnemies(){return enemies;}
 
     public Tile[][] getLayout()
     {
