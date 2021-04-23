@@ -33,7 +33,10 @@ import java.util.Vector;
 import com.csapat.entity.*;
 import com.csapat.levelLayoutGeneration.Level;
 import com.csapat.levelLayoutGeneration.RoomNode;
-import com.csapat.rooms.*;
+import com.csapat.rooms.ItemRoom;
+import com.csapat.rooms.RoomType;
+import com.csapat.rooms.Shop;
+import com.csapat.rooms.Tile;
 
 
 public class Renderer extends JPanel
@@ -101,6 +104,11 @@ public class Renderer extends JPanel
 
     private Boolean collide_timer_down=true;
     private java.util.Timer collide_with_enemy;
+
+    private Boolean attack_timer_down=true;
+    private java.util.Timer attack_timer;
+
+
 
 
     public Renderer(int height, int width, JFrame frame) {
@@ -265,8 +273,14 @@ public class Renderer extends JPanel
         {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                Attack attack = new Attack(player.getX(), player.getY(), 10,50, attackImg , player, enemies, player.getDirection(), player.getRange());
-                currentAttacks.add(attack);
+                if(attack_timer_down)
+                {
+                    attack_timer_down = false;
+                    Attack attack = new Attack(player.getX(), player.getY(), 10,50, attackImg , player, enemies, player.getDirection(), player.getRange());
+                    currentAttacks.add(attack);
+                    attack_timer = new java.util.Timer();
+                    attack_timer.schedule(new attackTask(), (int)(1000/player.getAttackSpeed()));
+                }
             }
         });
 
@@ -721,6 +735,24 @@ public class Renderer extends JPanel
             if(purchaseHint!=null) remove(purchaseHint);
             isAdded=false;
         }
+
+        for(int a = 0; a < currentAttacks.size(); a++)
+        {
+            for(int e = 0; e < enemies.size(); e++)
+            {
+                if(enemies.get(e).collides(currentAttacks.get(a))&&!((Enemy)(enemies.get(e))).getGotAttacked())
+                {
+                    Enemy en= ((Enemy)(enemies.get(e)));
+                    en.setGotAttacked(true);
+                    if(en.damaged(player.getDamage(), player.getAttackSpeed()))
+                    {
+                        //meghalt
+                        enemies.remove(en);
+                    }
+                }
+            }
+        }
+
     }
     private void generateItemStatLabels()
     {
@@ -1240,6 +1272,7 @@ public class Renderer extends JPanel
                     }
                     else {
                         enemy.move();
+                        enemy.behaviour(player.getX(),player.getY());
                     }
                 }
                 generateItemStatLabels();
@@ -1289,6 +1322,15 @@ public class Renderer extends JPanel
         public void run()
         {
             collide_timer_down = true;
+        }
+    }
+
+    class attackTask extends TimerTask
+    {
+        @Override
+        public void run()
+        {
+           attack_timer_down=true;
         }
     }
 }

@@ -311,7 +311,6 @@ public class Player extends Sprite
 
     public int getRange()
     {
-
         return (int)(range*rangeModifier);
     }
 
