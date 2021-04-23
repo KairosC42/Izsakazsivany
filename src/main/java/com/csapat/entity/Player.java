@@ -1,5 +1,6 @@
 package com.csapat.entity;
 
+import javax.imageio.ImageIO;
 import java.awt.Image;
 import java.util.Vector;
 
@@ -23,9 +24,9 @@ public class Player extends Sprite
 
     private int healthPointsMax=100;
     private int healthPoints=100;
-    private float range = 60;
+    private float range = 0;
     private float attackSpeed = 1;
-    private float damage = 20;
+    private float damage = 0;
     private int moveSpeed = 2;
     private int experience = 0;
     private int nextLevelThreshold;
@@ -43,7 +44,6 @@ public class Player extends Sprite
     private int frameHeight;
     private int frameWidth;
 
-
     private int healthPointsMaxModifier=0;
 
     private float rangeModifier=1;
@@ -55,6 +55,15 @@ public class Player extends Sprite
 
     public Player(int x, int y, int width, int height, Image playerImages[],int frameHeight, int frameWidth)
     {
+        Image weaponImage=null;
+        try{
+            weaponImage = ImageIO.read(this.getClass().getClassLoader().getResource("sword.png"));
+        }
+        catch (Exception e)
+        {
+            System.out.println("Missing texture!");
+        }
+        equipItem(new Weapon(0,0,0,0,weaponImage,0,"starting weapon",60,20,1));
         this.x = x;
         this.y = y;
         this.width = width;
@@ -268,16 +277,16 @@ public class Player extends Sprite
         }
         else if(item instanceof Weapon)
         {
-            Weapon weapon=(Weapon) item;
+            Weapon weapon = (Weapon) item;
             if(equippedWeapon!=null) {
-                rangeModifier -= equippedWeapon.rangeModifier;
-                attackSpeedModifier -= equippedWeapon.attackSpeedModifier;
-                attackSpeedModifier -= equippedWeapon.damageModifier;
-            }
 
-            rangeModifier += weapon.rangeModifier;
+                range -= equippedWeapon.rangeModifier;
+                attackSpeedModifier -= equippedWeapon.attackSpeedModifier;
+                damage -= equippedWeapon.damageModifier;
+            }
+            range += weapon.rangeModifier;
             attackSpeedModifier += weapon.attackSpeedModifier;
-            attackSpeedModifier += weapon.damageModifier;
+            damage += weapon.damageModifier;
             equippedWeapon = weapon;
 
         }
@@ -311,6 +320,7 @@ public class Player extends Sprite
 
     public int getRange()
     {
+
         return (int)(range*rangeModifier);
     }
 
