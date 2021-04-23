@@ -24,9 +24,9 @@ public class Player extends Sprite
 
     private int healthPointsMax=100;
     private int healthPoints=100;
-    private float range = 0;
+    private float range = 100;
     private float attackSpeed = 1;
-    private float damage = 0;
+    private float damage = 20;
     private int moveSpeed = 2;
     private int experience = 0;
     private int nextLevelThreshold;
@@ -63,7 +63,7 @@ public class Player extends Sprite
         {
             System.out.println("Missing texture!");
         }
-        equipItem(new Weapon(0,0,0,0,weaponImage,0,"starting weapon",60,20,1));
+        equipItem(new Weapon(0,0,0,0,weaponImage,0,"starting weapon",0,0,0));
         this.x = x;
         this.y = y;
         this.width = width;
