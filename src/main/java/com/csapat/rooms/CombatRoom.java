@@ -40,8 +40,8 @@ public class CombatRoom extends Room
         for(int i=0;i<enemyCount;++i)
         {
             int healthPoints = rand.nextInt(20)+50 + (levelDepth-1)*15 ;
-            float moveSpeed = 2.5f + (levelDepth-1)*0.4f ;
-            int visionRange = rand.nextInt(125)+25 + (levelDepth-1)*50; //enemies have full vision of every room from depth12
+            float moveSpeed = 2.0f + (levelDepth-1)*0.4f ;
+            int visionRange = rand.nextInt(25)+125 + (levelDepth-1)*50; //enemies have full vision of every room from depth12
             int attackRange = rand.nextInt(20) + 40 + (levelDepth-1)*20 ;
             int damage = Math.round(rand.nextInt(10)+20 +(levelDepth-1)*15);
 
