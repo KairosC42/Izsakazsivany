@@ -23,7 +23,7 @@ public class Player extends Sprite {
     private int healthPointsMax = 100;
     private int healthPoints = 100;
     private float range = 100;
-    private float attackSpeed = 1;
+    private float attackSpeed = 3;
     private float damage = 20;
     private int moveSpeed = 2;
     private int experience = 0;
