@@ -42,7 +42,7 @@ public class CombatRoom extends Room
             int healthPoints = rand.nextInt(20)+50 + (levelDepth-1)*15 ;
             float moveSpeed = 1.5f + (levelDepth-1)*0.4f ;
             int visionRange = rand.nextInt(25)+125 + (levelDepth-1)*50; //enemies have full vision of every room from depth12
-            int attackRange = rand.nextInt(20) + 40 + (levelDepth-1)*20 ;
+            int attackRange = rand.nextInt(20) + 200 + (levelDepth-1)*20 ;
             int damage = Math.round(rand.nextInt(10)+20 +(levelDepth-1)*15);
 
             enemies.add(new Enemy(/*getN() /2*/ 200 +i*50 ,/*getM()/2*/ 200  ,50,50,enemyTexture,damage,visionRange,attackRange,healthPoints,moveSpeed,levelDepth));
