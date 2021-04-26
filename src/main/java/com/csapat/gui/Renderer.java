@@ -62,6 +62,7 @@ public class Renderer extends JPanel
     int delta_time = 0;
     long time;
     private Image attackImg;
+    private Image enemyAttackImg = null;
     Vector<Item> items;
     Vector<Attack> currentAttacks = new Vector<Attack>();
     Graphics grphcs;
@@ -289,23 +290,8 @@ public class Renderer extends JPanel
                 if(attack_timer_down)
                 {
                     attack_timer_down = false;
-                    switch(player.getDirection())
-                    {
-                        case Up:
-                            attackImg = playerAttackUp;
-                            break;
-                        case Down:
-                            attackImg = playerAttackDown;
-                            break;
-                        case Left:
-                            attackImg = playerAttackLeft;
-                            break;
-                        case Right:
-                            attackImg = playerAttackRight;
-                            break;
-
-                    }
-                    Attack attack = new Attack(player.getX(), player.getY(), 25,player.getRange(), attackImg , player, enemies, player.getDirection(), player.getRange());
+                    setPlayerAttackImg(player.getDirection());
+                    Attack attack = new Attack(player.getX(), player.getY(), 25,player.getRange(), attackImg , player, enemies, player.getDirection(), player.getRange(), (int)player.getDamage());
                     currentAttacks.add(attack);
                     attack_timer = new java.util.Timer();
                     attack_timer.schedule(new attackTask(), (int)(1000/player.getAttackSpeed()));
@@ -325,7 +311,7 @@ public class Renderer extends JPanel
                     if(selectedItem instanceof Weapon)
                     {
                         Item tmp = player.dropCurrentWeapon();
-                        if(tmp!=null) {
+                        if(tmp!=null&&!tmp.getName().equals("starting weapon")) {
                             tmp.setPrice(0);
                             if (!overTheEdge(tmp.getX(), tmp.getY(), tmp.getWidth(), tmp.getHeight())) {
                                 tmp.setX(safeSetX(player.getX() + tmp.getWidth(), tmp.getWidth()));
@@ -604,7 +590,8 @@ public class Renderer extends JPanel
             }
         }
         if(enemies!=null) {
-            for (int i = 0; i < enemies.size(); i++) {
+            for (int i = 0; i < enemies.size(); i++)
+            {
                 enemies.get(i).draw(grphcs);
             }
         }
@@ -772,9 +759,9 @@ public class Renderer extends JPanel
             if(purchaseHint!=null) remove(purchaseHint);
             isAdded=false;
         }
-
-        for(int a = 0; a < currentAttacks.size(); a++)
+        for(Attack attack:currentAttacks)
         {
+            /*
             if(enemies!=null)
             for(int e = 0; e < enemies.size(); e++)
             {
@@ -788,8 +775,25 @@ public class Renderer extends JPanel
                         enemies.remove(en);
                     }
                 }
+            }*/
+
+            if(enemies!=null) {
+                Vector<Enemy> enemiesCopy = new Vector<>(enemies);
+                for (Enemy enemy : enemies) {
+                    if (enemy.collides(attack) && !enemy.getGotAttacked() && attack.getSource() == player) {
+                        enemy.setGotAttacked(true);
+                        enemy.damaged(attack.getDamage(), player.getAttackSpeed());
+                    }
+                }
+                enemies=enemiesCopy;
+            }
+
+            if(player.collides(attack)&&attack.getSource()!=player)
+            {
+                player.takeDamage(attack.getDamage());
             }
         }
+
 
     }
     private void generateItemStatLabels()
@@ -1275,21 +1279,66 @@ public class Renderer extends JPanel
     }
 
     //Maguktól mozgó dolgokat kell ebben az osztályban kezelni, illetve ha a mozgó objecktek ütköznek valamivel, azt is itt.
+
+    private void setPlayerAttackImg(Directions d)
+    {
+        switch(d)
+        {
+            case Up:
+                attackImg = playerAttackUp;
+                break;
+            case Down:
+                attackImg = playerAttackDown;
+                break;
+            case Left:
+                attackImg = playerAttackLeft;
+                break;
+            case Right:
+                attackImg = playerAttackRight;
+                break;
+        }
+    }
+
+    private void setEnemyAttackImg(Directions d)
+    {
+        switch(d)
+        {
+            case Up:
+                enemyAttackImg = enemyAttackUp;
+                break;
+            case Down:
+                enemyAttackImg = enemyAttackDown;
+                break;
+            case Left:
+                enemyAttackImg = enemyAttackLeft;
+                break;
+            case Right:
+                enemyAttackImg = enemyAttackRight;
+                break;
+        }
+    }
+
+
     class NewFrameListener implements ActionListener
     {
         @Override
         public void actionPerformed(ActionEvent ae)
         {
+            if(player.isDead())
+            {
+                //mourn
+            }
             player.moveX();
             player.moveY();
 
+            /*
             if(currentAttacks.size()>0)
             {
                 for (Attack attack : currentAttacks)
                 {
                     attack.cast();
                 }
-            }
+            }*/
             if(enemies!=null) {
                 Vector<Enemy> enemiesCopy = new Vector<Enemy>(enemies);
                 for (Enemy enemy:enemies)
@@ -1310,7 +1359,13 @@ public class Renderer extends JPanel
                     }
                     else {
                         Attack att =  enemy.behaviour(player);
-                        if(att!=null)currentAttacks.add(att);
+
+                        if(att!=null)
+                        {
+                            setEnemyAttackImg(enemy.getDirection());
+                            att.setImage(enemyAttackImg);
+                            currentAttacks.add(att);
+                        }
 
                     }
                 }
