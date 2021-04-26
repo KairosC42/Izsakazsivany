@@ -10,7 +10,7 @@ import java.util.Vector;
 public class Enemy extends Sprite {
     private Directions moveDirection;
     private Directions attackDirection;
-    private float speed = 2;
+    private float speed;
     private Directions lastMove;
     private int healthPoints;
     private int attackRange;
@@ -40,6 +40,7 @@ public class Enemy extends Sprite {
         this.speed=speed;
         this.levelDepth=levelDepth;
         changeDirection=true;
+        canAttack = true;
         moveTimer = new Timer();
         attackTimer = new Timer();
         moveTimer.schedule(new collideTask(), 0, 2000);
@@ -62,10 +63,9 @@ public class Enemy extends Sprite {
 
     public Attack attack(Player player)
     {
-        //todo: create directional attack images
         Vector<Player> target = new Vector<>();
         target.add(player);
-        return new Attack(200, 200, width, height,attackImage, this,target, lastMove, attackRange);
+        return new Attack(x, y, 25, attackRange,attackImage, this,target, lastMove, attackRange, damage);
     }
 
     public boolean isPlayerInAttackRange(int posX, int posY)
@@ -115,6 +115,7 @@ public class Enemy extends Sprite {
             followPlayer(player.getX(), player.getY());
             if(canAttack&&isPlayerInAttackRange(player.getX(), player.getY()))
             {
+                canAttack=false;
                 attackTimer.schedule(new attackedRecently(), 1000/ATTACK_SPEED);
                 return attack(player);
             }
@@ -122,6 +123,7 @@ public class Enemy extends Sprite {
         else
         {
             if(changeDirection) {
+                changeDirection=false;
                 moveTimer.schedule(new changeDir(), 250);
                 randDirection();
             }
@@ -134,16 +136,16 @@ public class Enemy extends Sprite {
 
         switch (moveDirection) {
             case Up:
-                y -= speed;
+                y -= (int)speed;
                 break;
             case Down:
-                y += speed;
+                y += (int)speed;
                 break;
             case Left:
-                x -= speed;
+                x -= (int)speed;
                 break;
             case Right:
-                x += speed;
+                x += (int)speed;
                 break;
             case Still:
                 break;
@@ -178,22 +180,20 @@ public class Enemy extends Sprite {
     public void moveBack() {
         switch (lastMove) {
             case Up:
-                y += speed;
+                y += (int)speed;
                 break;
             case Down:
-                y -= speed;;
+                y -= (int)speed;;
                 break;
             case Left:
-                x += speed;
+                x += (int)speed;
                 break;
             case Right:
-                x -= speed;
+                x -= (int)speed;
                 break;
         }
     }
 
-    public void attack() {
-    }
 
     public Item dropLoot(Player player)
     {
@@ -335,14 +335,14 @@ public class Enemy extends Sprite {
     {
         public void run()
         {
-            changeDirection = false;
+            changeDirection = true;
         }
     }
     class attackedRecently extends TimerTask
     {
         public void run()
         {
-            canAttack = false;
+            canAttack = true;
         }
     }
 
