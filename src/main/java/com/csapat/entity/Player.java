@@ -2,6 +2,8 @@ package com.csapat.entity;
 
 import javax.imageio.ImageIO;
 import java.awt.Image;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 public class Player extends Sprite {
@@ -23,13 +25,15 @@ public class Player extends Sprite {
     private int healthPointsMax = 100;
     private int healthPoints = 100;
     private float range = 100;
-    private float attackSpeed = 3;
+    private float attackSpeed = 2;
     private float damage = 20;
     private int moveSpeed = 2;
     private int experience = 0;
     private int nextLevelThreshold;
     private int playerLevel = 1;
     private Directions direction = Directions.Down;
+    private Timer invincibilityTimer;
+    private boolean canTakeDamage;
     //private Inventory inventory;
     private int velx;
     private int vely;
@@ -39,8 +43,6 @@ public class Player extends Sprite {
     Weapon equippedWeapon;
     int walkingTime;
     Image playerImages[];
-    private int frameHeight;
-    private int frameWidth;
 
     private int healthPointsMaxModifier = 0;
 
@@ -65,8 +67,8 @@ public class Player extends Sprite {
         this.height = height;
         this.playerImages = playerImages;
         this.image = playerImages[0];
-        this.frameHeight = frameHeight;
-        this.frameWidth = frameWidth;
+        invincibilityTimer= new Timer();
+        canTakeDamage = true;
         nextLevelThreshold = 200;
     }
 
@@ -74,6 +76,21 @@ public class Player extends Sprite {
         walkingTime += deltaTime;
     }
 
+
+    public boolean isDead() {return healthPoints>0;}
+
+    public void takeDamage(int damage)
+    {
+        if(canTakeDamage)
+        {
+            canTakeDamage=false;
+            int INVINCIBILITY_TIME = 500;
+            invincibilityTimer.schedule(new canTakeDamageTask(), INVINCIBILITY_TIME);
+            healthPoints-=damage;
+        }
+        if(healthPoints<0)healthPoints=0;
+
+    }
 
     public void buyItem(Item item) {
         this.money -= item.getPrice();
@@ -280,5 +297,12 @@ public class Player extends Sprite {
     public void stepBackAfterLeveltransition(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+    class canTakeDamageTask extends TimerTask
+    {
+        public void run()
+        {
+            canTakeDamage=true;
+        }
     }
 }
