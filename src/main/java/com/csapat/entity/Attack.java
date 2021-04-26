@@ -12,11 +12,12 @@ public class Attack extends Sprite{
     private int range;
     private int starter_x;
     private int starter_y;
+    private int damage;
     private int duration=15;
     private Directions dir;
 
 
-    public Attack(int x, int y, int width, int height, Image image, Sprite source, Vector target, Directions dir, int range) {
+    public Attack(int x, int y, int width, int height, Image image, Sprite source, Vector target, Directions dir, int range, int damage) {
         if(dir==Directions.Down)
         {
             this.x = source.x + ((source.width/2) - (width/2));
@@ -55,6 +56,7 @@ public class Attack extends Sprite{
         this.target = target;
         this.dir = dir;
         this.range = range;
+        this.damage = damage;
     }
 
     public void decreaseDuration()
@@ -123,6 +125,13 @@ public class Attack extends Sprite{
     public int getDuration() {
         return duration;
     }
+
+    public Sprite getSource()
+    {
+        return source;
+    }
+
+    public int getDamage() {return damage;}
 
     public void setSpeed(int speed)
     {
