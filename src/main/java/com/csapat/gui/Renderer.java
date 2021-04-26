@@ -92,7 +92,14 @@ public class Renderer extends JPanel
     private Image hearthTexture;
     private Image trapDoorOpenTexture;
     private Image trapDoorClosedTexture;
-    private Image enemyTexture;
+    private Image playerAttackUp;
+    private Image playerAttackDown;
+    private Image playerAttackLeft;
+    private Image playerAttackRight;
+    private Image enemyAttackUp;
+    private Image enemyAttackDown;
+    private Image enemyAttackLeft;
+    private Image enemyAttackRight;
     private Image[] playerImages;
 
     private Vector<Enemy> enemies = new Vector<>();
@@ -282,7 +289,23 @@ public class Renderer extends JPanel
                 if(attack_timer_down)
                 {
                     attack_timer_down = false;
-                    Attack attack = new Attack(player.getX(), player.getY(), 10,50, attackImg , player, enemies, player.getDirection(), player.getRange());
+                    switch(player.getDirection())
+                    {
+                        case Up:
+                            attackImg = playerAttackUp;
+                            break;
+                        case Down:
+                            attackImg = playerAttackDown;
+                            break;
+                        case Left:
+                            attackImg = playerAttackLeft;
+                            break;
+                        case Right:
+                            attackImg = playerAttackRight;
+                            break;
+
+                    }
+                    Attack attack = new Attack(player.getX(), player.getY(), 25,player.getRange(), attackImg , player, enemies, player.getDirection(), player.getRange());
                     currentAttacks.add(attack);
                     attack_timer = new java.util.Timer();
                     attack_timer.schedule(new attackTask(), (int)(1000/player.getAttackSpeed()));
@@ -424,9 +447,16 @@ public class Renderer extends JPanel
             bossDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door_open.png"));
             bossDoorClosedTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door_closed.png"));
             trapDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_open.png"));
-            trapDoorClosedTexture=ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_closed.png"));
+            trapDoorClosedTexture =ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_closed.png"));
             hearthTexture = ImageIO.read(this.getClass().getClassLoader().getResource("hearth.png"));
-            enemyTexture = ImageIO.read(this.getClass().getClassLoader().getResource("enemy.png"));
+            playerAttackUp = ImageIO.read(this.getClass().getClassLoader().getResource("attackUp.png"));
+            playerAttackDown = ImageIO.read(this.getClass().getClassLoader().getResource("attackDown.png"));
+            playerAttackLeft = ImageIO.read(this.getClass().getClassLoader().getResource("attackLeft.png"));
+            playerAttackRight = ImageIO.read(this.getClass().getClassLoader().getResource("attackRight.png"));
+            enemyAttackUp = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackUp.png"));
+            enemyAttackDown = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackDown.png"));
+            enemyAttackLeft = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackLeft.png"));
+            enemyAttackRight = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackRight.png"));
 
         }
         catch(Exception e)
@@ -581,6 +611,7 @@ public class Renderer extends JPanel
         for (Attack att : currentAttacks)
         {
             att.draw(grphcs);
+            att.decreaseDuration();
         }
 
 
@@ -1261,14 +1292,6 @@ public class Renderer extends JPanel
             }
             if(enemies!=null) {
                 Vector<Enemy> enemiesCopy = new Vector<Enemy>(enemies);
-
-                if(moveTimeOut)
-                {
-                    moveTimeOut=false;
-                    for(Enemy enemy: enemies) {if(!enemy.isPlayerInVisionRange(player.getX(),player.getY())) enemy.randDirection();}
-                    enemyMoveTimer= new java.util.Timer();
-                    enemyMoveTimer.schedule(new enemyMoveTask(), 250);
-                }
                 for (Enemy enemy:enemies)
                 {
                     if(enemy.getHealthPoints()==0)
@@ -1286,12 +1309,8 @@ public class Renderer extends JPanel
                         enemiesCopy.remove(enemy);
                     }
                     else {
-                        if(enemy.isPlayerInVisionRange(player.getX(),player.getY()))
-                        {
-                            enemy.followPlayer(player.getX(), player.getY());
-
-                        }
-                        enemy.move();
+                        Attack att =  enemy.behaviour(player);
+                        if(att!=null)currentAttacks.add(att);
 
                     }
                 }
@@ -1329,10 +1348,14 @@ public class Renderer extends JPanel
         {
             for(int i = 0; i < currentAttacks.size(); i++)
             {
-                if(currentAttacks.get(i).isEnded())
+                if(currentAttacks.get(i).getDuration()<=0)
                 {
                     currentAttacks.remove(currentAttacks.get(i));
                 }
+               /* if(currentAttacks.get(i).isEnded())
+                {
+                    currentAttacks.remove(currentAttacks.get(i));
+                }*/
             }
         }
     }
