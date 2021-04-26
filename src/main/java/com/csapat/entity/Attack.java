@@ -7,11 +7,12 @@ public class Attack extends Sprite{
 
     private Sprite source;
     private Vector target;
-    private int speed = 1;
+    private int speed = 0;
     private boolean isEnded = false;
     private int range;
     private int starter_x;
     private int starter_y;
+    private int duration=15;
     private Directions dir;
 
 
@@ -56,6 +57,11 @@ public class Attack extends Sprite{
         this.range = range;
     }
 
+    public void decreaseDuration()
+    {
+        duration-=1;
+    }
+
 
     public void cast()
     {
@@ -69,6 +75,7 @@ public class Attack extends Sprite{
             case Right:this.x+=speed;
                 break;
         }
+
         if(isOutOfRange())
         {
             isEnded = true;
@@ -111,6 +118,10 @@ public class Attack extends Sprite{
     public int getSpeed()
     {
         return speed;
+    }
+
+    public int getDuration() {
+        return duration;
     }
 
     public void setSpeed(int speed)
