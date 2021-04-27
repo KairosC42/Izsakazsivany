@@ -102,8 +102,8 @@ public class Attack extends Sprite{
             case Right:
                 if(secondary==Directions.Up)
                 {
-                    this.x = source.x + 2*width+2*OFFSET;
-                    this.y = source.y -range+width/2;
+                    this.x = source.x+ width + TOP_OFFSET -OFFSET;
+                    this.y = source.y- TOP_OFFSET -OFFSET ;
                 }
                 if(secondary==Directions.Down)
                 {
@@ -118,8 +118,8 @@ public class Attack extends Sprite{
 
         if(primary==Directions.Right || primary==Directions.Left)
         {
-            this.height = width;
-            this.width = height;
+            this.height = TOP_OFFSET;
+            this.width =TOP_OFFSET;
         }
         else
         {
