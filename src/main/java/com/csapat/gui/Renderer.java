@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.geom.AffineTransform;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 //import java.awt.event.KeyListener;
@@ -97,6 +98,10 @@ public class Renderer extends JPanel
     private Image playerAttackDown;
     private Image playerAttackLeft;
     private Image playerAttackRight;
+    private Image playerAttackUpRight;
+    private Image playerAttackUpLeft;
+    private Image playerAttackDownLeft;
+    private Image playerAttackDownRight;
     private Image enemyAttackUp;
     private Image enemyAttackDown;
     private Image enemyAttackLeft;
@@ -118,6 +123,13 @@ public class Renderer extends JPanel
 
     private Boolean attack_timer_down=true;
     private java.util.Timer attack_timer;
+    private Directions primaryPlayerAttackDirection;
+    private Directions secondaryPlayerAttackDirection;
+    private boolean isPrimaryPlayerAttackDirectionSet=false;
+    private boolean isSecondaryPlayerAttackDirectionSet=false;
+    private Vector<Image> rotatedImages;
+    private Vector<Integer> rotationDegrees;
+    private Vector<Attack> attacksWithRotatedImages;
 
     private Boolean moveTimeOut = true;
     private java.util.Timer enemyMoveTimer;
@@ -135,6 +147,10 @@ public class Renderer extends JPanel
         itemStatLabels=new Vector<>();
         items = new Vector<>();
 
+        rotatedImages = new Vector<>();
+        rotationDegrees = new Vector<>();
+        attacksWithRotatedImages= new Vector<>();
+
         tilesVector=new Vector<>();
 
         handleInputs();
@@ -142,6 +158,7 @@ public class Renderer extends JPanel
         this.n = level.getStartingRoom().getRoom().getN();  //20magas - sorok száma
         this.m = level.getStartingRoom().getRoom().getM();//30széles - oszlopok száma
         roomMatrix=level.getRoomMatrix();
+
 
 
 
@@ -193,8 +210,8 @@ public class Renderer extends JPanel
     public void handleInputs()
     {
         //input kezelések
-        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "pressed up");
-        this.getActionMap().put("pressed up", new AbstractAction()
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "pressed w");
+        this.getActionMap().put("pressed w", new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -205,8 +222,8 @@ public class Renderer extends JPanel
                 }
             }
         });
-        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "released up");
-        this.getActionMap().put("released up", new AbstractAction()
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "released w");
+        this.getActionMap().put("released w", new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -215,8 +232,8 @@ public class Renderer extends JPanel
             }
         });
 
-        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "pressed left");
-        this.getActionMap().put("pressed left", new AbstractAction()
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "pressed a");
+        this.getActionMap().put("pressed a", new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -227,8 +244,8 @@ public class Renderer extends JPanel
                 }
             }
         });
-        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "released left");
-        this.getActionMap().put("released left", new AbstractAction()
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "released a");
+        this.getActionMap().put("released a", new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -237,8 +254,8 @@ public class Renderer extends JPanel
             }
         });
 
-        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "pressed down");
-        this.getActionMap().put("pressed down", new AbstractAction()
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "pressed s");
+        this.getActionMap().put("pressed s", new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -249,8 +266,8 @@ public class Renderer extends JPanel
                 }
             }
         });
-        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "released down");
-        this.getActionMap().put("released down", new AbstractAction()
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "released s");
+        this.getActionMap().put("released s", new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -259,8 +276,8 @@ public class Renderer extends JPanel
             }
         });
 
-        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "pressed right");
-        this.getActionMap().put("pressed right", new AbstractAction()
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "pressed d");
+        this.getActionMap().put("pressed d", new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -271,8 +288,8 @@ public class Renderer extends JPanel
                 }
             }
         });
-        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "released right");
-        this.getActionMap().put("released right", new AbstractAction()
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "released d");
+        this.getActionMap().put("released d", new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -282,7 +299,7 @@ public class Renderer extends JPanel
         });
 
 
-        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), "pressed space");
+        /*this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), "pressed space");
         this.getActionMap().put("pressed space", new AbstractAction()
         {
             @Override
@@ -297,7 +314,7 @@ public class Renderer extends JPanel
                     attack_timer.schedule(new attackTask(), (int)(1000/player.getAttackSpeed()));
                 }
             }
-        });
+        });*/
 
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0, false), "pressed b");
@@ -373,13 +390,244 @@ public class Renderer extends JPanel
 
             }
         });
+
+        //plan 8 directional attacks, set by the arrow cluster
+        //2 Directions store the directions,
+
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, false), "pressed left");
+        this.getActionMap().put("pressed left", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                System.out.println("Pressed left");
+                if(!isPrimaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Right) {
+                    System.out.println("set left prim");
+                    primaryPlayerAttackDirection = Directions.Left;
+                    isPrimaryPlayerAttackDirectionSet =true;
+                }
+                else if(!isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Left&&primaryPlayerAttackDirection!=Directions.Right&&primaryPlayerAttackDirection!=Directions.Left)
+                {
+                    System.out.println("set left sec");
+                    secondaryPlayerAttackDirection=Directions.Left;
+                    isSecondaryPlayerAttackDirectionSet=true;
+                }
+                if(primaryPlayerAttackDirection == Directions.Left&&isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection==Directions.Left)
+                {
+                    System.out.println("left spec");
+                    secondaryPlayerAttackDirection=null;
+                    isSecondaryPlayerAttackDirectionSet=false;
+                }
+            }
+        });
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, true), "released left");
+        this.getActionMap().put("released left", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                System.out.println("released left");
+                if(primaryPlayerAttackDirection==Directions.Left)
+                {
+                    System.out.println("left prim unbound");
+                    primaryPlayerAttackDirection=null;
+                    isPrimaryPlayerAttackDirectionSet=false;
+                }
+                if(secondaryPlayerAttackDirection==Directions.Left)
+                {
+                    System.out.println("left sec unbound");
+                    secondaryPlayerAttackDirection=null;
+                    isSecondaryPlayerAttackDirectionSet=false;
+                }
+            }
+        });
+
+
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, false), "pressed up");
+        this.getActionMap().put("pressed up", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                System.out.println("Pressed up");
+                if(!isPrimaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Down) {
+                    System.out.println("set up prim");
+                    primaryPlayerAttackDirection = Directions.Up;
+                    isPrimaryPlayerAttackDirectionSet =true;
+                }
+                else if(!isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Up&&primaryPlayerAttackDirection!=Directions.Down&&primaryPlayerAttackDirection!=Directions.Up)
+                {
+                    System.out.println("set up sec");
+                    secondaryPlayerAttackDirection=Directions.Up;
+                    isSecondaryPlayerAttackDirectionSet=true;
+                }
+                if(primaryPlayerAttackDirection == Directions.Up&&isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection==Directions.Up)
+                {
+                    System.out.println("up spec");
+                    secondaryPlayerAttackDirection=null;
+                    isSecondaryPlayerAttackDirectionSet=false;
+                }
+            }
+        });
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, true), "released up");
+        this.getActionMap().put("released up", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                System.out.println("released up");
+                if(primaryPlayerAttackDirection==Directions.Up)
+                {
+                    System.out.println("up prim unbound");
+                    primaryPlayerAttackDirection=null;
+                    isPrimaryPlayerAttackDirectionSet=false;
+                }
+                if(secondaryPlayerAttackDirection==Directions.Up)
+                {
+                    System.out.println("up sec unbound");
+                    secondaryPlayerAttackDirection=null;
+                    isSecondaryPlayerAttackDirectionSet=false;
+                }
+            }
+        });
+
+
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0, false), "pressed down");
+        this.getActionMap().put("pressed down", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                System.out.println("Pressed down");
+                if(!isPrimaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Up) {
+                    System.out.println("set down prim");
+                    primaryPlayerAttackDirection = Directions.Down;
+                    isPrimaryPlayerAttackDirectionSet =true;
+                }
+                else if(!isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Down&&primaryPlayerAttackDirection!=Directions.Up&&primaryPlayerAttackDirection!=Directions.Down)
+                {
+                    System.out.println("set down sec");
+                    secondaryPlayerAttackDirection=Directions.Down;
+                    isSecondaryPlayerAttackDirectionSet=true;
+                }
+                if(primaryPlayerAttackDirection == Directions.Down&&isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection==Directions.Down)
+                {
+                    System.out.println("down spec");
+                    secondaryPlayerAttackDirection=null;
+                    isSecondaryPlayerAttackDirectionSet=false;
+                }
+            }
+        });
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0, true), "released down");
+        this.getActionMap().put("released down", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                System.out.println("released down");
+                if(primaryPlayerAttackDirection==Directions.Down)
+                {
+                    System.out.println("down prim unbound");
+                    primaryPlayerAttackDirection=null;
+                    isPrimaryPlayerAttackDirectionSet=false;
+                }
+                if(secondaryPlayerAttackDirection==Directions.Down)
+                {
+                    System.out.println("down sec unbound");
+                    secondaryPlayerAttackDirection=null;
+                    isSecondaryPlayerAttackDirectionSet=false;
+                }
+            }
+        });
+
+
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, false), "pressed right");
+        this.getActionMap().put("pressed right", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                System.out.println("Pressed right");
+                if(!isPrimaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Left) {
+                    System.out.println("set right prim");
+                    primaryPlayerAttackDirection = Directions.Right;
+                    isPrimaryPlayerAttackDirectionSet =true;
+                }
+                else if(!isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Right&&primaryPlayerAttackDirection!=Directions.Left&&primaryPlayerAttackDirection!=Directions.Right)
+                {
+                    System.out.println("set right sec");
+                    secondaryPlayerAttackDirection=Directions.Right;
+                    isSecondaryPlayerAttackDirectionSet=true;
+                }
+                if(primaryPlayerAttackDirection == Directions.Right&&isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection==Directions.Right)
+                {
+                    System.out.println("right spec");
+                    secondaryPlayerAttackDirection=null;
+                    isSecondaryPlayerAttackDirectionSet=false;
+                }
+            }
+        });
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, true), "released right");
+        this.getActionMap().put("released right", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                System.out.println("released right");
+                if(primaryPlayerAttackDirection==Directions.Right)
+                {
+                    System.out.println("right prim unbound");
+                    primaryPlayerAttackDirection=null;
+                    isPrimaryPlayerAttackDirectionSet=false;
+                }
+                if(secondaryPlayerAttackDirection==Directions.Right)
+                {
+                    System.out.println("right sec unbound");
+                    secondaryPlayerAttackDirection=null;
+                    isSecondaryPlayerAttackDirectionSet=false;
+                }
+            }
+        });
     }
 
+    /**
+     * Returns true if an element in originX,originY extemded by addedX or addedY would be off-screen
+     * @param originX
+     * @param originY
+     * @param addedX
+     * @param addedY
+     * @return
+     */
     public boolean overTheEdge(int originX, int originY, int addedX, int addedY)
     {
         return originX+addedX>window_h-tileWidth||originY+addedY>window_w-tileHeight;
     }
 
+    /**
+     * Creates a new attack based attack directions set by listeners for the arrows
+     * if no direction is set, it returns null
+     * @return
+     */
+    private Attack createPlayerAttack() {
+        if (isPrimaryPlayerAttackDirectionSet)
+        {
+            if(isSecondaryPlayerAttackDirectionSet)
+            {
+                //int x, int y, int width, int height, Image image, Sprite source, Vector target, Directions primary, Directions secondary, int range, int damage
+                setPlayerAttackImg(primaryPlayerAttackDirection,secondaryPlayerAttackDirection);
+                return new Attack(0,0,35, player.getRange(), null, player, enemies, primaryPlayerAttackDirection, secondaryPlayerAttackDirection, player.getRange(), (int)player.getDamage());
+            }
+            setPlayerAttackImgPrimary(primaryPlayerAttackDirection);
+            return new Attack(0,0,35, player.getRange(), attackImg, player, enemies, primaryPlayerAttackDirection, player.getRange(), (int)player.getDamage());
+
+        }
+        return null;
+
+    }
+
+    /**
+     * Adds labels currently in itemStatLabels to this, if they aren't already in
+     */
     public void addLabels()
     {
         if(itemStatLabels!=null)
@@ -412,7 +660,9 @@ public class Renderer extends JPanel
         return posY;
     }
 
-
+    /**
+     * reads the textures used in the game
+     */
     public void initGraphics()
     {
         try
@@ -439,6 +689,10 @@ public class Renderer extends JPanel
             playerAttackDown = ImageIO.read(this.getClass().getClassLoader().getResource("attackDown.png"));
             playerAttackLeft = ImageIO.read(this.getClass().getClassLoader().getResource("attackLeft.png"));
             playerAttackRight = ImageIO.read(this.getClass().getClassLoader().getResource("attackRight.png"));
+            playerAttackUpRight = ImageIO.read(this.getClass().getClassLoader().getResource("attackUpRight.png"));
+            playerAttackUpLeft = ImageIO.read(this.getClass().getClassLoader().getResource("attackUpLeft.png"));
+            playerAttackDownLeft = ImageIO.read(this.getClass().getClassLoader().getResource("attackDownLeft.png"));
+            playerAttackDownRight = ImageIO.read(this.getClass().getClassLoader().getResource("attackDownRight.png"));
             enemyAttackUp = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackUp.png"));
             enemyAttackDown = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackDown.png"));
             enemyAttackLeft = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackLeft.png"));
@@ -459,7 +713,11 @@ public class Renderer extends JPanel
 
 
     }
-    //Kezdő állapotban lévő elemenk létrehozása.
+
+    /**
+     * sets tiles[][], which is then used to render a room
+     * this should be called every time rooms are changed!
+     */
     public void initTiles() {
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
@@ -534,10 +792,6 @@ public class Renderer extends JPanel
 
 
     }
-    public void nextRoom()
-    {
-        //toDo
-    }
 
     //egy képmátrix felbontására szolgáló függvény
     /*
@@ -600,6 +854,30 @@ public class Renderer extends JPanel
             att.draw(grphcs);
             att.decreaseDuration();
         }
+        if(rotatedImages.size()>0)
+        for(Image rotated: rotatedImages)
+        {
+            int idx = rotatedImages.indexOf(rotated);
+            Graphics2D g2 = (Graphics2D) grphcs;
+            AffineTransform af = AffineTransform.getTranslateInstance(attacksWithRotatedImages.get(idx).getX(), attacksWithRotatedImages.get(idx).getY());
+            af.rotate(Math.toRadians(rotationDegrees.get(idx)));
+            af.scale(1f, player.getRange()/35.f);
+            g2.drawImage(rotated,af, null);
+        }
+        if(attacksWithRotatedImages!=null&&attacksWithRotatedImages.size()>0) {
+            Vector<Attack> rotatedCopy = new Vector(attacksWithRotatedImages);
+            for (Attack at : attacksWithRotatedImages) {
+                if (at.getDuration() <= 0) {
+                    int idx = attacksWithRotatedImages.indexOf(at);
+                    rotatedImages.remove(idx);
+                    rotationDegrees.remove(idx);
+                    rotatedCopy.remove(idx);
+                }
+            }
+
+            attacksWithRotatedImages = rotatedCopy;
+        }
+        //for()
 
 
 
@@ -712,14 +990,7 @@ public class Renderer extends JPanel
                             enemies.get(k).moveBack();
 
                         }
-                        if (enemies.get(k).collides(player)) {
-                            if (collide_timer_down) {
-                                collide_timer_down = false;
-                                player.setHealth(player.getHealth() - enemies.get(k).getDamage());
-                                collide_with_enemy = new java.util.Timer();
-                                collide_with_enemy.schedule(new collideTask(), 500);
-                            }
-                        }
+
                     }
                 }
             }
@@ -793,8 +1064,21 @@ public class Renderer extends JPanel
                 player.takeDamage(attack.getDamage());
             }
         }
-
-
+        if(enemies!=null)
+        for(Enemy enemy: enemies)
+        {
+            for(Enemy enemy2: enemies)
+            {
+                if(enemy.collides(enemy2)&&enemy!=enemy2)
+                {
+                    enemy.moveBack();
+                }
+            }
+            if(enemy.collides(player))
+            {
+                enemy.moveBack();
+            }
+        }
     }
     private void generateItemStatLabels()
     {
@@ -1280,7 +1564,11 @@ public class Renderer extends JPanel
 
     //Maguktól mozgó dolgokat kell ebben az osztályban kezelni, illetve ha a mozgó objecktek ütköznek valamivel, azt is itt.
 
-    private void setPlayerAttackImg(Directions d)
+    /**
+     * Sets the player attack texture when only a primary direction is given
+     * @param d
+     */
+    private void setPlayerAttackImgPrimary(Directions d)
     {
         switch(d)
         {
@@ -1295,6 +1583,60 @@ public class Renderer extends JPanel
                 break;
             case Right:
                 attackImg = playerAttackRight;
+                break;
+        }
+    }
+
+    /**
+     * Sets the player attack image when both primary and secondary directions are given
+     * be careful to only call this with sensible primary and secondary combinations
+     * @param primary
+     * @param secondary
+     */
+    private void setPlayerAttackImg(Directions primary, Directions secondary)
+    {
+        attackImg=null;
+        switch(primary)
+        {
+            case Up:
+                if(secondary==Directions.Left) {
+                    rotatedImages.add(playerAttackUp);
+                    rotationDegrees.add(315);
+                }
+                if(secondary==Directions.Right) {
+                    rotatedImages.add(playerAttackUp);
+                    rotationDegrees.add(45);
+                }
+                break;
+            case Down:
+                if(secondary==Directions.Left) {
+                    rotatedImages.add(playerAttackDown);
+                    rotationDegrees.add(45);
+                }
+                if(secondary==Directions.Right) {
+                    rotatedImages.add(playerAttackDown);
+                    rotationDegrees.add(315);
+                }
+                break;
+            case Left:
+                if(secondary==Directions.Up) {
+                    rotatedImages.add(playerAttackUp);
+                    rotationDegrees.add(315);
+                }
+                if(secondary==Directions.Down) {
+                    rotatedImages.add(playerAttackDown);
+                    rotationDegrees.add(45);
+                }
+                break;
+            case Right:
+                if(secondary==Directions.Up) {
+                    rotatedImages.add(playerAttackUp);
+                    rotationDegrees.add(45);
+                }
+                if(secondary==Directions.Down) {
+                    rotatedImages.add(playerAttackDown);
+                    rotationDegrees.add(315);
+                }
                 break;
         }
     }
@@ -1330,6 +1672,31 @@ public class Renderer extends JPanel
             }
             player.moveX();
             player.moveY();
+
+                if(attack_timer_down)
+                {
+                    Attack playerAttack = createPlayerAttack();
+                    if(playerAttack!=null)
+                    {
+                        attack_timer_down = false;
+                        //player attack return null if no primary direction is present, and attackImg is set then
+                        //therefore attackImg is never null when used here
+                        //todo this needs to become a more robust check
+                        if(isPrimaryPlayerAttackDirectionSet&&isSecondaryPlayerAttackDirectionSet)
+                        {
+                            System.out.println("primary: "+primaryPlayerAttackDirection);
+                            System.out.println("secondary : "+secondaryPlayerAttackDirection);
+                            attacksWithRotatedImages.add(playerAttack);
+                        }
+                        else
+                        {
+                            playerAttack.setImage(attackImg);
+                        }
+                        currentAttacks.add(playerAttack);
+                        attack_timer = new java.util.Timer();
+                        attack_timer.schedule(new attackTask(), (int)(1000/player.getAttackSpeed()));
+                    }
+            }
 
             /*
             if(currentAttacks.size()>0)
