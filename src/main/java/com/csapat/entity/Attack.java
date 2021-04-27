@@ -15,6 +15,9 @@ public class Attack extends Sprite{
     private int damage;
     private int duration=15;
     private Directions dir;
+    //offset is a rough integer approximation of sqrt(((imagewidth/2)^2)/2) which is the length of an
+    // equilateral triangle's shorter sides from py's theorem
+    private final int OFFSET = 7;
 
 
     public Attack(int x, int y, int width, int height, Image image, Sprite source, Vector target, Directions dir, int range, int damage) {
@@ -55,6 +58,77 @@ public class Attack extends Sprite{
         this.source = source;
         this.target = target;
         this.dir = dir;
+        this.range = range;
+        this.damage = damage;
+    }
+
+    public Attack(int x, int y, int width, int height, Image image, Sprite source, Vector target, Directions primary, Directions secondary, int range, int damage) {
+        int TOP_OFFSET = Math.round((float) Math.sqrt((range * range) / 2.f));
+        switch(primary)
+        {
+            //todo try to fix hitboxes
+            case Down:
+                if(secondary==Directions.Left) {
+                    this.x = source.x-OFFSET;
+                    this.y = source.y+source.height-OFFSET;
+                }
+                if(secondary==Directions.Right) {
+                    this.x = source.x+source.width-OFFSET;
+                    this.y = source.y+source.height+OFFSET;
+                }
+                break;
+            case Up:
+                if(secondary==Directions.Left) {
+                    this.x = source.x- TOP_OFFSET -OFFSET;
+                    this.y = source.y- TOP_OFFSET +OFFSET;
+                }
+                if(secondary==Directions.Right) {
+                    this.x = source.x+ width + TOP_OFFSET -OFFSET;
+                    this.y = source.y- TOP_OFFSET -OFFSET ;
+                }
+                break;
+            case Left:
+                if(secondary==Directions.Up)
+                {
+                    this.x = source.x- TOP_OFFSET -OFFSET;
+                    this.y = source.y- TOP_OFFSET +OFFSET;
+                }
+                if(secondary==Directions.Down)
+                {
+                    this.x = source.x-OFFSET;
+                    this.y = source.y+source.height-OFFSET;
+                }
+                break;
+            case Right:
+                if(secondary==Directions.Up)
+                {
+                    this.x = source.x + 2*width+2*OFFSET;
+                    this.y = source.y -range+width/2;
+                }
+                if(secondary==Directions.Down)
+                {
+                    this.x = source.x+source.width-OFFSET;
+                    this.y = source.y+source.height+OFFSET;
+                }
+                break;
+        }
+
+        starter_x = this.x;
+        starter_y = this.y;
+
+        if(primary==Directions.Right || primary==Directions.Left)
+        {
+            this.height = width;
+            this.width = height;
+        }
+        else
+        {
+            this.width = width;
+            this.height = height;
+        }
+        this.image = image;
+        this.source = source;
+        this.target = target;
         this.range = range;
         this.damage = damage;
     }
