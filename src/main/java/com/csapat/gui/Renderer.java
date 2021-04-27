@@ -43,15 +43,14 @@ import com.csapat.rooms.CombatRoom;
 import com.csapat.rooms.Room;
 
 
-public class Renderer extends JPanel
-{
+public class Renderer extends JPanel {
     Item selectedItem;
 
-    boolean isAdded=false;
+    boolean isAdded = false;
     private JFrame frame;
     private int window_w;
     private int window_h;
-    private int tile_size =30;
+    private int tile_size = 30;
     private Timer newFrameTimer;
     //private Timer animationTimer;
     private final int FPS = 240;
@@ -114,19 +113,19 @@ public class Renderer extends JPanel
 
     private RoomNode[][] roomMatrix;
     private RoomNode currentRoomNode;
-    private LocalTime lastTransitionTime= LocalTime.now();
+    private LocalTime lastTransitionTime = LocalTime.now();
 
     private Sprite hearthSprite;
 
-    private Boolean collide_timer_down=true;
+    private Boolean collide_timer_down = true;
     private java.util.Timer collide_with_enemy;
 
-    private Boolean attack_timer_down=true;
+    private Boolean attack_timer_down = true;
     private java.util.Timer attack_timer;
     private Directions primaryPlayerAttackDirection;
     private Directions secondaryPlayerAttackDirection;
-    private boolean isPrimaryPlayerAttackDirectionSet=false;
-    private boolean isSecondaryPlayerAttackDirectionSet=false;
+    private boolean isPrimaryPlayerAttackDirectionSet = false;
+    private boolean isSecondaryPlayerAttackDirectionSet = false;
     private Vector<Image> rotatedImages;
     private Vector<Integer> rotationDegrees;
     private Vector<Attack> attacksWithRotatedImages;
@@ -135,36 +134,31 @@ public class Renderer extends JPanel
     private java.util.Timer enemyMoveTimer;
 
 
-
-
     public Renderer(int height, int width, JFrame frame) {
         super();
         this.window_h = height;
         this.window_w = width;
         this.frame = frame;
 
-        purchaseHint= new JLabel();
-        itemStatLabels=new Vector<>();
+        purchaseHint = new JLabel();
+        itemStatLabels = new Vector<>();
         items = new Vector<>();
 
         rotatedImages = new Vector<>();
         rotationDegrees = new Vector<>();
-        attacksWithRotatedImages= new Vector<>();
+        attacksWithRotatedImages = new Vector<>();
 
-        tilesVector=new Vector<>();
+        tilesVector = new Vector<>();
 
         handleInputs();
         this.level = new Level(levelDepth);
         this.n = level.getStartingRoom().getRoom().getN();  //20magas - sorok száma
         this.m = level.getStartingRoom().getRoom().getM();//30széles - oszlopok száma
-        roomMatrix=level.getRoomMatrix();
+        roomMatrix = level.getRoomMatrix();
 
 
-
-
-        this.window_h = tile_size*this.m;
-        this.window_w = tile_size*this.n;
-
+        this.window_h = tile_size * this.m;
+        this.window_w = tile_size * this.n;
 
 
         tileHeight = tile_size;
@@ -173,10 +167,10 @@ public class Renderer extends JPanel
         player_height = tileHeight;
         this.tiles = new Sprite[this.n][this.m];
 
-        currentRoomNode=level.getStartingRoom();
+        currentRoomNode = level.getStartingRoom();
         initGraphics();
 
-        player = new Player(450,100, player_height, player_width,playerImages,this.window_h,this.window_w);
+        player = new Player(450, 100, player_height, player_width, playerImages, this.window_h, this.window_w);
         /*for (int i = 0; i < levelDepth + 2; ++i)
         {
             enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10,10,10));
@@ -189,17 +183,16 @@ public class Renderer extends JPanel
 
     }
 
-    public void newLevel()
-    {
+    public void newLevel() {
         newFrameTimer.stop();
         //timer is stopped here, restarted later, to avoid any weird behaviour while a new floor is generated and loaded
-        this.level=new Level(++levelDepth);
+        this.level = new Level(++levelDepth);
         //the rest of the things set in the constructor are still valid here
 
-        this.player.setX(n/2*tileHeight);
-        this.player.setY(m/2*tileWidth);
-        currentRoomNode=level.getStartingRoom();
-        roomMatrix=level.getRoomMatrix();
+        this.player.setX(n / 2 * tileHeight);
+        this.player.setY(m / 2 * tileWidth);
+        currentRoomNode = level.getStartingRoom();
+        roomMatrix = level.getRoomMatrix();
         //player starts in the middle of the room
         initTiles();
         // calling init() is a temporary solution, as that also resets textures, realistically i only want the starting room's textures and layout
@@ -207,93 +200,72 @@ public class Renderer extends JPanel
         newFrameTimer.start();
     }
 
-    public void handleInputs()
-    {
+    public void handleInputs() {
         //input kezelések
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "pressed w");
-        this.getActionMap().put("pressed w", new AbstractAction()
-        {
+        this.getActionMap().put("pressed w", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                if(player.getVelX() == 0)
-                {
+            public void actionPerformed(ActionEvent ae) {
+                if (player.getVelX() == 0) {
                     player.setVelY(-player.getMoveSpeed());
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "released w");
-        this.getActionMap().put("released w", new AbstractAction()
-        {
+        this.getActionMap().put("released w", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 player.setVelY(0);
             }
         });
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "pressed a");
-        this.getActionMap().put("pressed a", new AbstractAction()
-        {
+        this.getActionMap().put("pressed a", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                if(player.getVelY() == 0)
-                {
+            public void actionPerformed(ActionEvent ae) {
+                if (player.getVelY() == 0) {
                     player.setVelX(-player.getMoveSpeed());
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "released a");
-        this.getActionMap().put("released a", new AbstractAction()
-        {
+        this.getActionMap().put("released a", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 player.setVelX(0);
             }
         });
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "pressed s");
-        this.getActionMap().put("pressed s", new AbstractAction()
-        {
+        this.getActionMap().put("pressed s", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                if(player.getVelX() == 0)
-                {
+            public void actionPerformed(ActionEvent ae) {
+                if (player.getVelX() == 0) {
                     player.setVelY(player.getMoveSpeed());
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "released s");
-        this.getActionMap().put("released s", new AbstractAction()
-        {
+        this.getActionMap().put("released s", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 player.setVelY(0);
             }
         });
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "pressed d");
-        this.getActionMap().put("pressed d", new AbstractAction()
-        {
+        this.getActionMap().put("pressed d", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                if(player.getVelY() == 0)
-                {
+            public void actionPerformed(ActionEvent ae) {
+                if (player.getVelY() == 0) {
                     player.setVelX(player.getMoveSpeed());
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "released d");
-        this.getActionMap().put("released d", new AbstractAction()
-        {
+        this.getActionMap().put("released d", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 player.setVelX(0);
             }
         });
@@ -318,58 +290,50 @@ public class Renderer extends JPanel
 
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0, false), "pressed b");
-        this.getActionMap().put("pressed b", new AbstractAction()
-        {
+        this.getActionMap().put("pressed b", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if(selectedItem !=null)
-                if(player.getMoney()>= selectedItem.getPrice())
-                {
-                    if(selectedItem instanceof Weapon)
-                    {
-                        Item tmp = player.dropCurrentWeapon();
-                        if(tmp!=null&&!tmp.getName().equals("starting weapon")) {
-                            tmp.setPrice(0);
-                            if (!overTheEdge(tmp.getX(), tmp.getY(), tmp.getWidth(), tmp.getHeight())) {
-                                tmp.setX(safeSetX(player.getX() + tmp.getWidth(), tmp.getWidth()));
-                                tmp.setY(safeSetY(player.getY() + tmp.getHeight(), tmp.getHeight()));
-                            } else {
-                                tmp.setX(player.getX() - tmp.getWidth());
-                                tmp.setY(player.getY() - tmp.getHeight());
+                if (selectedItem != null)
+                    if (player.getMoney() >= selectedItem.getPrice()) {
+                        if (selectedItem instanceof Weapon) {
+                            Item tmp = player.dropCurrentWeapon();
+                            if (tmp != null && !tmp.getName().equals("starting weapon")) {
+                                tmp.setPrice(0);
+                                if (!overTheEdge(tmp.getX(), tmp.getY(), tmp.getWidth(), tmp.getHeight())) {
+                                    tmp.setX(safeSetX(player.getX() + tmp.getWidth(), tmp.getWidth()));
+                                    tmp.setY(safeSetY(player.getY() + tmp.getHeight(), tmp.getHeight()));
+                                } else {
+                                    tmp.setX(player.getX() - tmp.getWidth());
+                                    tmp.setY(player.getY() - tmp.getHeight());
+                                }
+                                items.add(tmp);
+                                currentRoomNode.getRoom().getDroppedItems().add(tmp);
+                                generateItemStatLabels();
+                                addLabels();
                             }
-                            items.add(tmp);
-                            currentRoomNode.getRoom().getDroppedItems().add(tmp);
-                            generateItemStatLabels();
-                            addLabels();
                         }
-                    }
-                    player.buyItem(selectedItem);
-                    remove(itemStatLabels.get(items.indexOf(selectedItem)));
-                    itemStatLabels.remove(itemStatLabels.get(items.indexOf(selectedItem)));
-                    items.remove(selectedItem);
-                    if(currentRoomNode.getRoomType()==RoomType.SHOP)
-                    {
-                        ((Shop)currentRoomNode.getRoom()).removeItem(selectedItem);
-                    }
-                    if(currentRoomNode.getRoomType()==RoomType.ITEMROOM)
-                    {
-                        ((ItemRoom)currentRoomNode.getRoom()).removeItem(selectedItem);
-                    }
-                    if(currentRoomNode.getRoomType()==RoomType.COMBATROOM)
-                    {
-                        ((CombatRoom)currentRoomNode.getRoom()).removeItem(selectedItem);
-                    }
-                    if(currentRoomNode.getRoomType()==RoomType.BOSSROOM)
-                    {
-                        ((BossRoom)currentRoomNode.getRoom()).removeItem(selectedItem);
-                    }
+                        player.buyItem(selectedItem);
+                        remove(itemStatLabels.get(items.indexOf(selectedItem)));
+                        itemStatLabels.remove(itemStatLabels.get(items.indexOf(selectedItem)));
+                        items.remove(selectedItem);
+                        if (currentRoomNode.getRoomType() == RoomType.SHOP) {
+                            ((Shop) currentRoomNode.getRoom()).removeItem(selectedItem);
+                        }
+                        if (currentRoomNode.getRoomType() == RoomType.ITEMROOM) {
+                            ((ItemRoom) currentRoomNode.getRoom()).removeItem(selectedItem);
+                        }
+                        if (currentRoomNode.getRoomType() == RoomType.COMBATROOM) {
+                            ((CombatRoom) currentRoomNode.getRoom()).removeItem(selectedItem);
+                        }
+                        if (currentRoomNode.getRoomType() == RoomType.BOSSROOM) {
+                            ((BossRoom) currentRoomNode.getRoom()).removeItem(selectedItem);
+                        }
 
-                }
+                    }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0, false), "pressed q");
-        this.getActionMap().put("pressed q", new AbstractAction()
-        {
+        this.getActionMap().put("pressed q", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 player.useHealthPotion();
@@ -377,13 +341,11 @@ public class Renderer extends JPanel
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_K, 0, false), "pressed k");
-        this.getActionMap().put("pressed k", new AbstractAction()
-        {
+        this.getActionMap().put("pressed k", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if(currentRoomNode!=null &&enemies!=null) {
-                    for(Enemy enemy: enemies)
-                    {
+                if (currentRoomNode != null && enemies != null) {
+                    for (Enemy enemy : enemies) {
                         enemy.takeDamage(99999);
                     }
                 }
@@ -395,230 +357,165 @@ public class Renderer extends JPanel
         //2 Directions store the directions,
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, false), "pressed left");
-        this.getActionMap().put("pressed left", new AbstractAction()
-        {
+        this.getActionMap().put("pressed left", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                System.out.println("Pressed left");
-                if(!isPrimaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Right) {
-                    System.out.println("set left prim");
+            public void actionPerformed(ActionEvent ae) {
+                if (!isPrimaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection != Directions.Right) {
                     primaryPlayerAttackDirection = Directions.Left;
-                    isPrimaryPlayerAttackDirectionSet =true;
+                    isPrimaryPlayerAttackDirectionSet = true;
+                } else if (!isSecondaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection != Directions.Left && primaryPlayerAttackDirection != Directions.Right && primaryPlayerAttackDirection != Directions.Left) {
+                    secondaryPlayerAttackDirection = Directions.Left;
+                    isSecondaryPlayerAttackDirectionSet = true;
                 }
-                else if(!isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Left&&primaryPlayerAttackDirection!=Directions.Right&&primaryPlayerAttackDirection!=Directions.Left)
-                {
-                    System.out.println("set left sec");
-                    secondaryPlayerAttackDirection=Directions.Left;
-                    isSecondaryPlayerAttackDirectionSet=true;
-                }
-                if(primaryPlayerAttackDirection == Directions.Left&&isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection==Directions.Left)
-                {
-                    System.out.println("left spec");
-                    secondaryPlayerAttackDirection=null;
-                    isSecondaryPlayerAttackDirectionSet=false;
+                if (primaryPlayerAttackDirection == Directions.Left && isSecondaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection == Directions.Left) {
+                    secondaryPlayerAttackDirection = null;
+                    isSecondaryPlayerAttackDirectionSet = false;
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, true), "released left");
-        this.getActionMap().put("released left", new AbstractAction()
-        {
+        this.getActionMap().put("released left", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                System.out.println("released left");
-                if(primaryPlayerAttackDirection==Directions.Left)
-                {
-                    System.out.println("left prim unbound");
-                    primaryPlayerAttackDirection=null;
-                    isPrimaryPlayerAttackDirectionSet=false;
+            public void actionPerformed(ActionEvent ae) {
+                if (primaryPlayerAttackDirection == Directions.Left) {
+                    primaryPlayerAttackDirection = null;
+                    isPrimaryPlayerAttackDirectionSet = false;
                 }
-                if(secondaryPlayerAttackDirection==Directions.Left)
-                {
-                    System.out.println("left sec unbound");
-                    secondaryPlayerAttackDirection=null;
-                    isSecondaryPlayerAttackDirectionSet=false;
+                if (secondaryPlayerAttackDirection == Directions.Left) {
+                    secondaryPlayerAttackDirection = null;
+                    isSecondaryPlayerAttackDirectionSet = false;
                 }
             }
         });
 
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, false), "pressed up");
-        this.getActionMap().put("pressed up", new AbstractAction()
-        {
+        this.getActionMap().put("pressed up", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                System.out.println("Pressed up");
-                if(!isPrimaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Down) {
-                    System.out.println("set up prim");
+            public void actionPerformed(ActionEvent ae) {
+                if (!isPrimaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection != Directions.Down) {
                     primaryPlayerAttackDirection = Directions.Up;
-                    isPrimaryPlayerAttackDirectionSet =true;
+                    isPrimaryPlayerAttackDirectionSet = true;
+                } else if (!isSecondaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection != Directions.Up && primaryPlayerAttackDirection != Directions.Down && primaryPlayerAttackDirection != Directions.Up) {
+                    secondaryPlayerAttackDirection = Directions.Up;
+                    isSecondaryPlayerAttackDirectionSet = true;
                 }
-                else if(!isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Up&&primaryPlayerAttackDirection!=Directions.Down&&primaryPlayerAttackDirection!=Directions.Up)
-                {
-                    System.out.println("set up sec");
-                    secondaryPlayerAttackDirection=Directions.Up;
-                    isSecondaryPlayerAttackDirectionSet=true;
-                }
-                if(primaryPlayerAttackDirection == Directions.Up&&isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection==Directions.Up)
-                {
-                    System.out.println("up spec");
-                    secondaryPlayerAttackDirection=null;
-                    isSecondaryPlayerAttackDirectionSet=false;
+                if (primaryPlayerAttackDirection == Directions.Up && isSecondaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection == Directions.Up) {
+                    secondaryPlayerAttackDirection = null;
+                    isSecondaryPlayerAttackDirectionSet = false;
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, true), "released up");
-        this.getActionMap().put("released up", new AbstractAction()
-        {
+        this.getActionMap().put("released up", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                System.out.println("released up");
-                if(primaryPlayerAttackDirection==Directions.Up)
-                {
-                    System.out.println("up prim unbound");
-                    primaryPlayerAttackDirection=null;
-                    isPrimaryPlayerAttackDirectionSet=false;
+            public void actionPerformed(ActionEvent ae) {
+                if (primaryPlayerAttackDirection == Directions.Up) {
+                    primaryPlayerAttackDirection = null;
+                    isPrimaryPlayerAttackDirectionSet = false;
                 }
-                if(secondaryPlayerAttackDirection==Directions.Up)
-                {
-                    System.out.println("up sec unbound");
-                    secondaryPlayerAttackDirection=null;
-                    isSecondaryPlayerAttackDirectionSet=false;
+                if (secondaryPlayerAttackDirection == Directions.Up) {
+                    secondaryPlayerAttackDirection = null;
+                    isSecondaryPlayerAttackDirectionSet = false;
                 }
             }
         });
 
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0, false), "pressed down");
-        this.getActionMap().put("pressed down", new AbstractAction()
-        {
+        this.getActionMap().put("pressed down", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                System.out.println("Pressed down");
-                if(!isPrimaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Up) {
-                    System.out.println("set down prim");
+            public void actionPerformed(ActionEvent ae) {
+                if (!isPrimaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection != Directions.Up) {
                     primaryPlayerAttackDirection = Directions.Down;
-                    isPrimaryPlayerAttackDirectionSet =true;
+                    isPrimaryPlayerAttackDirectionSet = true;
+                } else if (!isSecondaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection != Directions.Down && primaryPlayerAttackDirection != Directions.Up && primaryPlayerAttackDirection != Directions.Down) {
+                    secondaryPlayerAttackDirection = Directions.Down;
+                    isSecondaryPlayerAttackDirectionSet = true;
                 }
-                else if(!isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Down&&primaryPlayerAttackDirection!=Directions.Up&&primaryPlayerAttackDirection!=Directions.Down)
-                {
-                    System.out.println("set down sec");
-                    secondaryPlayerAttackDirection=Directions.Down;
-                    isSecondaryPlayerAttackDirectionSet=true;
-                }
-                if(primaryPlayerAttackDirection == Directions.Down&&isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection==Directions.Down)
-                {
-                    System.out.println("down spec");
-                    secondaryPlayerAttackDirection=null;
-                    isSecondaryPlayerAttackDirectionSet=false;
+                if (primaryPlayerAttackDirection == Directions.Down && isSecondaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection == Directions.Down) {
+                    secondaryPlayerAttackDirection = null;
+                    isSecondaryPlayerAttackDirectionSet = false;
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0, true), "released down");
-        this.getActionMap().put("released down", new AbstractAction()
-        {
+        this.getActionMap().put("released down", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                System.out.println("released down");
-                if(primaryPlayerAttackDirection==Directions.Down)
-                {
-                    System.out.println("down prim unbound");
-                    primaryPlayerAttackDirection=null;
-                    isPrimaryPlayerAttackDirectionSet=false;
+            public void actionPerformed(ActionEvent ae) {
+                if (primaryPlayerAttackDirection == Directions.Down) {
+                    primaryPlayerAttackDirection = null;
+                    isPrimaryPlayerAttackDirectionSet = false;
                 }
-                if(secondaryPlayerAttackDirection==Directions.Down)
-                {
-                    System.out.println("down sec unbound");
-                    secondaryPlayerAttackDirection=null;
-                    isSecondaryPlayerAttackDirectionSet=false;
+                if (secondaryPlayerAttackDirection == Directions.Down) {
+                    secondaryPlayerAttackDirection = null;
+                    isSecondaryPlayerAttackDirectionSet = false;
                 }
             }
         });
 
 
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, false), "pressed right");
-        this.getActionMap().put("pressed right", new AbstractAction()
-        {
+        this.getActionMap().put("pressed right", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                System.out.println("Pressed right");
-                if(!isPrimaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Left) {
-                    System.out.println("set right prim");
+            public void actionPerformed(ActionEvent ae) {
+                if (!isPrimaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection != Directions.Left) {
                     primaryPlayerAttackDirection = Directions.Right;
-                    isPrimaryPlayerAttackDirectionSet =true;
+                    isPrimaryPlayerAttackDirectionSet = true;
+                } else if (!isSecondaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection != Directions.Right && primaryPlayerAttackDirection != Directions.Left && primaryPlayerAttackDirection != Directions.Right) {
+                    secondaryPlayerAttackDirection = Directions.Right;
+                    isSecondaryPlayerAttackDirectionSet = true;
                 }
-                else if(!isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection!=Directions.Right&&primaryPlayerAttackDirection!=Directions.Left&&primaryPlayerAttackDirection!=Directions.Right)
-                {
-                    System.out.println("set right sec");
-                    secondaryPlayerAttackDirection=Directions.Right;
-                    isSecondaryPlayerAttackDirectionSet=true;
-                }
-                if(primaryPlayerAttackDirection == Directions.Right&&isSecondaryPlayerAttackDirectionSet&&secondaryPlayerAttackDirection==Directions.Right)
-                {
-                    System.out.println("right spec");
-                    secondaryPlayerAttackDirection=null;
-                    isSecondaryPlayerAttackDirectionSet=false;
+                if (primaryPlayerAttackDirection == Directions.Right && isSecondaryPlayerAttackDirectionSet && secondaryPlayerAttackDirection == Directions.Right) {
+                    secondaryPlayerAttackDirection = null;
+                    isSecondaryPlayerAttackDirectionSet = false;
                 }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, true), "released right");
-        this.getActionMap().put("released right", new AbstractAction()
-        {
+        this.getActionMap().put("released right", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                System.out.println("released right");
-                if(primaryPlayerAttackDirection==Directions.Right)
-                {
-                    System.out.println("right prim unbound");
-                    primaryPlayerAttackDirection=null;
-                    isPrimaryPlayerAttackDirectionSet=false;
+            public void actionPerformed(ActionEvent ae) {
+                if (primaryPlayerAttackDirection == Directions.Right) {
+                    primaryPlayerAttackDirection = null;
+                    isPrimaryPlayerAttackDirectionSet = false;
                 }
-                if(secondaryPlayerAttackDirection==Directions.Right)
-                {
-                    System.out.println("right sec unbound");
-                    secondaryPlayerAttackDirection=null;
-                    isSecondaryPlayerAttackDirectionSet=false;
+                if (secondaryPlayerAttackDirection == Directions.Right) {
+                    secondaryPlayerAttackDirection = null;
+                    isSecondaryPlayerAttackDirectionSet = false;
                 }
             }
         });
     }
 
     /**
-     * Returns true if an element in originX,originY extemded by addedX or addedY would be off-screen
+     * Returns true if an element in originX,originY extended by addedX or addedY would be off-screen
+     *
      * @param originX
      * @param originY
      * @param addedX
      * @param addedY
      * @return
      */
-    public boolean overTheEdge(int originX, int originY, int addedX, int addedY)
-    {
-        return originX+addedX>window_h-tileWidth||originY+addedY>window_w-tileHeight;
+    public boolean overTheEdge(int originX, int originY, int addedX, int addedY) {
+        return originX + addedX > window_h - tileWidth || originY + addedY > window_w - tileHeight;
     }
 
     /**
      * Creates a new attack based attack directions set by listeners for the arrows
      * if no direction is set, it returns null
+     *
      * @return
      */
     private Attack createPlayerAttack() {
-        if (isPrimaryPlayerAttackDirectionSet)
-        {
-            if(isSecondaryPlayerAttackDirectionSet)
-            {
+        if (isPrimaryPlayerAttackDirectionSet) {
+            if (isSecondaryPlayerAttackDirectionSet) {
                 //int x, int y, int width, int height, Image image, Sprite source, Vector target, Directions primary, Directions secondary, int range, int damage
-                setPlayerAttackImg(primaryPlayerAttackDirection,secondaryPlayerAttackDirection);
-                return new Attack(0,0,35, player.getRange(), null, player, enemies, primaryPlayerAttackDirection, secondaryPlayerAttackDirection, player.getRange(), (int)player.getDamage());
+                setPlayerAttackImg(primaryPlayerAttackDirection, secondaryPlayerAttackDirection);
+                return new Attack(0, 0, 35, player.getRange(), null, player, enemies, primaryPlayerAttackDirection, secondaryPlayerAttackDirection, player.getRange(), (int) player.getDamage());
             }
             setPlayerAttackImgPrimary(primaryPlayerAttackDirection);
-            return new Attack(0,0,35, player.getRange(), attackImg, player, enemies, primaryPlayerAttackDirection, player.getRange(), (int)player.getDamage());
+            return new Attack(0, 0, 35, player.getRange(), attackImg, player, enemies, primaryPlayerAttackDirection, player.getRange(), (int) player.getDamage());
 
         }
         return null;
@@ -628,10 +525,8 @@ public class Renderer extends JPanel
     /**
      * Adds labels currently in itemStatLabels to this, if they aren't already in
      */
-    public void addLabels()
-    {
-        if(itemStatLabels!=null)
-        {
+    public void addLabels() {
+        if (itemStatLabels != null) {
             for (JLabel label : itemStatLabels) {
                 if (label.getParent() == null) {
                     add(label);
@@ -647,29 +542,26 @@ public class Renderer extends JPanel
      * @param width
      * @return posX(Y) or the closest value to it that is in-bounds
      */
-    public int safeSetX(int posX, int width)
-    {
-        if(posX>window_h-tileWidth-width) return window_h-tileWidth-width;
-        if(posX<tileWidth+width) return tileWidth+width;
+    public int safeSetX(int posX, int width) {
+        if (posX > window_h - tileWidth - width) return window_h - tileWidth - width;
+        if (posX < tileWidth + width) return tileWidth + width;
         return posX;
     }
-    public int safeSetY(int posY, int height)
-    {
-        if(posY>window_w-tileWidth-height) return window_w-tileHeight-height;
-        if(posY<tileWidth+height) return tileHeight+height;
+
+    public int safeSetY(int posY, int height) {
+        if (posY > window_w - tileWidth - height) return window_w - tileHeight - height;
+        if (posY < tileWidth + height) return tileHeight + height;
         return posY;
     }
 
     /**
      * reads the textures used in the game
      */
-    public void initGraphics()
-    {
-        try
-        {
+    public void initGraphics() {
+        try {
             //player képeinek betöltése
-            playerImages = getImages(300,450,100,150,
-                    4,4,100,50,"player.png");
+            playerImages = getImages(300, 450, 100, 150,
+                    4, 4, 100, 50, "player.png");
 
             attackImg = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
             wallTexture = ImageIO.read(this.getClass().getClassLoader().getResource("wall.png"));
@@ -683,7 +575,7 @@ public class Renderer extends JPanel
             bossDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door_open.png"));
             bossDoorClosedTexture = ImageIO.read(this.getClass().getClassLoader().getResource("boss_door_closed.png"));
             trapDoorOpenTexture = ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_open.png"));
-            trapDoorClosedTexture =ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_closed.png"));
+            trapDoorClosedTexture = ImageIO.read(this.getClass().getClassLoader().getResource("trapdoor_closed.png"));
             hearthTexture = ImageIO.read(this.getClass().getClassLoader().getResource("hearth.png"));
             playerAttackUp = ImageIO.read(this.getClass().getClassLoader().getResource("attackUp.png"));
             playerAttackDown = ImageIO.read(this.getClass().getClassLoader().getResource("attackDown.png"));
@@ -698,18 +590,14 @@ public class Renderer extends JPanel
             enemyAttackLeft = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackLeft.png"));
             enemyAttackRight = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackRight.png"));
 
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
 
-
-            hearthSprite = new Sprite(window_w+180,7,45,40,hearthTexture);
-            currentRoomNode.getRoom().printRoom();
-            level.printLevel();
-
+        hearthSprite = new Sprite(window_w + 180, 7, 45, 40, hearthTexture);
+        currentRoomNode.getRoom().printRoom();
+        level.printLevel();
 
 
     }
@@ -779,12 +667,9 @@ public class Renderer extends JPanel
             }
         }
         tilesVector.removeAllElements();
-        for (int i = 0; i < m; ++i)
-        {
-            for(int j=0;j<n;++j)
-            {
-                if(i==0||j==0||i==m-1||j==n-1||tiles[j][i].getType()==Tile.TRAPDOOR_OPEN||tiles[j][i].getType()==Tile.TRAPDOOR_CLOSED)
-                {
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (i == 0 || j == 0 || i == m - 1 || j == n - 1 || tiles[j][i].getType() == Tile.TRAPDOOR_OPEN || tiles[j][i].getType() == Tile.TRAPDOOR_CLOSED) {
                     tilesVector.add(tiles[j][i]);
                 }
             }
@@ -805,21 +690,18 @@ public class Renderer extends JPanel
     images[] - a tömb amiben szeretnénk tárolni a képeket.
      */
     public Image[] getImages(int width, int height, int width_margin,
-                          int height_margin, int rows, int cols, int starter_height, int starter_width,String fileName)
-            throws IOException
-    {
+                             int height_margin, int rows, int cols, int starter_height, int starter_width, String fileName)
+            throws IOException {
 
         // packagek előtt:  BufferedImage bigImg = ImageIO.read(this.getClass().getResource(fileName));
         BufferedImage bigImg = ImageIO.read(this.getClass().getClassLoader().getResource(fileName));
 
         Image images[] = new Image[rows * cols];
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < cols; j++)
-            {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
                 images[(i * cols) + j] = bigImg.getSubimage(
-                        starter_width + (j * (width+width_margin)),
-                        starter_height+ (i * (height+height_margin)),
+                        starter_width + (j * (width + width_margin)),
+                        starter_height + (i * (height + height_margin)),
                         width,
                         height
                 );
@@ -830,41 +712,36 @@ public class Renderer extends JPanel
 
     //Minden element kirajzolására szolgáló függvény
     @Override
-    protected void paintComponent(Graphics grphcs)
-    {
+    protected void paintComponent(Graphics grphcs) {
         grphcs.setColor(Color.darkGray);
         super.paintComponent(grphcs);
         grphcs.fillRect(0, 0, 900, 600);
         drawRoom(grphcs);
 
-        if(items!=null)
-        {
+        if (items != null) {
             for (Item it : items) {
                 it.draw(grphcs);
             }
         }
-        if(enemies!=null) {
-            for (int i = 0; i < enemies.size(); i++)
-            {
+        if (enemies != null) {
+            for (int i = 0; i < enemies.size(); i++) {
                 enemies.get(i).draw(grphcs);
             }
         }
-        for (Attack att : currentAttacks)
-        {
+        for (Attack att : currentAttacks) {
             att.draw(grphcs);
             att.decreaseDuration();
         }
-        if(rotatedImages.size()>0)
-        for(Image rotated: rotatedImages)
-        {
-            int idx = rotatedImages.indexOf(rotated);
-            Graphics2D g2 = (Graphics2D) grphcs;
-            AffineTransform af = AffineTransform.getTranslateInstance(attacksWithRotatedImages.get(idx).getX(), attacksWithRotatedImages.get(idx).getY());
-            af.rotate(Math.toRadians(rotationDegrees.get(idx)));
-            af.scale(1f, player.getRange()/35.f);
-            g2.drawImage(rotated,af, null);
-        }
-        if(attacksWithRotatedImages!=null&&attacksWithRotatedImages.size()>0) {
+        if (rotatedImages.size() > 0)
+            for (Image rotated : rotatedImages) {
+                int idx = rotatedImages.indexOf(rotated);
+                Graphics2D g2 = (Graphics2D) grphcs;
+                AffineTransform af = AffineTransform.getTranslateInstance(attacksWithRotatedImages.get(idx).getX(), attacksWithRotatedImages.get(idx).getY());
+                af.rotate(Math.toRadians(rotationDegrees.get(idx)));
+                af.scale(1f, player.getRange() / 35.f);
+                g2.drawImage(rotated, af, null);
+            }
+        if (attacksWithRotatedImages != null && attacksWithRotatedImages.size() > 0) {
             Vector<Attack> rotatedCopy = new Vector(attacksWithRotatedImages);
             for (Attack at : attacksWithRotatedImages) {
                 if (at.getDuration() <= 0) {
@@ -880,15 +757,14 @@ public class Renderer extends JPanel
         //for()
 
 
-
-        Graphics2D g2 = (Graphics2D)grphcs;
+        Graphics2D g2 = (Graphics2D) grphcs;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(Color.RED);
         Font font = new Font("SansSerif", Font.BOLD, 40);
         g2.setFont(font);
         hearthSprite.draw(grphcs);
-        g2.drawString(Integer.toString(+player.getHealth()),window_w+230,40);
+        g2.drawString(Integer.toString(+player.getHealth()), window_w + 230, 40);
         player.draw(grphcs);
 
         collide();
@@ -896,64 +772,51 @@ public class Renderer extends JPanel
     }
 
 
-    public void collide()
-    {
-        for(Sprite tile : tilesVector)
-        {
-            if(tile.collides(player))
-            {
-                if (tile.getType() == Tile.WALL)
-                {
+    public void collide() {
+        for (Sprite tile : tilesVector) {
+            if (tile.collides(player)) {
+                if (tile.getType() == Tile.WALL) {
                     player.stepBack();
                     break;
                 }
-                if (tile.getType() == Tile.DOOR_OPEN)
-                {
+                if (tile.getType() == Tile.DOOR_OPEN) {
                     transition(tile);
                     break;
                 }
-                if (tile.getType() == Tile.ITEMDOOR_OPEN)
-                {
+                if (tile.getType() == Tile.ITEMDOOR_OPEN) {
                     transition(tile);
                     break;
                 }
-                if (tile.getType() == Tile.SHOPDOOR_OPEN)
-                {
+                if (tile.getType() == Tile.SHOPDOOR_OPEN) {
                     transition(tile);
                     break;
                 }
-                if (tile.getType() == Tile.BOSSDOOR_OPEN)
-                {
+                if (tile.getType() == Tile.BOSSDOOR_OPEN) {
                     transition(tile);
                     break;
                 }
-                if ((tile.getType() == Tile.DOOR_CLOSED))
-                {
+                if ((tile.getType() == Tile.DOOR_CLOSED)) {
                     player.stepBack();
                     break;
                 }
-                if ((tile.getType() == Tile.BOSSDOOR_CLOSED))
-                {
+                if ((tile.getType() == Tile.BOSSDOOR_CLOSED)) {
                     player.stepBack();
                     break;
                 }
-                if ((tile.getType() == Tile.ITEMDOOR_CLOSED))
-                {
+                if ((tile.getType() == Tile.ITEMDOOR_CLOSED)) {
                     player.stepBack();
                     break;
                 }
-                if ((tile.getType() == Tile.SHOPDOOR_CLOSED))
-                {
+                if ((tile.getType() == Tile.SHOPDOOR_CLOSED)) {
                     player.stepBack();
                     break;
                 }
-                if ((tile.getType() == Tile.TRAPDOOR_OPEN))
-                {
+                if ((tile.getType() == Tile.TRAPDOOR_OPEN)) {
                     newLevel();
                     break;
                 }
             }
-            if(enemies!=null) {
+            if (enemies != null) {
                 for (int k = 0; k < enemies.size(); k++) {
 
                     if (tile.collides(enemies.get(k))) {
@@ -996,42 +859,35 @@ public class Renderer extends JPanel
             }
         }
         boolean didCollideWithItem = false;
-        if(items!=null)
-        {
-            for (Item item : items)
-            {
-                if (item.collides(player))
-                {
-                    didCollideWithItem= didCollideWithItem||item.collides(player);
+        if (items != null) {
+            for (Item item : items) {
+                if (item.collides(player)) {
+                    didCollideWithItem = didCollideWithItem || item.collides(player);
                     selectedItem = item;
-                    if(!isAdded) {
+                    if (!isAdded) {
                         purchaseHint = new JLabel();
                         purchaseHint.setText("<html><body>If you want to buy an item<br> press <b>b</b> while on top of it!</body></html>");
                         purchaseHint.setBounds(tileWidth, tileHeight, purchaseHint.getFont().getSize() * 15, purchaseHint.getFont().getSize() * 4);
                         purchaseHint.setBackground(new Color(200, 200, 200));
                         purchaseHint.setOpaque(true);
                         this.add(purchaseHint);
-                        isAdded=true;
+                        isAdded = true;
                     }
 
                 }
             }
-            if(!didCollideWithItem)
-            {
+            if (!didCollideWithItem) {
                 selectedItem = null;
-                if(purchaseHint!=null) remove(purchaseHint);
+                if (purchaseHint != null) remove(purchaseHint);
 
-                isAdded=false;
+                isAdded = false;
             }
-        }
-        else
-        {
+        } else {
             selectedItem = null;
-            if(purchaseHint!=null) remove(purchaseHint);
-            isAdded=false;
+            if (purchaseHint != null) remove(purchaseHint);
+            isAdded = false;
         }
-        for(Attack attack:currentAttacks)
-        {
+        for (Attack attack : currentAttacks) {
             /*
             if(enemies!=null)
             for(int e = 0; e < enemies.size(); e++)
@@ -1048,7 +904,7 @@ public class Renderer extends JPanel
                 }
             }*/
 
-            if(enemies!=null) {
+            if (enemies != null) {
                 Vector<Enemy> enemiesCopy = new Vector<>(enemies);
                 for (Enemy enemy : enemies) {
                     if (enemy.collides(attack) && !enemy.getGotAttacked() && attack.getSource() == player) {
@@ -1056,37 +912,32 @@ public class Renderer extends JPanel
                         enemy.damaged(attack.getDamage(), player.getAttackSpeed());
                     }
                 }
-                enemies=enemiesCopy;
+                enemies = enemiesCopy;
             }
 
-            if(player.collides(attack)&&attack.getSource()!=player)
-            {
+            if (player.collides(attack) && attack.getSource() != player) {
                 player.takeDamage(attack.getDamage());
             }
         }
-        if(enemies!=null)
-        for(Enemy enemy: enemies)
-        {
-            for(Enemy enemy2: enemies)
-            {
-                if(enemy.collides(enemy2)&&enemy!=enemy2)
-                {
+        if (enemies != null)
+            for (Enemy enemy : enemies) {
+                for (Enemy enemy2 : enemies) {
+                    if (enemy.collides(enemy2) && enemy != enemy2) {
+                        enemy.moveBack();
+                    }
+                }
+                if (enemy.collides(player)) {
                     enemy.moveBack();
                 }
             }
-            if(enemy.collides(player))
-            {
-                enemy.moveBack();
-            }
-        }
     }
-    private void generateItemStatLabels()
-    {
-        if(itemStatLabels.size()<items.size()) {
+
+    private void generateItemStatLabels() {
+        if (itemStatLabels.size() < items.size()) {
             int verticalGapSize = Math.round(window_w * 0.33f);
-            for( int i = itemStatLabels.size(); i<items.size();++i){
+            for (int i = itemStatLabels.size(); i < items.size(); ++i) {
                 Color bgColor = new Color(200, 200, 200);
-                if (items.get(i).getItemType()==ItemType.WEAPON) {
+                if (items.get(i).getItemType() == ItemType.WEAPON) {
                     Weapon tmp = (Weapon) items.get(i);
                     JLabel itemStat = new JLabel(
                             "Name: " + tmp.getName() + "\n" +
@@ -1125,7 +976,7 @@ public class Renderer extends JPanel
                     }
                     this.itemStatLabels.add(itemStat);
                 }
-                if (items.get(i).getItemType()==ItemType.STATITEM) {
+                if (items.get(i).getItemType() == ItemType.STATITEM) {
                     StatItem tmp = (StatItem) items.get(i);
                     JLabel itemStat = new JLabel(
                             "Name:" + tmp.getName() + "\n" +
@@ -1172,7 +1023,7 @@ public class Renderer extends JPanel
                     }
                     this.itemStatLabels.add(itemStat);
                 }
-                if (items.get(i).getItemType()==ItemType.POTION) {
+                if (items.get(i).getItemType() == ItemType.POTION) {
 
                     Potion tmp = (Potion) items.get(i);
                     JLabel itemStat;
@@ -1247,51 +1098,43 @@ public class Renderer extends JPanel
         }
     }
 
-    private void setItemPositions(boolean forShop)
-    {
+    private void setItemPositions(boolean forShop) {
 
 
         //items will be displayed in 2 rows
         //the ugly formulas for the x coordinates ensure an even spread
         //within the middle 80% of the room, for both rows
         //works for rows that contains 1, 2 or 3 items
-        if(forShop)
-        {
-            int half = (int)(Math.ceil(this.items.size()*0.5f));
+        if (forShop) {
+            int half = (int) (Math.ceil(this.items.size() * 0.5f));
             for (int i = 0; i < half; ++i) {
                 this.items.get(i).setX(
-                        Math.round(window_h  /* *0.8f */ * (i + 1.0f) / (half + 1.0f)) /*+ Math.round(window_h   *0.1f)*/- Math.round(items.get(i).getWidth()/2.f)
+                        Math.round(window_h  /* *0.8f */ * (i + 1.0f) / (half + 1.0f)) /*+ Math.round(window_h   *0.1f)*/ - Math.round(items.get(i).getWidth() / 2.f)
                 );
-                this.items.get(i).setY(Math.round(window_w  /* * 0.8f  */ *0.33f) - Math.round(items.get(i).getHeight()/2.f));
+                this.items.get(i).setY(Math.round(window_w  /* * 0.8f  */ * 0.33f) - Math.round(items.get(i).getHeight() / 2.f));
             }
             for (int i = half; i < this.items.size(); ++i) {
                 this.items.get(i).setX(
-                        Math.round(window_h /* * 0.8f*/ * ((i - half) + 1.0f) / ((this.items.size() - half) + 1.0f)) + /*Math.round(window_h * 0.1f)*/ - Math.round(items.get(i).getWidth()/2.f)
+                        Math.round(window_h /* * 0.8f*/ * ((i - half) + 1.0f) / ((this.items.size() - half) + 1.0f)) + /*Math.round(window_h * 0.1f)*/ -Math.round(items.get(i).getWidth() / 2.f)
                 );
-                this.items.get(i).setY(Math.round(window_w  /* * 0.8f*/ * 0.66f) - Math.round(items.get(i).getHeight()/2.f) );
+                this.items.get(i).setY(Math.round(window_w  /* * 0.8f*/ * 0.66f) - Math.round(items.get(i).getHeight() / 2.f));
             }
-        }
-        else
-        {
-            items.get(0).setX( Math.round((window_h /*  *0.8f */ )*0.33f)  /* + Math.round(window_h*0.1f) */ - Math.round(items.get(0).getWidth()/2.f) );
-            items.get(0).setY(Math.round((window_w /* *0.8f */ )*0.5f) /* +Math.round(window_h*0.1f) */  - Math.round(items.get(0).getHeight()/2.f) );
-            items.get(1).setX(Math.round((window_h /* *0.8f */ )*0.66f) /* + Math.round(window_h*0.1f) */ - Math.round(items.get(1).getWidth()/2.f) );
-            items.get(1).setY(Math.round((window_w /* *0.8f */ )*0.5f) /* +Math.round(window_h*0.1f) */ - Math.round(items.get(1).getHeight()/2.f) );
+        } else {
+            items.get(0).setX(Math.round((window_h /*  *0.8f */) * 0.33f)  /* + Math.round(window_h*0.1f) */ - Math.round(items.get(0).getWidth() / 2.f));
+            items.get(0).setY(Math.round((window_w /* *0.8f */) * 0.5f) /* +Math.round(window_h*0.1f) */ - Math.round(items.get(0).getHeight() / 2.f));
+            items.get(1).setX(Math.round((window_h /* *0.8f */) * 0.66f) /* + Math.round(window_h*0.1f) */ - Math.round(items.get(1).getWidth() / 2.f));
+            items.get(1).setY(Math.round((window_w /* *0.8f */) * 0.5f) /* +Math.round(window_h*0.1f) */ - Math.round(items.get(1).getHeight() / 2.f));
         }
     }
 
 
-    private int[] getTileCoords(Sprite tile)
-    {
-        for(int i=0;i<m;++i)
-        {
-            for(int j=0;j<n;++j)
-            {
-                if(tiles[j][i]==tile)
-                {
+    private int[] getTileCoords(Sprite tile) {
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (tiles[j][i] == tile) {
                     int ret[] = new int[2];
-                    ret[0]=i;
-                    ret[1]=j;
+                    ret[0] = i;
+                    ret[1] = j;
                     return ret;
                 }
             }
@@ -1335,16 +1178,14 @@ public class Renderer extends JPanel
 
             }
 
-            if(currentRoomNode!=null) {
-                if(!currentRoomNode.getRoom().getVisited()) enemies= currentRoomNode.getRoom().getEnemies();
-                for(JLabel itemStatLabel:itemStatLabels)
-                {
+            if (currentRoomNode != null) {
+                if (!currentRoomNode.getRoom().getVisited()) enemies = currentRoomNode.getRoom().getEnemies();
+                for (JLabel itemStatLabel : itemStatLabels) {
                     remove(itemStatLabel);
                 }
                 itemStatLabels.removeAllElements();
                 items.removeAllElements();
-                for(Item item: currentRoomNode.getRoom().getDroppedItems())
-                {
+                for (Item item : currentRoomNode.getRoom().getDroppedItems()) {
                     if (item != null) {
                         items.add(item);
                     }
@@ -1382,70 +1223,61 @@ public class Renderer extends JPanel
                     addLabels();
 
                 }
-                if (currentRoomNode.getRoomType() == RoomType.COMBATROOM || currentRoomNode.getRoomType() == RoomType.BOSSROOM)
-                {
-                    if(!currentRoomNode.getRoom().getVisited())
-                    {
+                if (currentRoomNode.getRoomType() == RoomType.COMBATROOM || currentRoomNode.getRoomType() == RoomType.BOSSROOM) {
+                    if (!currentRoomNode.getRoom().getVisited()) {
                         changeDoors(currentRoomNode.getRoom());
                     }
                     generateItemStatLabels();
                     addLabels();
                 }
-                if( currentRoomNode.getRoomType() == RoomType.STARTROOM)
-                {
+                if (currentRoomNode.getRoomType() == RoomType.STARTROOM) {
                     currentRoomNode.getRoom().setVisited(true);
                 }
                 initTiles();
 
-                lastTransitionTime=LocalTime.now();
+                lastTransitionTime = LocalTime.now();
             }
-
 
 
             //level.printLevelWithPlayerPos(currentRoomNode);
 
 
-
         }
 
     }
 
-    public void drawRoom(Graphics grphcs)
-    {
-        for(int i = 0; i < n; i++)
-        {
-            for(int j = 0; j < m; j++)
-            {
+    public void drawRoom(Graphics grphcs) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
                 tiles[i][j].draw(grphcs);
             }
         }
     }
 
-    public Dimension getWindowSize()
-    {
-        Dimension dim = new Dimension(window_h,window_w);
+    public Dimension getWindowSize() {
+        Dimension dim = new Dimension(window_h, window_w);
         return dim;
     }
 
-    public Sprite[][] getTiles()
-    {
+    public Sprite[][] getTiles() {
         return tiles;
     }
 
-    public void setTiles(Sprite[][] tiles)
-    {
+    public void setTiles(Sprite[][] tiles) {
         this.tiles = tiles;
     }
+
     /**
      * Changes all doors of a room from closed to open or vice-versa, based on current state
+     *
      * @param room
-     */public void changeDoors(Room room)
-    {
+     */
+    public void changeDoors(Room room) {
 
-        Tile northernDoor=room.getLayout()[0][room.getM()/2-1];
-        Tile southernDoor=room.getLayout()[room.getN()-1][room.getM()/2-1];
-        Tile easternDoor=room.getLayout()[room.getN()/2-1][room.getM()-1];
-        Tile westernDoor=room.getLayout()[room.getN()/2-1][0];
+        Tile northernDoor = room.getLayout()[0][room.getM() / 2 - 1];
+        Tile southernDoor = room.getLayout()[room.getN() - 1][room.getM() / 2 - 1];
+        Tile easternDoor = room.getLayout()[room.getN() / 2 - 1][room.getM() - 1];
+        Tile westernDoor = room.getLayout()[room.getN() / 2 - 1][0];
 
         switch (northernDoor) {
             case BOSSDOOR_CLOSED:
@@ -1472,7 +1304,7 @@ public class Renderer extends JPanel
             case DOOR_OPEN:
                 northernDoor = Tile.DOOR_CLOSED;
                 break;
-            }
+        }
         switch (southernDoor) {
             case BOSSDOOR_CLOSED:
                 southernDoor = Tile.BOSSDOOR_OPEN;
@@ -1553,10 +1385,10 @@ public class Renderer extends JPanel
         }
 
         Tile[][] roomLayout = room.getLayout();
-        roomLayout[0][room.getM()/2-1]=northernDoor;
-        roomLayout[room.getN()-1][room.getM()/2-1]=southernDoor;
-        roomLayout[room.getN()/2-1][room.getM()-1]=easternDoor;
-        roomLayout[room.getN()/2-1][0]=westernDoor;
+        roomLayout[0][room.getM() / 2 - 1] = northernDoor;
+        roomLayout[room.getN() - 1][room.getM() / 2 - 1] = southernDoor;
+        roomLayout[room.getN() / 2 - 1][room.getM() - 1] = easternDoor;
+        roomLayout[room.getN() / 2 - 1][0] = westernDoor;
         room.setLayout(roomLayout);
         currentRoomNode.getRoom().setLayout(roomLayout);
         initTiles();
@@ -1566,12 +1398,11 @@ public class Renderer extends JPanel
 
     /**
      * Sets the player attack texture when only a primary direction is given
+     *
      * @param d
      */
-    private void setPlayerAttackImgPrimary(Directions d)
-    {
-        switch(d)
-        {
+    private void setPlayerAttackImgPrimary(Directions d) {
+        switch (d) {
             case Up:
                 attackImg = playerAttackUp;
                 break;
@@ -1590,50 +1421,49 @@ public class Renderer extends JPanel
     /**
      * Sets the player attack image when both primary and secondary directions are given
      * be careful to only call this with sensible primary and secondary combinations
+     *
      * @param primary
      * @param secondary
      */
-    private void setPlayerAttackImg(Directions primary, Directions secondary)
-    {
-        attackImg=null;
-        switch(primary)
-        {
+    private void setPlayerAttackImg(Directions primary, Directions secondary) {
+        attackImg = null;
+        switch (primary) {
             case Up:
-                if(secondary==Directions.Left) {
+                if (secondary == Directions.Left) {
                     rotatedImages.add(playerAttackUp);
                     rotationDegrees.add(315);
                 }
-                if(secondary==Directions.Right) {
+                if (secondary == Directions.Right) {
                     rotatedImages.add(playerAttackUp);
                     rotationDegrees.add(45);
                 }
                 break;
             case Down:
-                if(secondary==Directions.Left) {
+                if (secondary == Directions.Left) {
                     rotatedImages.add(playerAttackDown);
                     rotationDegrees.add(45);
                 }
-                if(secondary==Directions.Right) {
+                if (secondary == Directions.Right) {
                     rotatedImages.add(playerAttackDown);
                     rotationDegrees.add(315);
                 }
                 break;
             case Left:
-                if(secondary==Directions.Up) {
+                if (secondary == Directions.Up) {
                     rotatedImages.add(playerAttackUp);
                     rotationDegrees.add(315);
                 }
-                if(secondary==Directions.Down) {
+                if (secondary == Directions.Down) {
                     rotatedImages.add(playerAttackDown);
                     rotationDegrees.add(45);
                 }
                 break;
             case Right:
-                if(secondary==Directions.Up) {
+                if (secondary == Directions.Up) {
                     rotatedImages.add(playerAttackUp);
                     rotationDegrees.add(45);
                 }
-                if(secondary==Directions.Down) {
+                if (secondary == Directions.Down) {
                     rotatedImages.add(playerAttackDown);
                     rotationDegrees.add(315);
                 }
@@ -1641,10 +1471,8 @@ public class Renderer extends JPanel
         }
     }
 
-    private void setEnemyAttackImg(Directions d)
-    {
-        switch(d)
-        {
+    private void setEnemyAttackImg(Directions d) {
+        switch (d) {
             case Up:
                 enemyAttackImg = enemyAttackUp;
                 break;
@@ -1661,41 +1489,30 @@ public class Renderer extends JPanel
     }
 
 
-    class NewFrameListener implements ActionListener
-    {
+    class NewFrameListener implements ActionListener {
         @Override
-        public void actionPerformed(ActionEvent ae)
-        {
-            if(player.isDead())
-            {
+        public void actionPerformed(ActionEvent ae) {
+            if (player.isDead()) {
                 //mourn
             }
             player.moveX();
             player.moveY();
 
-                if(attack_timer_down)
-                {
-                    Attack playerAttack = createPlayerAttack();
-                    if(playerAttack!=null)
-                    {
-                        attack_timer_down = false;
-                        //player attack return null if no primary direction is present, and attackImg is set then
-                        //therefore attackImg is never null when used here
-                        //todo this needs to become a more robust check
-                        if(isPrimaryPlayerAttackDirectionSet&&isSecondaryPlayerAttackDirectionSet)
-                        {
-                            System.out.println("primary: "+primaryPlayerAttackDirection);
-                            System.out.println("secondary : "+secondaryPlayerAttackDirection);
-                            attacksWithRotatedImages.add(playerAttack);
-                        }
-                        else
-                        {
-                            playerAttack.setImage(attackImg);
-                        }
-                        currentAttacks.add(playerAttack);
-                        attack_timer = new java.util.Timer();
-                        attack_timer.schedule(new attackTask(), (int)(1000/player.getAttackSpeed()));
+            if (attack_timer_down) {
+                Attack playerAttack = createPlayerAttack();
+                if (playerAttack != null) {
+                    attack_timer_down = false;
+                    //player attack return null if no primary direction is present, and attackImg is set then
+                    //therefore attackImg is never null when used here
+                    if (isPrimaryPlayerAttackDirectionSet && isSecondaryPlayerAttackDirectionSet) {
+                        attacksWithRotatedImages.add(playerAttack);
+                    } else {
+                        playerAttack.setImage(attackImg);
                     }
+                    currentAttacks.add(playerAttack);
+                    attack_timer = new java.util.Timer();
+                    attack_timer.schedule(new attackTask(), (int) (1000 / player.getAttackSpeed()));
+                }
             }
 
             /*
@@ -1706,15 +1523,12 @@ public class Renderer extends JPanel
                     attack.cast();
                 }
             }*/
-            if(enemies!=null) {
+            if (enemies != null) {
                 Vector<Enemy> enemiesCopy = new Vector<Enemy>(enemies);
-                for (Enemy enemy:enemies)
-                {
-                    if(enemy.getHealthPoints()==0)
-                    {
-                        Item loot =enemy.dropLoot(player);
-                        if(loot!=null)
-                        {
+                for (Enemy enemy : enemies) {
+                    if (enemy.getHealthPoints() == 0) {
+                        Item loot = enemy.dropLoot(player);
+                        if (loot != null) {
                             loot.setX(enemy.getX());
                             loot.setY(enemy.getY());
                             currentRoomNode.getRoom().getDroppedItems().add(loot);
@@ -1723,12 +1537,10 @@ public class Renderer extends JPanel
                         }
 
                         enemiesCopy.remove(enemy);
-                    }
-                    else {
-                        Attack att =  enemy.behaviour(player);
+                    } else {
+                        Attack att = enemy.behaviour(player);
 
-                        if(att!=null)
-                        {
+                        if (att != null) {
                             setEnemyAttackImg(enemy.getDirection());
                             att.setImage(enemyAttackImg);
                             currentAttacks.add(att);
@@ -1738,17 +1550,13 @@ public class Renderer extends JPanel
                 }
                 generateItemStatLabels();
                 addLabels();
-                enemies=enemiesCopy;
-                if(enemies.size()==0)
-                {
-                    enemies=null;
+                enemies = enemiesCopy;
+                if (enemies.size() == 0) {
+                    enemies = null;
                 }
-            }
-            else
-            {
-                if(currentRoomNode.getRoomType()==RoomType.COMBATROOM||currentRoomNode.getRoomType()==RoomType.BOSSROOM)
-                {
-                    if(!currentRoomNode.getRoom().getVisited()) {
+            } else {
+                if (currentRoomNode.getRoomType() == RoomType.COMBATROOM || currentRoomNode.getRoomType() == RoomType.BOSSROOM) {
+                    if (!currentRoomNode.getRoom().getVisited()) {
                         currentRoomNode.getRoom().setVisited(true);
                         changeDoors(currentRoomNode.getRoom());
                     }
@@ -1766,12 +1574,9 @@ public class Renderer extends JPanel
             repaint();
         }
 
-        void clearAttacks()
-        {
-            for(int i = 0; i < currentAttacks.size(); i++)
-            {
-                if(currentAttacks.get(i).getDuration()<=0)
-                {
+        void clearAttacks() {
+            for (int i = 0; i < currentAttacks.size(); i++) {
+                if (currentAttacks.get(i).getDuration() <= 0) {
                     currentAttacks.remove(currentAttacks.get(i));
                 }
                /* if(currentAttacks.get(i).isEnded())
@@ -1782,28 +1587,23 @@ public class Renderer extends JPanel
         }
     }
 
-    class collideTask extends TimerTask
-    {
-        public void run()
-        {
+    class collideTask extends TimerTask {
+        public void run() {
             collide_timer_down = true;
         }
     }
 
-    class attackTask extends TimerTask
-    {
+    class attackTask extends TimerTask {
         @Override
-        public void run()
-        {
-           attack_timer_down=true;
+        public void run() {
+            attack_timer_down = true;
         }
     }
-    class enemyMoveTask extends TimerTask
-    {
+
+    class enemyMoveTask extends TimerTask {
 
         @Override
-        public void run()
-        {
+        public void run() {
             moveTimeOut = true;
         }
     }
