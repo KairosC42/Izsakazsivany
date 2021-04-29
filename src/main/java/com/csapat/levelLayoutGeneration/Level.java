@@ -630,7 +630,7 @@ public class Level
             if (found) break;;
         }
 
-        
+
         //System.out.println(north);
         //System.out.println(east);
         //System.out.println(south);

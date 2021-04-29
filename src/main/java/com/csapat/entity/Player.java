@@ -233,6 +233,7 @@ public class Player extends Sprite {
             attackSpeedModifier += statItem.getAttackSpeedModifier();
             damageModifier += statItem.getDamageModifier();
             moveSpeedModifier += statItem.getSpeedModifier();
+            equippedItems.add(statItem);
         } else if (item instanceof Potion) {
             if (((Potion) item).getHealthRestore() == 0) {
                 giveExperience(((Potion) item).grantExp);
@@ -280,5 +281,15 @@ public class Player extends Sprite {
     public void stepBackAfterLeveltransition(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public Vector<StatItem> getEquippedItems()
+    {
+        return equippedItems;
+    }
+
+    public Weapon getEquippedWeapon()
+    {
+        return equippedWeapon;
     }
 }

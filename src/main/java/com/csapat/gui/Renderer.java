@@ -379,8 +379,8 @@ public class Renderer extends JPanel
                 }
                 else
                 {
-                    //MapInventoryPanel mapInventoryPanel=new MapInventoryPanel(level,player,frame.getSize());
-                    //frame.getContentPane().add(mapInventoryPanel);
+                    MapInventoryPanel mapInventoryPanel=new MapInventoryPanel(level,player);
+                    frame.getContentPane().add(mapInventoryPanel);
                     frame.setVisible(true);
                     newFrameTimer.stop();
                     //System.out.println("Inventory size: "+mapInventoryPanel.getSize());

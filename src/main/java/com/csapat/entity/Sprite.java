@@ -92,4 +92,9 @@ public class Sprite
     public void setType(Tile type) {
         this.type = type;
     }
+
+    public Image getImage()
+    {
+        return image;
+    }
 }
