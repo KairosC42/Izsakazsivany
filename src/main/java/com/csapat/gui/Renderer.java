@@ -113,6 +113,7 @@ public class Renderer extends JPanel
 
     private Boolean moveTimeOut = true;
     private java.util.Timer enemyMoveTimer;
+    private boolean isMapOn;
 
 
 
@@ -141,6 +142,7 @@ public class Renderer extends JPanel
         this.window_w = tile_size*this.n;
 
 
+        isMapOn=false;
 
         tileHeight = tile_size;
         tileWidth = tile_size;
@@ -364,6 +366,30 @@ public class Renderer extends JPanel
 
             }
         });
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0, false), "pressed m");
+        this.getActionMap().put("pressed m", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                if(isMapOn)
+                {
+                    newFrameTimer.start();
+                    isMapOn=false;
+                }
+                else
+                {
+                    //MapInventoryPanel mapInventoryPanel=new MapInventoryPanel(level,player,frame.getSize());
+                    //frame.getContentPane().add(mapInventoryPanel);
+                    frame.setVisible(true);
+                    newFrameTimer.stop();
+                    //System.out.println("Inventory size: "+mapInventoryPanel.getSize());
+                    System.out.println("Frame size: "+frame.getSize());
+                    isMapOn=true;
+                }
+            }
+        });
+
     }
 
     public boolean overTheEdge(int originX, int originY, int addedX, int addedY)
