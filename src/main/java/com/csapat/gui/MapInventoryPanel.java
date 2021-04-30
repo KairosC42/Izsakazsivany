@@ -256,6 +256,4 @@ public class MapInventoryPanel extends JPanel
 
     }
 
-
-
 }

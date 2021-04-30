@@ -374,12 +374,19 @@ public class Renderer extends JPanel
             {
                 if(isMapOn)
                 {
+
                     newFrameTimer.start();
+                    generateItemStatLabels();
+                    addLabels();
                     isMapOn=false;
                 }
                 else
                 {
                     MapInventoryPanel mapInventoryPanel=new MapInventoryPanel(level,player,currentRoomNode);
+                    for (JLabel itemStatLabel : itemStatLabels) {
+                        remove(itemStatLabel);
+                    }
+                    itemStatLabels.removeAllElements();
                     frame.getContentPane().add(mapInventoryPanel);
                     frame.setVisible(true);
                     newFrameTimer.stop();
