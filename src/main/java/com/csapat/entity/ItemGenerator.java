@@ -69,9 +69,9 @@ public class ItemGenerator
      * If hasPrice is true a price will be generated based on how good the stats are compared to the average
      * otherwise the price will be 0
      * The image for the statItem is it's most dominant stat (compared to its average)
-     * @param levelDepth
-     * @param hasPrice
-     * @return
+     * @param levelDepth gives extra stats the higher this is
+     * @param hasPrice decides if a price should be generated
+     * @return a statItem
      */
     public Item generateStatItem(int levelDepth, boolean hasPrice)
     {
@@ -181,9 +181,9 @@ public class ItemGenerator
      * since a player can only wield one weapon at a time Weapons have higher stats than individual statItems
      * The base price is the same as a statItem.
      * The image for the Weapon is it's most dominant stat (compared to its average)
-     * @param levelDepth
-     * @param hasPrice
-     * @return
+     * @param levelDepth gives extra stats the higher this is
+     * @param hasPrice decides if a price should be generated
+     * @return a Weapon
      */
     public Item generateWeapon(int levelDepth, boolean hasPrice)
     {
@@ -258,9 +258,9 @@ public class ItemGenerator
     /**
      * Generates a potion that either gives experience or restores health
      * price is 0 if hasPrice is false, otherwise a price will be generated
-     * @param levelDepth
-     * @param hasPrice
-     * @return
+     * @param levelDepth influences the healing or experience
+     * @param hasPrice decides if a price will be generated
+     * @return a potion
      */
     public Item generatePotion(int levelDepth, boolean hasPrice)
     {
@@ -300,6 +300,12 @@ public class ItemGenerator
         return new Potion(imagePos,imagePos,imageSize,imageSize,potionImage,realPrice, "potion", healthRestore, grantExp);
     }
 
+    /**
+     * generates a random value between 0 and 2 and generates either a statItem, a Weapon or a Potion based on that
+     * @param levelDepth to be used by the selected method
+     * @param hasPrice to be used by the selected method
+     * @return an Item
+     */
     public Item generateSomething(int levelDepth,boolean hasPrice)
     {
         int what = rand.nextInt(3);
