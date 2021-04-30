@@ -254,7 +254,7 @@ public class Player extends Sprite {
             if (((Potion) item).getHealthRestore() == 0) {
                 giveExperience(((Potion) item).grantExp);
             }
-            potions.add((Potion) item);
+            else potions.add((Potion) item);
         } else if (item instanceof Weapon) {
             Weapon weapon = (Weapon) item;
             if (equippedWeapon != null) {
@@ -276,15 +276,14 @@ public class Player extends Sprite {
     }
 
     public void useHealthPotion() {
-        for (Potion pot : potions) {
-            if (getExperience() == 0) {
-                healthPoints += pot.getHealthRestore();
-                if (healthPoints > getHealthPointsMax()) {
-                    healthPoints = getHealthPointsMax();
-                }
-                potions.remove(pot);
-                break;
+        if (potions.size()>0)
+        {
+            Potion pot=potions.get(0);
+            healthPoints += pot.getHealthRestore();
+            if (healthPoints > getHealthPointsMax()) {
+                healthPoints = getHealthPointsMax();
             }
+            potions.remove(pot);
         }
     }
 
