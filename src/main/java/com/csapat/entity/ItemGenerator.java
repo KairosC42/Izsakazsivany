@@ -63,6 +63,16 @@ public class ItemGenerator
             e.printStackTrace();
         }
     }
+
+    /**
+     * Generates a statItem with random stats that scale with levelDepth
+     * If hasPrice is true a price will be generated based on how good the stats are compared to the average
+     * otherwise the price will be 0
+     * The image for the statItem is it's most dominant stat (compared to its average)
+     * @param levelDepth
+     * @param hasPrice
+     * @return
+     */
     public Item generateStatItem(int levelDepth, boolean hasPrice)
     {
 
@@ -166,6 +176,15 @@ public class ItemGenerator
         return new StatItem(imagePos,imagePos,imageSize,imageSize,statItemImage,realPrice,"statItem", healthModifier, rangeModifier, attackSpeedModifier, damageModifier, speedModifier);
     }
 
+    /**
+     * Generates a Weapon with random stats, if hasPrice is false, the price is 0, otherwise it's calculated based on stats
+     * since a player can only wield one weapon at a time Weapons have higher stats than individual statItems
+     * The base price is the same as a statItem.
+     * The image for the Weapon is it's most dominant stat (compared to its average)
+     * @param levelDepth
+     * @param hasPrice
+     * @return
+     */
     public Item generateWeapon(int levelDepth, boolean hasPrice)
     {
 
@@ -236,6 +255,13 @@ public class ItemGenerator
        return new Weapon(imagePos, imagePos,imageSize, imageSize,weaponImage,realPrice, "weapon" , weaponRangeModifier, weaponDamageModifier, attackSpeedMultiplier);
     }
 
+    /**
+     * Generates a potion that either gives experience or restores health
+     * price is 0 if hasPrice is false, otherwise a price will be generated
+     * @param levelDepth
+     * @param hasPrice
+     * @return
+     */
     public Item generatePotion(int levelDepth, boolean hasPrice)
     {
 
