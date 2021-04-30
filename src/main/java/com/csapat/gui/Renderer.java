@@ -736,7 +736,7 @@ public class Renderer extends JPanel {
             for (Image rotated : rotatedImages) {
                 int idx = rotatedImages.indexOf(rotated);
                 Graphics2D g2 = (Graphics2D) grphcs;
-                AffineTransform af = AffineTransform.getTranslateInstance(attacksWithRotatedImages.get(idx).getX(), attacksWithRotatedImages.get(idx).getY());
+                AffineTransform af = AffineTransform.getTranslateInstance(attacksWithRotatedImages.get(idx).getRenderPosX(), attacksWithRotatedImages.get(idx).getRenderPosY());
                 af.rotate(Math.toRadians(rotationDegrees.get(idx)));
                 af.scale(1f, player.getRange() / 35.f);
                 g2.drawImage(rotated, af, null);
