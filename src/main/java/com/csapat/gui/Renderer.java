@@ -1144,7 +1144,6 @@ public class Renderer extends JPanel {
     }
 
     private void transition(Sprite tile) {
-
         int[] coords = getTileCoords(tile);
         int x = coords[1];
         int y = coords[0];
@@ -1159,7 +1158,8 @@ public class Renderer extends JPanel {
         }
 
 
-        if (difference >= 200) {
+        if (difference >= 100) {
+            newFrameTimer.stop();
             if (x == 0) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i - 1][currentRoomNode.getCoordinate().j];
                 player.stepBackAfterLeveltransition(player.getX(), window_w / m * (m - 4));
@@ -1241,7 +1241,7 @@ public class Renderer extends JPanel {
 
             //level.printLevelWithPlayerPos(currentRoomNode);
 
-
+            newFrameTimer.start();
         }
 
     }
