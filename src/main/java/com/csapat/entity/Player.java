@@ -25,7 +25,7 @@ public class Player extends Sprite {
     private float range = 100;
     private float attackSpeed = 1;
     private float damage = 20;
-    private int moveSpeed = 10;
+    private int moveSpeed = 2;
     private int experience = 0;
     private int nextLevelThreshold;
     private int playerLevel = 1;
