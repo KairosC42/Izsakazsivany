@@ -128,8 +128,8 @@ public class Player extends Sprite {
 
     public void giveExperience(int experience) {
         this.experience += experience;
-        if (this.experience > nextLevelThreshold) {
-            raisePlayerLevel(experience - nextLevelThreshold);
+        if (this.experience >= nextLevelThreshold) {
+            raisePlayerLevel(this.experience - nextLevelThreshold);
         }
     }
 
