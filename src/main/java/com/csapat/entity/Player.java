@@ -302,4 +302,9 @@ public class Player extends Sprite {
     {
         return playerLevel;
     }
+
+    public Vector<Potion> getPotions()
+    {
+        return potions;
+    }
 }

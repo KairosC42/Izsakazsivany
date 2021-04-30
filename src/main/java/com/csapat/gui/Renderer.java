@@ -379,12 +379,10 @@ public class Renderer extends JPanel
                 }
                 else
                 {
-                    MapInventoryPanel mapInventoryPanel=new MapInventoryPanel(level,player);
+                    MapInventoryPanel mapInventoryPanel=new MapInventoryPanel(level,player,currentRoomNode);
                     frame.getContentPane().add(mapInventoryPanel);
                     frame.setVisible(true);
                     newFrameTimer.stop();
-                    //System.out.println("Inventory size: "+mapInventoryPanel.getSize());
-                    System.out.println("Frame size: "+frame.getSize());
                     isMapOn=true;
                 }
             }
