@@ -106,20 +106,25 @@ public class ItemGenerator {
 
         //formula for ValueRatio: actual value generated divided by average
         float rangeValueRatio = (rangeModifier * oneHundredF / averageRangeValue);
+        float rangeValueRatioMax = (((rangeModifier*oneHundredF)-rangeBase - ((levelDepth-1)*rangeDepthScale) )/(float) (rangeRandMax-1));
         float attackSpeedValueRatio = (attackSpeedModifier * oneHundredF / averageAttackSpeedValue);
+        float attackSpeedValueRatioMax = (((attackSpeedModifier*oneHundredF) - attackSpeedBase - ((levelDepth-1)*attackSpeedDepthScale) ) /(float) (attackSpeedRandMax-1));
         float damageValueRatio = (damageModifier * oneHundredF / averageDamageValue);
+        float damageValueRatioMax = (((damageModifier*100f) -damageBase - ((levelDepth-1)*damageDepthScale) )/(float) (damageRandMax-1));
         float speedValueRatio = (speedModifier * oneHundredF / averageSpeedValue);
+        float speedValueRatioMax = (((speedModifier*100.f) - speedBase  - ((levelDepth-1)*speedDepthScale) )/(float) ( speedRandMax-1));
         float healthValueRatio = (healthModifier / averageHealthValue);
+        float healthValueRatioMax = ((healthModifier-healthBase - ((levelDepth-1)*healthDepthScale) ) /(float)(healthRandMax-1));
 
         //calculating which image to use
         float[] valueRatios = new float[5];
-        valueRatios[0] = rangeValueRatio;
-        valueRatios[1] = attackSpeedValueRatio;
-        valueRatios[2] = damageValueRatio;
-        valueRatios[3] = speedValueRatio;
-        valueRatios[4] = healthValueRatio;
+        valueRatios[0] = rangeValueRatioMax;
+        valueRatios[1] = attackSpeedValueRatioMax;
+        valueRatios[2] = damageValueRatioMax;
+        valueRatios[3] = speedValueRatioMax;
+        valueRatios[4] = healthValueRatioMax;
 
-        float maxValueRatio = rangeValueRatio;
+        float maxValueRatio = valueRatios[0];
         int maxIndex = 0;
         for (int i = 1; i < 5; ++i) {
             if (maxValueRatio < valueRatios[i]) {
@@ -183,33 +188,37 @@ public class ItemGenerator {
         final int rangeDepthScale = 15;
         final float averageRangeValue = (rangeBase * 2 + rangeRandMax - 1) / twoF;
         int weaponRangeModifier = rand.nextInt(rangeRandMax) + rangeBase + (levelDepth - 1) * rangeDepthScale;
+        float weaponRangeValueRatioMax = ((weaponRangeModifier-rangeBase -((levelDepth-1)*rangeDepthScale)  )/ (float)(rangeRandMax-1));
 
         final int damageBase = 15;
         final int damageRandMax = 11;
         final int damageDepthScale = 8;
         final float averageDamageValue = (damageBase * 2 + damageRandMax - 1) / twoF;
         int weaponDamageModifier = rand.nextInt(damageRandMax) + damageBase + (levelDepth - 1) * damageDepthScale;
+        float weaponDamageValueRatioMax = (((weaponDamageModifier-damageBase - ((levelDepth-1)*damageDepthScale))/ (float)(damageRandMax-1)));
 
         final int attackSpeedBase = 10;
         final int attackSpeedRandMax = 16;
         final int attackSpeedDepthScale = 5;
         final float averageAttackSpeedValue = (attackSpeedBase * 2 + attackSpeedRandMax - 1) / twoF;
         float attackSpeedMultiplier = ((rand.nextInt(attackSpeedRandMax) + attackSpeedBase) + (levelDepth - 1) * attackSpeedDepthScale) / oneHundredF;
+        float weaponAttackSpeedValueRatioMax = (((attackSpeedMultiplier*100.f)-attackSpeedBase - ((levelDepth-1)*attackSpeedDepthScale)  )/ (float)(attackSpeedRandMax-1));
 
         float weaponDamageValueRatio = (weaponRangeModifier / averageRangeValue);
         float weaponRangeValueRatio = (weaponDamageModifier / averageDamageValue);
         float attackSpeedValueRatio = (attackSpeedMultiplier * oneHundredF / averageAttackSpeedValue);
 
+
         float priceMultiplier = (weaponDamageValueRatio + weaponRangeValueRatio + attackSpeedValueRatio) / 3;
         float price = ((basePrice + (basePrice * (levelDepth - 1) * priceDepthScale)) * priceMultiplier);
 
         float[] valueRatios = new float[3];
-        valueRatios[0] = weaponRangeValueRatio;
-        valueRatios[1] = attackSpeedValueRatio;
-        valueRatios[2] = weaponDamageValueRatio;
+        valueRatios[0] = weaponRangeValueRatioMax;
+        valueRatios[1] = weaponAttackSpeedValueRatioMax;
+        valueRatios[2] = weaponDamageValueRatioMax;
 
 
-        float maxValueRatio = weaponDamageValueRatio;
+        float maxValueRatio = valueRatios[0];
         int maxIndex = 0;
         for (int i = 1; i < 3; ++i) {
             if (maxValueRatio < valueRatios[i]) {
