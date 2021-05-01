@@ -620,7 +620,7 @@ public class Renderer extends JPanel {
             enemyAttackRight = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackRight.png"));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("missing texture!");
         }
 
 
