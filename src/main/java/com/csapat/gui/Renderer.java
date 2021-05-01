@@ -53,7 +53,7 @@ public class Renderer extends JPanel {
     private int tile_size = 30;
     private Timer newFrameTimer;
     //private Timer animationTimer;
-    private final int FPS = 240;
+    private final int FPS = 120;
     //private Image background;
     private Player player;
     private int player_width = 40;
@@ -211,9 +211,7 @@ public class Renderer extends JPanel {
         this.getActionMap().put("pressed w", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (player.getVelX() == 0) {
                     player.setVelY(-player.getMoveSpeed());
-                }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "released w");
@@ -228,9 +226,7 @@ public class Renderer extends JPanel {
         this.getActionMap().put("pressed a", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (player.getVelY() == 0) {
                     player.setVelX(-player.getMoveSpeed());
-                }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "released a");
@@ -245,9 +241,7 @@ public class Renderer extends JPanel {
         this.getActionMap().put("pressed s", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (player.getVelX() == 0) {
                     player.setVelY(player.getMoveSpeed());
-                }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "released s");
@@ -262,9 +256,7 @@ public class Renderer extends JPanel {
         this.getActionMap().put("pressed d", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (player.getVelY() == 0) {
                     player.setVelX(player.getMoveSpeed());
-                }
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "released d");
