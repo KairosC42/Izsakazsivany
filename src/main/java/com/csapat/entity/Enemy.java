@@ -76,11 +76,6 @@ public class Enemy extends Sprite {
         return new Attack(x, y, 25, attackRange,attackImage, this,target, lastMove, attackRange, damage);
     }
 
-    public boolean isPlayerInAttackRange(int posX, int posY)
-    {
-        return attackRange>= Math.abs(x-posX)+ Math.abs(y-posY);
-    }
-
     public boolean isPlayerInVisionRange(int posX, int posY)
     {
         return visionRange>= Math.abs(x-posX)+ Math.abs(y-posY);
@@ -122,7 +117,7 @@ public class Enemy extends Sprite {
         if(isPlayerInVisionRange(player.getX(), player.getY()))
         {
             followPlayer(player.getX(), player.getY());
-            if(canAttack&&isPlayerInAttackRange(player.getX(), player.getY()))
+            if(canAttack)
             {
                 canAttack=false;
                 attackTimer.schedule(new attackedRecently(), 1000/ATTACK_SPEED);
