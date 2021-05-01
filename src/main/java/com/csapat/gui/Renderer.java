@@ -1553,6 +1553,7 @@ public class Renderer extends JPanel {
                 Vector<Enemy> enemiesCopy = new Vector<Enemy>(enemies);
                 for (Enemy enemy : enemies) {
                     if (enemy.getHealthPoints() == 0) {
+                        player.incrementKillCount();
                         Item loot = enemy.dropLoot(player);
                         if (loot != null) {
                             loot.setX(enemy.getX());

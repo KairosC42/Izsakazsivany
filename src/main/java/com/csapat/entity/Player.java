@@ -52,10 +52,12 @@ public class Player extends Sprite {
     private float attackSpeedModifier = 1;
     private float damageModifier = 1;
     private float moveSpeedModifier = 1;
+    private int killcount;
 
     private boolean lastMove; //false, y-n, true- x-en
 
     public Player(int x, int y, int width, int height, Image playerImages[], int frameHeight, int frameWidth) {
+        killcount=0;
         Image weaponImage = null;
         try {
             weaponImage = ImageIO.read(this.getClass().getClassLoader().getResource("sword.png"));
@@ -331,5 +333,15 @@ public class Player extends Sprite {
     public Vector<Potion> getPotions()
     {
         return potions;
+    }
+
+    public int getKillcount()
+    {
+        return killcount;
+    }
+
+    public void incrementKillCount()
+    {
+        killcount++;
     }
 }
