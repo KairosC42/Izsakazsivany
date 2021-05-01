@@ -695,4 +695,9 @@ public class Level
     public void setRoomVector(Vector<RoomNode> roomVector){this.roomVector=roomVector;}
 
     public void setStartingRoom(RoomNode startingRoom){this.startingRoom=startingRoom;}
+
+    public int getLevelDepth()
+    {
+        return levelDepth;
+    }
 }

@@ -2,9 +2,12 @@ package com.csapat.rooms;
 
 import com.csapat.entity.Enemy;
 import com.csapat.entity.Item;
+import com.csapat.gui.Renderer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Random;
 import java.util.Vector;
 
@@ -16,6 +19,7 @@ public class CombatRoom extends Room
 {
 
     Random rand= new Random();
+    private Image[] enemyImages;
     private int enemyCount;
 
 
@@ -34,7 +38,7 @@ public class CombatRoom extends Room
         Image enemyTexture=null;
         try
         {
-            enemyTexture = ImageIO.read(this.getClass().getClassLoader().getResource("enemy.png"));
+            enemyImages = getImages(40,65,20,13,5,4,10,10,"enemys.png");
         }
         catch(Exception e){System.out.println("Enemy texture is missing");}
         for(int i=0;i<enemyCount;++i)
@@ -45,11 +49,36 @@ public class CombatRoom extends Room
             int attackRange = rand.nextInt(20) + 55 + (levelDepth-1)*20 ;
             int damage = Math.round(rand.nextInt(10)+20 +(levelDepth-1)*15);
 
-            enemies.add(new Enemy(/*getN() /2*/ 200 +i*50 ,/*getM()/2*/ 200  ,50,50,enemyTexture,damage,visionRange,attackRange,healthPoints,moveSpeed,levelDepth));
+            Random ran = new Random();
+            int x_coordinate = ran.nextInt(26)+2;
+            int y_coordinate = ran.nextInt(16)+2;
 
+            enemies.add(new Enemy( x_coordinate*30 ,/*getM()/2*/ y_coordinate*30  ,50,50,enemyImages,damage,visionRange,attackRange,healthPoints,moveSpeed,levelDepth));
 
 
         }
+    }
+
+    public Image[] getImages(int width, int height, int width_margin,
+                             int height_margin, int rows, int cols, int starter_height, int starter_width, String fileName)
+            throws IOException
+    {
+
+        // packagek előtt:  BufferedImage bigImg = ImageIO.read(this.getClass().getResource(fileName));
+        BufferedImage bigImg = ImageIO.read(this.getClass().getClassLoader().getResource(fileName));
+
+        Image images[] = new Image[rows * cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                images[(i * cols) + j] = bigImg.getSubimage(
+                        starter_width + (j * (width + width_margin)),
+                        starter_height + (i * (height + height_margin)),
+                        width,
+                        height
+                );
+            }
+        }
+        return images;
     }
 
 

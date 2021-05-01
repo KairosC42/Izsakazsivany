@@ -93,6 +93,8 @@ public class MapInventoryPanel extends JPanel
     private void displayStats()
     {
         JLabel jLabel=new JLabel();
+        String text="<tr><td>"+fontColor+"Player statistics "+"</font></td></tr>";
+        String levelDepth="<tr><td>"+fontColor+"Level depth: "+level.getLevelDepth()+"</font></td></tr>";
         String hp="<tr><td>"+fontColor+"Health: "+player.getHealthPoints()+"\\"+player.getHealthPointsMax()+"</font></td></tr>";
         String range="<tr><td>"+fontColor+"Range: "+player.getRange()+"</font></td></tr>";
         String attackSpeed="<tr><td>"+fontColor+"Attack speed: "+player.getAttackSpeed()+"</font><td></tr>";
@@ -101,7 +103,8 @@ public class MapInventoryPanel extends JPanel
         String experience="<tr><td>"+fontColor+"Experience: "+player.getExperience()+"\\"+player.getNextLevelThreshold()+"</font></td></tr>";
         String money="<tr><td>"+fontColor+"Money: "+player.getMoney()+"</font></td></tr>";
         String moveSpeed="<tr><td>"+fontColor+"Move speed: "+player.getMoveSpeed()+"</font></td></tr>";
-        jLabel.setText("<html><table>"+level+experience+hp+damage+attackSpeed+range+moveSpeed+money+"</table></html>");
+        String killCount="<tr><td>"+fontColor+"Enemies killed: "+player.getKillcount()+"</font></td></tr>";
+        jLabel.setText("<html><table>"+levelDepth+text+level+experience+hp+damage+attackSpeed+range+moveSpeed+money+killCount+"</table></html>");
         jPanelWest.add(jLabel);
 
         //c.fill=GridBagConstraints.VERTICAL;

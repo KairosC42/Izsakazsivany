@@ -106,6 +106,7 @@ public class Renderer extends JPanel {
     private Image enemyAttackLeft;
     private Image enemyAttackRight;
     private Image[] playerImages;
+    private Image[] enemyImages;
 
     private Vector<Enemy> enemies = new Vector<>();
     // ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
@@ -588,6 +589,8 @@ public class Renderer extends JPanel {
             //player képeinek betöltése
             playerImages = getImages(300, 450, 100, 150,
                     4, 4, 100, 50, "player.png");
+
+
 
             attackImg = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
             wallTexture = ImageIO.read(this.getClass().getClassLoader().getResource("wall.png"));
@@ -1554,6 +1557,7 @@ public class Renderer extends JPanel {
                 Vector<Enemy> enemiesCopy = new Vector<Enemy>(enemies);
                 for (Enemy enemy : enemies) {
                     if (enemy.getHealthPoints() == 0) {
+                        player.incrementKillCount();
                         Item loot = enemy.dropLoot(player);
                         if (loot != null) {
                             loot.setX(enemy.getX());
