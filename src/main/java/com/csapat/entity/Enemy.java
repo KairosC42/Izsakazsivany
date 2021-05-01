@@ -47,6 +47,8 @@ public class Enemy extends Sprite {
         moveTimer = new Timer();
         attackTimer = new Timer();
         moveTimer.schedule(new collideTask(), 0, 2000);
+        lastMove = Directions.Still;
+        lastNoneStillDirection = Directions.Left;
         this.enemyImages=images;
         Random randtype = new Random();
         EnemyType = randtype.nextInt(3);
@@ -202,6 +204,8 @@ public class Enemy extends Sprite {
                 break;
             case Right:
                 x -= (int)speed;
+                break;
+            case Still:
                 break;
         }
     }
