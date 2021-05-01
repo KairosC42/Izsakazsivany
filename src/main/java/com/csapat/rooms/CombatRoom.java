@@ -49,7 +49,11 @@ public class CombatRoom extends Room
             int attackRange = rand.nextInt(20) + 55 + (levelDepth-1)*20 ;
             int damage = Math.round(rand.nextInt(10)+20 +(levelDepth-1)*15);
 
-            enemies.add(new Enemy(/*getN() /2*/ 200 +i*50 ,/*getM()/2*/ 200  ,50,50,enemyImages,damage,visionRange,attackRange,healthPoints,moveSpeed,levelDepth));
+            Random ran = new Random();
+            int x_coordinate = ran.nextInt(26)+2;
+            int y_coordinate = ran.nextInt(16)+2;
+
+            enemies.add(new Enemy( x_coordinate*30 ,/*getM()/2*/ y_coordinate*30  ,50,50,enemyImages,damage,visionRange,attackRange,healthPoints,moveSpeed,levelDepth));
 
 
         }

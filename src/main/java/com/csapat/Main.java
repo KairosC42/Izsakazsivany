@@ -8,9 +8,6 @@ public class Main
     {
 
         MainWindow gui = new MainWindow();
-
-
-
         //level.getRoomMatrix()[level.getStartingRoom().getCoordinate().i][level.getStartingRoom().getCoordinate().i].getRoom();
 
 
