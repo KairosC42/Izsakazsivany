@@ -78,9 +78,9 @@ public class ItemGenerator {
         final float averageHealthValue = (healthBase + healthBase + healthRandMax - 1) / twoF;
         int healthModifier = (rand.nextInt(healthRandMax) + healthBase) + (levelDepth - 1) * healthDepthScale;
 
-        final int rangeRandMax = 7;
-        final int rangeBase = 5;
-        final int rangeDepthScale = 5;
+        final int rangeRandMax = 4;
+        final int rangeBase = 3;
+        final int rangeDepthScale = 3;
         final float averageRangeValue = (rangeBase + rangeBase + rangeRandMax - 1) / twoF;
         float rangeModifier = ((rand.nextInt(rangeRandMax) + rangeBase) + (levelDepth - 1) * rangeDepthScale) / oneHundredF;
 
@@ -183,8 +183,8 @@ public class ItemGenerator {
      */
     public Item generateWeapon(int levelDepth, boolean hasPrice) {
 
-        final int rangeBase = 50;
-        final int rangeRandMax = 41;
+        final int rangeBase = 30;
+        final int rangeRandMax = 25;
         final int rangeDepthScale = 15;
         final float averageRangeValue = (rangeBase * 2 + rangeRandMax - 1) / twoF;
         int weaponRangeModifier = rand.nextInt(rangeRandMax) + rangeBase + (levelDepth - 1) * rangeDepthScale;
