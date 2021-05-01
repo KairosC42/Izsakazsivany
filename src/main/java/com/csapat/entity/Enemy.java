@@ -1,24 +1,32 @@
 package com.csapat.entity;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.util.Random;
 import java.util.TimerTask;
 import java.util.Timer;
+import java.util.Vector;
 
 public class Enemy extends Sprite {
-    private String direction = "left";
-    private float speed = 2;
-    private String lastMove = "left";
+    private Directions moveDirection;
+    private Directions attackDirection;
+    private float speed;
+    private Directions lastMove;
     private int healthPoints;
     private int attackRange;
     private int damage = 10;
     private String name;
     private int velx;
     private int vely;
-    private int visionRange;
-    private int levelDepth;
-    private Timer moveTimer;
-    private java.util.Timer enemy_attacked;
+    private final int visionRange;
+    private final int levelDepth;
+    private final Timer moveTimer;
+    private final Timer attackTimer;
+    private Image attackImage;
+    private java.util.Timer enemyAttacked;
+    private boolean changeDirection;
+    private boolean canAttack;
+    private final int ATTACK_SPEED=1;
 
 
     private Boolean gotAttacked=false;
@@ -31,8 +39,20 @@ public class Enemy extends Sprite {
         this.healthPoints=healthPoints;
         this.speed=speed;
         this.levelDepth=levelDepth;
+        changeDirection=true;
+        canAttack = true;
         moveTimer = new Timer();
+        attackTimer = new Timer();
         moveTimer.schedule(new collideTask(), 0, 2000);
+        try
+        {
+            attackImage = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
+        }
+        catch (Exception e)
+        {
+            System.out.println("Missing enemy attack");
+        }
+
     }
 
     public void takeDamage(int damage)
@@ -41,10 +61,23 @@ public class Enemy extends Sprite {
         if(healthPoints<0)healthPoints=0;
     }
 
+    public Attack attack(Player player)
+    {
+        Vector<Player> target = new Vector<>();
+        target.add(player);
+        return new Attack(x, y, 25, attackRange,attackImage, this,target, lastMove, attackRange, damage);
+    }
+
+    public boolean isPlayerInAttackRange(int posX, int posY)
+    {
+        return attackRange>= Math.abs(x-posX)+ Math.abs(y-posY);
+    }
+
     public boolean isPlayerInVisionRange(int posX, int posY)
     {
         return visionRange>= Math.abs(x-posX)+ Math.abs(y-posY);
     }
+
     public void followPlayer(int posX, int posY)
     {
         int relX = x-posX;
@@ -53,126 +86,114 @@ public class Enemy extends Sprite {
         {
             if(relX>0)
             {
-                direction="left";
+                moveDirection =Directions.Left;
             }
             else
             {
-                direction="right";
+                moveDirection =Directions.Right;
             }
         }
         else
         {
             if(relY>0)
             {
-                direction="up";
+                moveDirection =Directions.Up;
             }
             else
             {
-                direction="down";
+                moveDirection =Directions.Down;
             }
 
         }
 
     }
-    /*
-    public void behaviour(int player_x, int player_y) {
-        System.out.println("player_x: " + player_x + "Enemy_x: " + x);
-        System.out.println("pl_x: " + (player_x - x));
-        System.out.println("player: " + player_y + "Enemy: " + y);
-        System.out.println("pl_y: " + (y - player_y));
 
-
-        int x_dist = 0;
-        int y_dist = 0;
-        if (player_x > x) {
-            x_dist = player_x - x;
+    public Attack behaviour(Player player)
+    {
+        if(isPlayerInVisionRange(player.getX(), player.getY()))
+        {
+            followPlayer(player.getX(), player.getY());
+            if(canAttack&&isPlayerInAttackRange(player.getX(), player.getY()))
+            {
+                canAttack=false;
+                attackTimer.schedule(new attackedRecently(), 1000/ATTACK_SPEED);
+                return attack(player);
+            }
         }
-        if (player_x < x) {
-            x_dist = x - player_x;
+        else
+        {
+            if(changeDirection) {
+                changeDirection=false;
+                moveTimer.schedule(new changeDir(), 250);
+                randDirection();
+            }
         }
-        if (player_y > y) {
-            y_dist = player_y - y;
-        }
-        if (player_y < y) {
-            y_dist = y - player_y;
-        }
-        System.out.println("x dist: " + x_dist + " y_dist " + y_dist);
-        if (y_dist < 200 && x_dist < 200) {
-            System.out.println("Közel van!!!!");
-            x = player_x-Math.round(x_dist/3);
-            y = player_x-Math.round(y_dist/3);
-            System.out.println("benne " + x + "és" + y);
-
-
-
-        }
-        System.out.println(x + "és" + y);
-        System.out.println("--------------------");
+        move();
+        return null;
     }
-    */
-
 
     public void move() {
 
-        //todo move:  if ( x<850 && y<800 ) {   }
-        switch (direction) {
-            case "up":
-                y -= speed;
+        switch (moveDirection) {
+            case Up:
+                y -= (int)speed;
                 break;
-            case "down":
-                y += speed;
+            case Down:
+                y += (int)speed;
                 break;
-            case "left":
-                x -= speed;
+            case Left:
+                x -= (int)speed;
                 break;
-            case "right":
-                x += speed;
+            case Right:
+                x += (int)speed;
+                break;
+            case Still:
                 break;
         }
-        lastMove = direction;
+        lastMove = moveDirection;
     }
 
 
     public void randDirection() {
         Random rand = new Random();
-        int randD = rand.nextInt(4);
+        int randD = rand.nextInt(5);
         switch (randD) {
             case 0:
-                direction = "up";
+                moveDirection = Directions.Up;
                 break;
             case 1:
-                direction = "down";
+                moveDirection = Directions.Down;
                 break;
             case 2:
-                direction = "left";
+                moveDirection = Directions.Left;
                 break;
             case 3:
-                direction = "right";
+                moveDirection = Directions.Right;
                 break;
-
+            case 4:
+                moveDirection = Directions.Still;
+                break;
         }
     }
 
 
     public void moveBack() {
         switch (lastMove) {
-            case "up":
-                y += speed;
+            case Up:
+                y += (int)speed;
                 break;
-            case "down":
-                y -= speed;;
+            case Down:
+                y -= (int)speed;;
                 break;
-            case "left":
-                x += speed;
+            case Left:
+                x += (int)speed;
                 break;
-            case "right":
-                x -= speed;
+            case Right:
+                x -= (int)speed;
                 break;
         }
     }
 
-    public void attack() {
-    }
 
     public Item dropLoot(Player player)
     {
@@ -195,8 +216,8 @@ public class Enemy extends Sprite {
     public Boolean damaged(float dmg,float attack_speed)
     {
         this.healthPoints-=dmg;
-        enemy_attacked = new java.util.Timer();
-        enemy_attacked.schedule(new gotDamagedTask(),(int)(1000/attack_speed));
+        enemyAttacked = new java.util.Timer();
+        enemyAttacked.schedule(new gotDamagedTask(),(int)(1000/attack_speed));
         if(this.healthPoints<=0)
         {
             //died
@@ -212,12 +233,12 @@ public class Enemy extends Sprite {
     //Getterek és szetterek az enemyhez
 
 
-    public String getDirection() {
-        return direction;
+    public Directions getDirection() {
+        return moveDirection;
     }
 
-    public void setDirection(String direction) {
-        this.direction = direction;
+    public void setDirection(Directions direction) {
+        this.moveDirection = direction;
     }
 
     public float getSpeed() {
@@ -228,11 +249,11 @@ public class Enemy extends Sprite {
         this.speed = speed;
     }
 
-    public String getLastMove() {
+    public Directions getLastMove() {
         return lastMove;
     }
 
-    public void setLastMove(String lastMove) {
+    public void setLastMove(Directions lastMove) {
         this.lastMove = lastMove;
     }
 
@@ -309,4 +330,20 @@ public class Enemy extends Sprite {
             gotAttacked = false;
         }
     }
+
+    class changeDir extends TimerTask
+    {
+        public void run()
+        {
+            changeDirection = true;
+        }
+    }
+    class attackedRecently extends TimerTask
+    {
+        public void run()
+        {
+            canAttack = true;
+        }
+    }
+
 }

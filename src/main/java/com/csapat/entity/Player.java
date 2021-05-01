@@ -2,6 +2,8 @@ package com.csapat.entity;
 
 import javax.imageio.ImageIO;
 import java.awt.Image;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 public class Player extends Sprite {
@@ -23,13 +25,15 @@ public class Player extends Sprite {
     private int healthPointsMax = 100;
     private int healthPoints = 100;
     private float range = 100;
-    private float attackSpeed = 1;
+    private float attackSpeed = 2f;
     private float damage = 20;
     private int moveSpeed = 2;
     private int experience = 0;
     private int nextLevelThreshold;
     private int playerLevel = 1;
     private Directions direction = Directions.Down;
+    private Timer invincibilityTimer;
+    private boolean canTakeDamage;
     //private Inventory inventory;
     private int velx;
     private int vely;
@@ -65,8 +69,8 @@ public class Player extends Sprite {
         this.height = height;
         this.playerImages = playerImages;
         this.image = playerImages[0];
-        this.frameHeight = frameHeight;
-        this.frameWidth = frameWidth;
+        invincibilityTimer= new Timer();
+        canTakeDamage = true;
         nextLevelThreshold = 200;
     }
 
@@ -74,6 +78,21 @@ public class Player extends Sprite {
         walkingTime += deltaTime;
     }
 
+
+    public boolean isDead() {return healthPoints>0;}
+
+    public void takeDamage(int damage)
+    {
+        if(canTakeDamage)
+        {
+            canTakeDamage=false;
+            int INVINCIBILITY_TIME = 500;
+            invincibilityTimer.schedule(new canTakeDamageTask(), INVINCIBILITY_TIME);
+            healthPoints-=damage;
+        }
+        if(healthPoints<0)healthPoints=0;
+
+    }
 
     public void buyItem(Item item) {
         this.money -= item.getPrice();
@@ -111,8 +130,8 @@ public class Player extends Sprite {
 
     public void giveExperience(int experience) {
         this.experience += experience;
-        if (this.experience > nextLevelThreshold) {
-            raisePlayerLevel(experience - nextLevelThreshold);
+        if (this.experience >= nextLevelThreshold) {
+            raisePlayerLevel(this.experience - nextLevelThreshold);
         }
     }
 
@@ -238,7 +257,7 @@ public class Player extends Sprite {
             if (((Potion) item).getHealthRestore() == 0) {
                 giveExperience(((Potion) item).grantExp);
             }
-            potions.add((Potion) item);
+            else potions.add((Potion) item);
         } else if (item instanceof Weapon) {
             Weapon weapon = (Weapon) item;
             if (equippedWeapon != null) {
@@ -260,15 +279,14 @@ public class Player extends Sprite {
     }
 
     public void useHealthPotion() {
-        for (Potion pot : potions) {
-            if (getExperience() == 0) {
-                healthPoints += pot.getHealthRestore();
-                if (healthPoints > getHealthPointsMax()) {
-                    healthPoints = getHealthPointsMax();
-                }
-                potions.remove(pot);
-                break;
+        if (potions.size()>0)
+        {
+            Potion pot=potions.get(0);
+            healthPoints += pot.getHealthRestore();
+            if (healthPoints > getHealthPointsMax()) {
+                healthPoints = getHealthPointsMax();
             }
+            potions.remove(pot);
         }
     }
 
@@ -281,6 +299,13 @@ public class Player extends Sprite {
     public void stepBackAfterLeveltransition(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+    class canTakeDamageTask extends TimerTask
+    {
+        public void run()
+        {
+            canTakeDamage=true;
+        }
     }
 
     public Vector<StatItem> getEquippedItems()

@@ -26,7 +26,6 @@
                 <version>3.0.0-M5</version>
                 <configuration>
                     <outputDirectory>${basedir}/target/newsite</outputDirectory>
-                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                 </configuration>
             </plugin>
             <plugin>
