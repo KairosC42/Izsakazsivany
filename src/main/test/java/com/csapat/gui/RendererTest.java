@@ -38,7 +38,7 @@ class RendererTest
             Vector<Sprite> enemies = new Vector<>();
 
             Attack attack = new Attack(player.getX(), player.getY(), 10,50, attackImg , player, enemies, player.getDirection(), player.getRange(), (int)player.getDamage());
-            Assertions.assertTrue(attack.getSpeed()==1,"Attack sebessége");
+            Assertions.assertTrue(attack.getSpeed()==0,"Attack sebessége");
         }
         catch (Exception e)
         {
