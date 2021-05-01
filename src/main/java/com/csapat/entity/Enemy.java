@@ -27,12 +27,14 @@ public class Enemy extends Sprite {
     private boolean changeDirection;
     private boolean canAttack;
     private final int ATTACK_SPEED=1;
+    private Image enemyImages[];
+    private int EnemyType=0;
 
 
     private Boolean gotAttacked=false;
 
-    public Enemy(int x, int y, int width, int height, Image image, int damage, int visionRange, int attackRange, int healthPoints, float speed,int levelDepth) {
-        super(x, y, width, height, image);
+    public Enemy(int x, int y, int width, int height, Image images[], int damage, int visionRange, int attackRange, int healthPoints, float speed,int levelDepth) {
+        super(x, y, width, height, images[0]);
         this.damage = damage;
         this.visionRange=visionRange;
         this.attackRange=attackRange;
@@ -44,6 +46,9 @@ public class Enemy extends Sprite {
         moveTimer = new Timer();
         attackTimer = new Timer();
         moveTimer.schedule(new collideTask(), 0, 2000);
+        this.enemyImages=images;
+        Random randtype = new Random();
+        EnemyType = randtype.nextInt(3);
         try
         {
             attackImage = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
@@ -137,15 +142,19 @@ public class Enemy extends Sprite {
         switch (moveDirection) {
             case Up:
                 y -= (int)speed;
+                this.image=enemyImages[0+(EnemyType*4)];
                 break;
             case Down:
                 y += (int)speed;
+                this.image=enemyImages[1+(EnemyType*4)];
                 break;
             case Left:
                 x -= (int)speed;
+                this.image=enemyImages[2+(EnemyType*4)];
                 break;
             case Right:
                 x += (int)speed;
+                this.image=enemyImages[3+(EnemyType*4)];
                 break;
             case Still:
                 break;
