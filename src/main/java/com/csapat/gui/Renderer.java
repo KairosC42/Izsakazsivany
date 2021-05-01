@@ -53,7 +53,7 @@ public class Renderer extends JPanel {
     private int tile_size = 30;
     private Timer newFrameTimer;
     //private Timer animationTimer;
-    private final int FPS = 120;
+    private final int FPS = 240;
     //private Image background;
     private Player player;
     private int player_width = 40;
@@ -967,27 +967,27 @@ public class Renderer extends JPanel {
                     Weapon tmp = (Weapon) items.get(i);
                     JLabel itemStat = new JLabel(
                             "Name: " + tmp.getName() + "\n" +
-                                    "Rangemod: " + tmp.getRangeModifier() + "%" + "\n" +
-                                    "Damagemod: " + tmp.getDamageModifier() + "%" + "\n" +
-                                    "AttSpdmod: " + tmp.getAttackSpeedModifier() + "%" + "\n" +
+                                    "Rangemod: " + Math.round(tmp.getRangeModifier()) + "%" + "\n" +
+                                    "Damagemod: " + Math.round(tmp.getDamageModifier()) + "%" + "\n" +
+                                    "AttSpdmod: " + Math.round(tmp.getAttackSpeedModifier() )+ "%" + "\n" +
                                     "Price: " + tmp.getPrice()
                             , null, SwingConstants.LEFT);
                     if (tmp.getPrice() != 0) {
                         itemStat.setText(
                                 "<html><body>" +
                                         "Name: " + tmp.getName() + "<br>" +
-                                        "Range: +" + tmp.getRangeModifier() + "<br>" +
-                                        "Damage: +" + tmp.getDamageModifier() + "<br>" +
-                                        "Attackspeed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                        "Range: +" + Math.round(tmp.getRangeModifier()) + "<br>" +
+                                        "Damage: +" + Math.round(tmp.getDamageModifier()) + "<br>" +
+                                        "Attackspeed: +" + Math.round(tmp.getAttackSpeedModifier() * 100) + "%" + "<br>" +
                                         "Price: " + tmp.getPrice() +
                                         "</body></html>");
                     } else {
                         itemStat.setText(
                                 "<html><body>" +
                                         "Name: " + tmp.getName() + "<br>" +
-                                        "Range: +" + tmp.getRangeModifier() + "<br>" +
-                                        "Damage: +" + tmp.getDamageModifier() + "<br>" +
-                                        "Attackspeed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
+                                        "Range: +" + Math.round(tmp.getRangeModifier()) + "<br>" +
+                                        "Damage: +" + Math.round(tmp.getDamageModifier()) + "<br>" +
+                                        "Attackspeed: +" + Math.round(tmp.getAttackSpeedModifier() * 100) + "%" + "<br>" +
                                         "</body></html>");
                     }
                     itemStat.setBackground(bgColor);
@@ -1017,11 +1017,11 @@ public class Renderer extends JPanel {
                         itemStat.setText(
                                 "<html><body>" +
                                         "Name: " + tmp.getName() + "<br>" +
-                                        "Health: +" + tmp.getHealthModifier() + "<br>" +
-                                        "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
-                                        "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
-                                        "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
-                                        "MoveMove speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
+                                        "Health: +" + Math.round(tmp.getHealthModifier()) + "<br>" +
+                                        "Range: +" + Math.round(tmp.getRangeModifier() * 100) + "%" + "<br>" +
+                                        "Damage: +" + Math.round(tmp.getDamageModifier() * 100) + "%" + "<br>" +
+                                        "Attack speed: +" + Math.round(tmp.getAttackSpeedModifier() * 100) + "%" + "<br>" +
+                                        "MoveMove speed: +" + Math.round(tmp.getSpeedModifier() * 100) + "%" + "<br>" +
                                         "Price: " + tmp.getPrice() +
                                         "</body></html>"
 
@@ -1030,11 +1030,11 @@ public class Renderer extends JPanel {
                         itemStat.setText(
                                 "<html><body>" +
                                         "Name: " + tmp.getName() + "<br>" +
-                                        "Health: +" + tmp.getHealthModifier() + "<br>" +
-                                        "Range: +" + tmp.getRangeModifier() * 100 + "%" + "<br>" +
-                                        "Damage: +" + tmp.getDamageModifier() * 100 + "%" + "<br>" +
-                                        "Attack speed: +" + tmp.getAttackSpeedModifier() * 100 + "%" + "<br>" +
-                                        "Move speed: +" + tmp.getSpeedModifier() * 100 + "%" + "<br>" +
+                                        "Health: +" + Math.round(tmp.getHealthModifier()) + "<br>" +
+                                        "Range: +" + Math.round(tmp.getRangeModifier() * 100) + "%" + "<br>" +
+                                        "Damage: +" + Math.round(tmp.getDamageModifier() * 100) + "%" + "<br>" +
+                                        "Attack speed: +" + Math.round(tmp.getAttackSpeedModifier() * 100) + "%" + "<br>" +
+                                        "Move speed: +" + Math.round(tmp.getSpeedModifier() * 100) + "%" + "<br>" +
                                         "</body></html>");
                     }
                     itemStat.setBackground(bgColor);
@@ -1506,6 +1506,7 @@ public class Renderer extends JPanel {
                 enemyAttackImg = enemyAttackDown;
                 break;
             case Left:
+                System.out.println(enemyAttackLeft);
                 enemyAttackImg = enemyAttackLeft;
                 break;
             case Right:
@@ -1567,7 +1568,9 @@ public class Renderer extends JPanel {
                         Attack att = enemy.behaviour(player);
 
                         if (att != null) {
-                            setEnemyAttackImg(enemy.getDirection());
+
+                            setEnemyAttackImg(enemy.getLastNoneStillDirection());
+                            System.out.println(enemyAttackImg);
                             att.setImage(enemyAttackImg);
                             currentAttacks.add(att);
                         }
