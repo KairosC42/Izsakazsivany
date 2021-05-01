@@ -84,20 +84,20 @@ public class ItemGenerator {
         final float averageRangeValue = (rangeBase + rangeBase + rangeRandMax - 1) / twoF;
         float rangeModifier = ((rand.nextInt(rangeRandMax) + rangeBase) + (levelDepth - 1) * rangeDepthScale) / oneHundredF;
 
-        final int attackSpeedRandMax = 8;
+        final int attackSpeedRandMax = 5;
         final int attackSpeedBase = 5;
         final int attackSpeedDepthScale = 3;
         final float averageAttackSpeedValue = (attackSpeedBase + attackSpeedBase + attackSpeedRandMax - 1) / twoF;
         float attackSpeedModifier = ((rand.nextInt(attackSpeedRandMax) + attackSpeedBase) + (levelDepth - 1) * attackSpeedDepthScale) / oneHundredF;
 
 
-        final int damageRandMax = 9;
+        final int damageRandMax = 6;
         final int damageBase = 2;
         final int damageDepthScale = 2;
         final float averageDamageValue = (damageBase + damageBase + damageRandMax - 1) / twoF;
         float damageModifier = ((rand.nextInt(damageRandMax) + damageBase) + (levelDepth - 1) * damageDepthScale) / oneHundredF;
 
-        final int speedRandMax = 7;
+        final int speedRandMax = 4;
         final int speedBase = 2;
         final int speedDepthScale = 2;
         final float averageSpeedValue = (rangeBase + rangeBase + rangeRandMax - 1) / twoF;
@@ -197,9 +197,9 @@ public class ItemGenerator {
         int weaponDamageModifier = rand.nextInt(damageRandMax) + damageBase + (levelDepth - 1) * damageDepthScale;
         float weaponDamageValueRatioMax = (((weaponDamageModifier-damageBase - ((levelDepth-1)*damageDepthScale))/ (float)(damageRandMax-1)));
 
-        final int attackSpeedBase = 10;
-        final int attackSpeedRandMax = 16;
-        final int attackSpeedDepthScale = 5;
+        final int attackSpeedBase = 6;
+        final int attackSpeedRandMax = 7;
+        final int attackSpeedDepthScale = 3;
         final float averageAttackSpeedValue = (attackSpeedBase * 2 + attackSpeedRandMax - 1) / twoF;
         float attackSpeedMultiplier = ((rand.nextInt(attackSpeedRandMax) + attackSpeedBase) + (levelDepth - 1) * attackSpeedDepthScale) / oneHundredF;
         float weaponAttackSpeedValueRatioMax = (((attackSpeedMultiplier*100.f)-attackSpeedBase - ((levelDepth-1)*attackSpeedDepthScale)  )/ (float)(attackSpeedRandMax-1));
