@@ -24,6 +24,7 @@ public class Enemy extends Sprite {
     private final Timer attackTimer;
     private Image attackImage;
     private java.util.Timer enemyAttacked;
+    private Directions lastNoneStillDirection;
     private boolean changeDirection;
     private boolean canAttack;
     private final int ATTACK_SPEED=1;
@@ -105,6 +106,7 @@ public class Enemy extends Sprite {
             }
 
         }
+        lastNoneStillDirection=moveDirection;
 
     }
 
@@ -174,6 +176,7 @@ public class Enemy extends Sprite {
                 moveDirection = Directions.Still;
                 break;
         }
+        if(moveDirection!=Directions.Still)lastNoneStillDirection=moveDirection;
     }
 
 
@@ -239,6 +242,10 @@ public class Enemy extends Sprite {
 
     public void setDirection(Directions direction) {
         this.moveDirection = direction;
+    }
+
+    public Directions getLastNoneStillDirection() {
+        return lastNoneStillDirection;
     }
 
     public float getSpeed() {
