@@ -230,6 +230,8 @@ public class Level
             for now at least xd
          */
         generateDoors();
+        shrinkLevelMatrix();
+
     }
 
     private void placeRoom(Coordinate newRoomCoordinate)
@@ -391,9 +393,9 @@ public class Level
     {
         System.out.println("\n\n\n");
 
-        for (int i = 0; i < mSize; i++)
+        for (int i = 0; i < roomMatrix.length; i++)
         { //this equals to the row in our matrix.
-            for (int j = 0; j < mSize; j++)
+            for (int j = 0; j < roomMatrix[0].length; j++)
             { //this equals to the column in each row.
                 if (roomMatrix[i][j] == null)
                 {
@@ -414,9 +416,9 @@ public class Level
         System.out.println("\nDistances from the start room");
         System.out.println("\n\n\n");
 
-        for (int i = 0; i < mSize; i++)
+        for (int i = 0; i < roomMatrix.length; i++)
         { //this equals to the row in our matrix.
-            for (int j = 0; j < mSize; j++)
+            for (int j = 0; j < roomMatrix[0].length; j++)
             { //this equals to the column in each row.
                 if (roomMatrix[i][j] == null)
                 {
@@ -460,9 +462,9 @@ public class Level
     {
         System.out.println("\n\n\n");
 
-        for (int i = 0; i < mSize; i++)
+        for (int i = 0; i < roomMatrix.length; i++)
         { //this equals to the row in our matrix.
-            for (int j = 0; j < mSize; j++)
+            for (int j = 0; j < roomMatrix[0].length; j++)
             { //this equals to the column in each row.
                 if (roomMatrix[i][j] == null)
                 {
@@ -552,6 +554,124 @@ public class Level
 
             }
         }
+
+    }
+
+    /**
+     * Warning after this method is called the roomVector is no longer usable,
+     * because the RoomNode coordinates are different!
+     *
+     * Shrink down the RoomMatrix for easier use and display
+     */
+
+    private void shrinkLevelMatrix()
+    {
+        Coordinate north=null;
+        Coordinate east=null;
+        Coordinate south=null;
+        Coordinate west=null;
+        boolean found=false;
+        for (int i=0;i<roomMatrix.length;i++)
+        {
+            for (int j=0;j<roomMatrix[0].length;j++)
+            {
+                if(roomMatrix[i][j]!=null)
+                {
+                    north=roomMatrix[i][j].getCoordinate();
+                    found=true;
+                    break;
+                }
+            }
+            if (found) break;;
+        }
+
+        found=false;
+        for (int j=0;j<roomMatrix[0].length;j++)
+        {
+            for (int i=0;i<roomMatrix.length;i++)
+            {
+                if(roomMatrix[i][j]!=null)
+                {
+                    west=roomMatrix[i][j].getCoordinate();
+                    found=true;
+                    break;
+                }
+            }
+            if (found) break;;
+        }
+
+        found=false;
+        for (int i=roomMatrix.length-1;i>=0;i--)
+        {
+            for (int j=roomMatrix[0].length-1;j>=0;j--)
+            {
+                if(roomMatrix[i][j]!=null)
+                {
+                    south=roomMatrix[i][j].getCoordinate();
+                    found=true;
+                    break;
+                }
+            }
+            if (found) break;;
+        }
+
+        found=false;
+        for (int j=roomMatrix[0].length-1;j>=0;j--)
+        {
+            for (int i=roomMatrix.length-1;i>=0;i--)
+            {
+                if(roomMatrix[i][j]!=null)
+                {
+                    east=roomMatrix[i][j].getCoordinate();
+                    found=true;
+                    break;
+                }
+            }
+            if (found) break;;
+        }
+
+
+        //System.out.println(north);
+        //System.out.println(east);
+        //System.out.println(south);
+        //System.out.println(west);
+        //System.out.println("i range: "+north.i+" to: "+south.i);
+        //System.out.println("j range: "+west.j+" to: "+east.j);
+        RoomNode[][] newRoomMatrix=new RoomNode[(south.i-north.i)+1][(east.j-west.j)+1];
+
+        int k=0;
+        int l;
+        for (int i = north.i; i <=south.i ; i++)
+        {
+            l=0;
+            for (int j = west.j; j <=east.j ; j++)
+            {
+                newRoomMatrix[k][l]=roomMatrix[i][j];
+                if(newRoomMatrix[k][l]!=null)
+                {
+
+
+                    newRoomMatrix[k][l].coordinate=new Coordinate(k,l);
+                    if(newRoomMatrix[k][l].roomType==RoomType.STARTROOM)
+                    {
+                        System.out.println("start");
+                        startingRoom=newRoomMatrix[k][l];
+                        System.out.println(startingRoom.getCoordinate());
+                    }
+                }
+
+
+                l++;
+            }
+            k++;
+        }
+        roomMatrix=newRoomMatrix;
+
+
+
+        System.out.println(startingRoom.coordinate);
+
+
 
     }
 

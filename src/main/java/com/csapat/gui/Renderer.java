@@ -132,6 +132,9 @@ public class Renderer extends JPanel {
 
     private Boolean moveTimeOut = true;
     private java.util.Timer enemyMoveTimer;
+    private boolean isMapOn;
+
+
 
 
     public Renderer(int height, int width, JFrame frame) {
@@ -160,6 +163,8 @@ public class Renderer extends JPanel {
         this.window_h = tile_size * this.m;
         this.window_w = tile_size * this.n;
 
+
+        isMapOn=false;
 
         tileHeight = tile_size;
         tileWidth = tile_size;
@@ -486,6 +491,35 @@ public class Renderer extends JPanel {
                 }
             }
         });
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0, false), "pressed m");
+        this.getActionMap().put("pressed m", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                if(isMapOn)
+                {
+
+                    newFrameTimer.start();
+                    generateItemStatLabels();
+                    addLabels();
+                    isMapOn=false;
+                }
+                else
+                {
+                    MapInventoryPanel mapInventoryPanel=new MapInventoryPanel(level,player,currentRoomNode);
+                    for (JLabel itemStatLabel : itemStatLabels) {
+                        remove(itemStatLabel);
+                    }
+                    itemStatLabels.removeAllElements();
+                    frame.getContentPane().add(mapInventoryPanel);
+                    frame.setVisible(true);
+                    newFrameTimer.stop();
+                    isMapOn=true;
+                }
+            }
+        });
+
     }
 
     /**

@@ -25,7 +25,7 @@ public class Player extends Sprite {
     private int healthPointsMax = 100;
     private int healthPoints = 100;
     private float range = 100;
-    private float attackSpeed = 2;
+    private float attackSpeed = 2f;
     private float damage = 20;
     private int moveSpeed = 2;
     private int experience = 0;
@@ -43,6 +43,8 @@ public class Player extends Sprite {
     Weapon equippedWeapon;
     int walkingTime;
     Image playerImages[];
+    private int frameHeight;
+    private int frameWidth;
 
     private int healthPointsMaxModifier = 0;
 
@@ -250,6 +252,7 @@ public class Player extends Sprite {
             attackSpeedModifier += statItem.getAttackSpeedModifier();
             damageModifier += statItem.getDamageModifier();
             moveSpeedModifier += statItem.getSpeedModifier();
+            equippedItems.add(statItem);
         } else if (item instanceof Potion) {
             if (((Potion) item).getHealthRestore() == 0) {
                 giveExperience(((Potion) item).grantExp);
@@ -303,5 +306,30 @@ public class Player extends Sprite {
         {
             canTakeDamage=true;
         }
+    }
+
+    public Vector<StatItem> getEquippedItems()
+    {
+        return equippedItems;
+    }
+
+    public Weapon getEquippedWeapon()
+    {
+        return equippedWeapon;
+    }
+
+    public int getNextLevelThreshold()
+    {
+        return nextLevelThreshold;
+    }
+
+    public int getPlayerLevel()
+    {
+        return playerLevel;
+    }
+
+    public Vector<Potion> getPotions()
+    {
+        return potions;
     }
 }
