@@ -493,6 +493,7 @@ public class Renderer extends JPanel {
                     generateItemStatLabels();
                     addLabels();
                     isMapOn=false;
+
                 }
                 else
                 {
@@ -500,6 +501,8 @@ public class Renderer extends JPanel {
                     for (JLabel itemStatLabel : itemStatLabels) {
                         remove(itemStatLabel);
                     }
+                    remove(purchaseHint);
+                    isAdded=false;
                     itemStatLabels.removeAllElements();
                     frame.getContentPane().add(mapInventoryPanel);
                     frame.setVisible(true);
