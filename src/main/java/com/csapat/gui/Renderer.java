@@ -97,10 +97,6 @@ public class Renderer extends JPanel {
     private Image playerAttackDown;
     private Image playerAttackLeft;
     private Image playerAttackRight;
-    private Image playerAttackUpRight;
-    private Image playerAttackUpLeft;
-    private Image playerAttackDownLeft;
-    private Image playerAttackDownRight;
     private Image enemyAttackUp;
     private Image enemyAttackDown;
     private Image enemyAttackLeft;
@@ -610,10 +606,6 @@ public class Renderer extends JPanel {
             playerAttackDown = ImageIO.read(this.getClass().getClassLoader().getResource("attackDown.png"));
             playerAttackLeft = ImageIO.read(this.getClass().getClassLoader().getResource("attackLeft.png"));
             playerAttackRight = ImageIO.read(this.getClass().getClassLoader().getResource("attackRight.png"));
-            playerAttackUpRight = ImageIO.read(this.getClass().getClassLoader().getResource("attackUpRight.png"));
-            playerAttackUpLeft = ImageIO.read(this.getClass().getClassLoader().getResource("attackUpLeft.png"));
-            playerAttackDownLeft = ImageIO.read(this.getClass().getClassLoader().getResource("attackDownLeft.png"));
-            playerAttackDownRight = ImageIO.read(this.getClass().getClassLoader().getResource("attackDownRight.png"));
             enemyAttackUp = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackUp.png"));
             enemyAttackDown = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackDown.png"));
             enemyAttackLeft = ImageIO.read(this.getClass().getClassLoader().getResource("enemyAttackLeft.png"));
@@ -1509,7 +1501,6 @@ public class Renderer extends JPanel {
                 enemyAttackImg = enemyAttackDown;
                 break;
             case Left:
-                System.out.println(enemyAttackLeft);
                 enemyAttackImg = enemyAttackLeft;
                 break;
             case Right:
@@ -1574,7 +1565,6 @@ public class Renderer extends JPanel {
                         if (att != null) {
 
                             setEnemyAttackImg(enemy.getLastNoneStillDirection());
-                            System.out.println(enemyAttackImg);
                             att.setImage(enemyAttackImg);
                             currentAttacks.add(att);
                         }
