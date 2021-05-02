@@ -2,6 +2,7 @@ package com.csapat.sound;
 
 import javax.sound.sampled.*;
 import java.io.IOException;
+import java.util.Objects;
 
 public class Sfx
 {
@@ -18,78 +19,65 @@ public class Sfx
     private final String usePotionFileName="usePotion.wav";
     private final String weaponPickUpFileName="weaponPickUp.wav";
 
-    //Todo: potion drinking sfx, weapon equip sfx, player hurt sfx
-
-    //private static Clip playerAttack;
-    //private static Clip enemyAttack;
-    //private static Clip levelUp;
-    //private static Clip itemPickUp;
-    //private static Clip enemyDeath;
-    //private static Clip playerDeath;
-
-
-
-
     public synchronized  void playerAttack()
     {
-        playAudioFile(playerAttackFileName,audioFolderPath);
+        playAudioFile(playerAttackFileName);
     }
 
     public synchronized  void itemPickUp()
     {
-        playAudioFile(itemPickUpFileName,audioFolderPath);
+        playAudioFile(itemPickUpFileName);
     }
 
     public synchronized  void enemyDeath()
     {
-        playAudioFile(enemyDeathFileName,audioFolderPath);
+        playAudioFile(enemyDeathFileName);
     }
 
     public synchronized  void levelUp()
     {
-        playAudioFile(levelUpFileName,audioFolderPath);
+        playAudioFile(levelUpFileName);
     }
     public synchronized  void enemyAttack()
     {
-        playAudioFile(enemyAttackFileName,audioFolderPath);
+        playAudioFile(enemyAttackFileName);
     }
     public synchronized  void playerDeath()
     {
-        playAudioFile(playerDeathFileName,audioFolderPath);
+        playAudioFile(playerDeathFileName);
     }
 
     public synchronized void potionPickUp()
     {
-        playAudioFile(potionPickUpFileName,audioFolderPath);
+        playAudioFile(potionPickUpFileName);
     }
 
     public synchronized void usePotion()
     {
-        playAudioFile(usePotionFileName,audioFolderPath);
+        playAudioFile(usePotionFileName);
     }
 
     public synchronized void playerHurt()
     {
-        playAudioFile(playerHurtFileName,audioFolderPath);
+        playAudioFile(playerHurtFileName);
     }
 
     public synchronized void weaponPickUp()
     {
-        playAudioFile(weaponPickUpFileName,audioFolderPath);
+        playAudioFile(weaponPickUpFileName);
     }
 
 
 
 
-    private synchronized  void playAudioFile(String fileName, String folder)
+    private synchronized  void playAudioFile(String fileName)
     {
         try
         {
             Clip clip;
-            AudioInputStream audioInputStream= AudioSystem.getAudioInputStream(this.getClass().getClassLoader().getResource(folder+fileName));
+            AudioInputStream audioInputStream= AudioSystem.getAudioInputStream(Objects.requireNonNull(this.getClass().getClassLoader().getResource(audioFolderPath + fileName)));
             clip=AudioSystem.getClip();
             clip.open(audioInputStream);
-            //clip.addLineListener(new CloseClipWhenDone());
             clip.start();
         } catch (UnsupportedAudioFileException e)
         {
@@ -105,22 +93,5 @@ public class Sfx
             System.out.println("Clip error while loading: "+fileName);
         }
     }
-    /*
-    private static class CloseClipWhenDone implements LineListener
-    {
-        @Override public void update(LineEvent event)
-        {
-            if (event.getType().equals(LineEvent.Type.STOP))
-            {
-                Line soundClip = event.getLine();
-                soundClip.close();
-
-                //Just to prove that it is called...
-                System.out.println("Done playing " + soundClip.toString());
-            }
-        }
-    }
-     */
-
 
 }
