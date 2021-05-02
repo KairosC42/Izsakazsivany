@@ -13,6 +13,10 @@ public class Sfx
     private final String  levelUpFileName="levelUp.wav";
     private final String  enemyAttackFileName="enemyAttack.wav";
     private final String playerDeathFileName="playerDeath.wav";
+    private final String playerHurtFileName="playerHurt.wav";
+    private final String potionPickUpFileName="potionPickUp.wav";
+    private final String usePotionFileName="usePotion.wav";
+    private final String weaponPickUpFileName="weaponPickUp.wav";
 
     //Todo: potion drinking sfx, weapon equip sfx, player hurt sfx
 
@@ -53,6 +57,28 @@ public class Sfx
     {
         playAudioFile(playerDeathFileName,audioFolderPath);
     }
+
+    public synchronized void potionPickUp()
+    {
+        playAudioFile(potionPickUpFileName,audioFolderPath);
+    }
+
+    public synchronized void usePotion()
+    {
+        playAudioFile(usePotionFileName,audioFolderPath);
+    }
+
+    public synchronized void playerHurt()
+    {
+        playAudioFile(playerHurtFileName,audioFolderPath);
+    }
+
+    public synchronized void weaponPickUp()
+    {
+        playAudioFile(weaponPickUpFileName,audioFolderPath);
+    }
+
+
 
 
     private synchronized  void playAudioFile(String fileName, String folder)

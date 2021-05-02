@@ -95,6 +95,7 @@ public class Player extends Sprite {
             int INVINCIBILITY_TIME = 500;
             invincibilityTimer.schedule(new canTakeDamageTask(), INVINCIBILITY_TIME);
             healthPoints-=damage;
+            sfx.playerHurt();
         }
         if(healthPoints<0)healthPoints=0;
 
@@ -266,7 +267,7 @@ public class Player extends Sprite {
                 giveExperience(((Potion) item).grantExp);
             }
             else potions.add((Potion) item);
-            sfx.itemPickUp();
+            sfx.potionPickUp();
         } else if (item instanceof Weapon) {
             Weapon weapon = (Weapon) item;
             if (equippedWeapon != null) {
@@ -279,6 +280,7 @@ public class Player extends Sprite {
             attackSpeedModifier += weapon.attackSpeedModifier;
             damage += weapon.damageModifier;
             equippedWeapon = weapon;
+            sfx.weaponPickUp();
 
         }
     }
@@ -296,6 +298,7 @@ public class Player extends Sprite {
                 healthPoints = getHealthPointsMax();
             }
             potions.remove(pot);
+            sfx.usePotion();
         }
     }
 
