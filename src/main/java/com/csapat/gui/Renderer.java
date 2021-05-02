@@ -41,10 +41,12 @@ import com.csapat.rooms.Tile;
 import com.csapat.rooms.BossRoom;
 import com.csapat.rooms.CombatRoom;
 import com.csapat.rooms.Room;
+import com.csapat.sound.Sfx;
 
 
 public class Renderer extends JPanel {
     Item selectedItem;
+    private Sfx sfx;
 
     boolean isAdded = false;
     private JFrame frame;
@@ -136,6 +138,7 @@ public class Renderer extends JPanel {
 
     public Renderer(int height, int width, JFrame frame) {
         super();
+        sfx=new Sfx();
         this.window_h = height;
         this.window_w = width;
         this.frame = frame;
@@ -538,9 +541,11 @@ public class Renderer extends JPanel {
             if (isSecondaryPlayerAttackDirectionSet) {
                 //int x, int y, int width, int height, Image image, Sprite source, Vector target, Directions primary, Directions secondary, int range, int damage
                 setPlayerAttackImg(primaryPlayerAttackDirection, secondaryPlayerAttackDirection);
+                sfx.playerAttack();
                 return new Attack(0, 0, 35, player.getRange(), null, player, enemies, primaryPlayerAttackDirection, secondaryPlayerAttackDirection, player.getRange(), (int) player.getDamage());
             }
             setPlayerAttackImgPrimary(primaryPlayerAttackDirection);
+            sfx.playerAttack();
             return new Attack(0, 0, 35, player.getRange(), attackImg, player, enemies, primaryPlayerAttackDirection, player.getRange(), (int) player.getDamage());
 
         }
@@ -1569,6 +1574,7 @@ public class Renderer extends JPanel {
 
                             setEnemyAttackImg(enemy.getLastNoneStillDirection());
                             att.setImage(enemyAttackImg);
+                            sfx.enemyAttack();
                             currentAttacks.add(att);
                         }
 

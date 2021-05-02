@@ -10,25 +10,52 @@ public class Sfx
     private final String  playerAttackFileName="playerAttack.wav";
     private final String  itemPickUpFileName="itemPickUp.wav";
     private final String  enemyDeathFileName="enemyDeath.wav";
+    private final String  levelUpFileName="levelUp.wav";
+    private final String  enemyAttackFileName="enemyAttack.wav";
+    private final String playerDeathFileName="playerDeath.wav";
 
-    private Clip playerAttack;
-    private Clip enemyAttack;
-    private Clip levelUp;
-    private Clip itemPickUp;
-    private Clip enemyDeath;
+    //Todo: potion drinking sfx, weapon equip sfx, player hurt sfx
+
+    //private static Clip playerAttack;
+    //private static Clip enemyAttack;
+    //private static Clip levelUp;
+    //private static Clip itemPickUp;
+    //private static Clip enemyDeath;
+    //private static Clip playerDeath;
 
 
-    public Sfx()
+
+
+    public synchronized  void playerAttack()
     {
-        playerAttack= loadAudioFile(playerAttackFileName,audioFolderPath);
-        itemPickUp= loadAudioFile(itemPickUpFileName,audioFolderPath);
-        enemyDeath= loadAudioFile(enemyDeathFileName,audioFolderPath);
-
+        playAudioFile(playerAttackFileName,audioFolderPath);
     }
 
-    
+    public synchronized  void itemPickUp()
+    {
+        playAudioFile(itemPickUpFileName,audioFolderPath);
+    }
 
-    private Clip loadAudioFile(String fileName, String folder)
+    public synchronized  void enemyDeath()
+    {
+        playAudioFile(enemyDeathFileName,audioFolderPath);
+    }
+
+    public synchronized  void levelUp()
+    {
+        playAudioFile(levelUpFileName,audioFolderPath);
+    }
+    public synchronized  void enemyAttack()
+    {
+        playAudioFile(enemyAttackFileName,audioFolderPath);
+    }
+    public synchronized  void playerDeath()
+    {
+        playAudioFile(playerDeathFileName,audioFolderPath);
+    }
+
+
+    private synchronized  void playAudioFile(String fileName, String folder)
     {
         try
         {
@@ -36,7 +63,8 @@ public class Sfx
             AudioInputStream audioInputStream= AudioSystem.getAudioInputStream(this.getClass().getClassLoader().getResource(folder+fileName));
             clip=AudioSystem.getClip();
             clip.open(audioInputStream);
-            return clip;
+            //clip.addLineListener(new CloseClipWhenDone());
+            clip.start();
         } catch (UnsupportedAudioFileException e)
         {
             e.printStackTrace();
@@ -50,8 +78,23 @@ public class Sfx
             e.printStackTrace();
             System.out.println("Clip error while loading: "+fileName);
         }
-        return null;
     }
+    /*
+    private static class CloseClipWhenDone implements LineListener
+    {
+        @Override public void update(LineEvent event)
+        {
+            if (event.getType().equals(LineEvent.Type.STOP))
+            {
+                Line soundClip = event.getLine();
+                soundClip.close();
+
+                //Just to prove that it is called...
+                System.out.println("Done playing " + soundClip.toString());
+            }
+        }
+    }
+     */
 
 
 }
