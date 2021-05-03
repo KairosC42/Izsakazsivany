@@ -810,7 +810,7 @@ public class Renderer extends JPanel {
         g3.setColor(Color.BLACK);
         Font font2 = new Font("SansSerif", Font.BOLD, 40);
         g3.setFont(font2);
-        g3.drawString(Double.toString(+fpsCounter.fps), 0, 40);
+        g3.drawString(Integer.toString(+(int)fpsCounter.fps()), 0, 40);
         //fpsTimer.schedule(new fpsTask(),1000);
         fpsCounter.interrupt();
 
