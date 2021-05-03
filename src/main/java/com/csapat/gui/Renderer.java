@@ -134,6 +134,10 @@ public class Renderer extends JPanel {
     private boolean isMapOn;
 
 
+    private FPSCounter fpsCounter;
+
+
+
 
 
     public Renderer(int height, int width, JFrame frame) {
@@ -184,7 +188,11 @@ public class Renderer extends JPanel {
         initTiles();
 
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
+        fpsCounter=new FPSCounter();
+        fpsCounter.start();
         newFrameTimer.start();
+
+
 
     }
 
@@ -795,6 +803,18 @@ public class Renderer extends JPanel {
         hearthSprite.draw(grphcs);
         g2.drawString(Integer.toString(+player.getHealth()), window_w + 230, 40);
         player.draw(grphcs);
+
+        Graphics2D g3 = (Graphics2D) grphcs;
+        g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g3.setColor(Color.BLACK);
+        Font font2 = new Font("SansSerif", Font.BOLD, 40);
+        g3.setFont(font2);
+        g3.drawString(Double.toString(+fpsCounter.fps), 0, 40);
+        //fpsTimer.schedule(new fpsTask(),1000);
+        fpsCounter.interrupt();
+
+
 
         collide();
 
@@ -1637,6 +1657,29 @@ public class Renderer extends JPanel {
         @Override
         public void run() {
             moveTimeOut = true;
+        }
+    }
+
+
+    class FPSCounter extends Thread{
+        private long lastTime;
+        private double fps; //could be int or long for integer values
+
+        public void run(){
+            while (true){//lazy me, add a condition for an finishable thread
+                lastTime = System.nanoTime();
+                try{
+                    Thread.sleep(1000); // longer than one frame
+                }
+                catch (InterruptedException e){
+
+                }
+                fps = 1000000000.0 / (System.nanoTime() - lastTime); //one second(nano) divided by amount of time it takes for one frame to finish
+                lastTime = System.nanoTime();
+            }
+        }
+        public double fps(){
+            return fps;
         }
     }
 }
