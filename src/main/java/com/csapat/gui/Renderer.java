@@ -41,10 +41,12 @@ import com.csapat.rooms.Tile;
 import com.csapat.rooms.BossRoom;
 import com.csapat.rooms.CombatRoom;
 import com.csapat.rooms.Room;
+import com.csapat.sound.Sfx;
 
 
 public class Renderer extends JPanel {
     Item selectedItem;
+    private Sfx sfx;
 
     boolean isAdded = false;
     private JFrame frame;
@@ -132,10 +134,15 @@ public class Renderer extends JPanel {
     private boolean isMapOn;
 
 
+    private FPSCounter fpsCounter;
+
+
+
 
 
     public Renderer(int height, int width, JFrame frame) {
         super();
+        sfx=new Sfx();
         this.window_h = height;
         this.window_w = width;
         this.frame = frame;
@@ -181,7 +188,11 @@ public class Renderer extends JPanel {
         initTiles();
 
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
+        fpsCounter=new FPSCounter();
+        fpsCounter.start();
         newFrameTimer.start();
+
+
 
     }
 
@@ -538,9 +549,11 @@ public class Renderer extends JPanel {
             if (isSecondaryPlayerAttackDirectionSet) {
                 //int x, int y, int width, int height, Image image, Sprite source, Vector target, Directions primary, Directions secondary, int range, int damage
                 setPlayerAttackImg(primaryPlayerAttackDirection, secondaryPlayerAttackDirection);
+                sfx.playerAttack();
                 return new Attack(0, 0, 35, player.getRange(), null, player, enemies, primaryPlayerAttackDirection, secondaryPlayerAttackDirection, player.getRange(), (int) player.getDamage());
             }
             setPlayerAttackImgPrimary(primaryPlayerAttackDirection);
+            sfx.playerAttack();
             return new Attack(0, 0, 35, player.getRange(), attackImg, player, enemies, primaryPlayerAttackDirection, player.getRange(), (int) player.getDamage());
 
         }
@@ -790,6 +803,18 @@ public class Renderer extends JPanel {
         hearthSprite.draw(grphcs);
         g2.drawString(Integer.toString(+player.getHealth()), window_w + 230, 40);
         player.draw(grphcs);
+
+        Graphics2D g3 = (Graphics2D) grphcs;
+        g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g3.setColor(Color.BLACK);
+        Font font2 = new Font("SansSerif", Font.BOLD, 40);
+        g3.setFont(font2);
+        g3.drawString(Double.toString(+fpsCounter.fps), 0, 40);
+        //fpsTimer.schedule(new fpsTask(),1000);
+        fpsCounter.interrupt();
+
+
 
         collide();
 
@@ -1569,6 +1594,7 @@ public class Renderer extends JPanel {
 
                             setEnemyAttackImg(enemy.getLastNoneStillDirection());
                             att.setImage(enemyAttackImg);
+                            sfx.enemyAttack();
                             currentAttacks.add(att);
                         }
 
@@ -1631,6 +1657,29 @@ public class Renderer extends JPanel {
         @Override
         public void run() {
             moveTimeOut = true;
+        }
+    }
+
+
+    class FPSCounter extends Thread{
+        private long lastTime;
+        private double fps; //could be int or long for integer values
+
+        public void run(){
+            while (true){//lazy me, add a condition for an finishable thread
+                lastTime = System.nanoTime();
+                try{
+                    Thread.sleep(1000); // longer than one frame
+                }
+                catch (InterruptedException e){
+
+                }
+                fps = 1000000000.0 / (System.nanoTime() - lastTime); //one second(nano) divided by amount of time it takes for one frame to finish
+                lastTime = System.nanoTime();
+            }
+        }
+        public double fps(){
+            return fps;
         }
     }
 }

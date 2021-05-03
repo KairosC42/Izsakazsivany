@@ -1,5 +1,7 @@
 package com.csapat.entity;
 
+import com.csapat.sound.Sfx;
+
 import javax.imageio.ImageIO;
 import java.awt.Image;
 import java.util.Timer;
@@ -53,10 +55,12 @@ public class Player extends Sprite {
     private float damageModifier = 1;
     private float moveSpeedModifier = 1;
     private int killcount;
+    private Sfx sfx;
 
     private boolean lastMove; //false, y-n, true- x-en
 
     public Player(int x, int y, int width, int height, Image playerImages[], int frameHeight, int frameWidth) {
+        sfx=new Sfx();
         killcount=0;
         Image weaponImage = null;
         try {
@@ -91,6 +95,7 @@ public class Player extends Sprite {
             int INVINCIBILITY_TIME = 500;
             invincibilityTimer.schedule(new canTakeDamageTask(), INVINCIBILITY_TIME);
             healthPoints-=damage;
+            sfx.playerHurt();
         }
         if(healthPoints<0)healthPoints=0;
 
@@ -143,6 +148,7 @@ public class Player extends Sprite {
         nextLevelThreshold = (int) Math.round(Math.pow(nextLevelThreshold, 1.2));
         healthPointsMaxModifier += 20;
         healthPoints = getHealthPointsMax();
+        sfx.levelUp();
     }
 
     public void moveY() {
@@ -255,11 +261,13 @@ public class Player extends Sprite {
             damageModifier += statItem.getDamageModifier();
             moveSpeedModifier += statItem.getSpeedModifier();
             equippedItems.add(statItem);
+            sfx.itemPickUp();
         } else if (item instanceof Potion) {
             if (((Potion) item).getHealthRestore() == 0) {
                 giveExperience(((Potion) item).grantExp);
             }
             else potions.add((Potion) item);
+            sfx.potionPickUp();
         } else if (item instanceof Weapon) {
             Weapon weapon = (Weapon) item;
             if (equippedWeapon != null) {
@@ -272,6 +280,7 @@ public class Player extends Sprite {
             attackSpeedModifier += weapon.attackSpeedModifier;
             damage += weapon.damageModifier;
             equippedWeapon = weapon;
+            sfx.weaponPickUp();
 
         }
     }
@@ -289,6 +298,7 @@ public class Player extends Sprite {
                 healthPoints = getHealthPointsMax();
             }
             potions.remove(pot);
+            sfx.usePotion();
         }
     }
 
@@ -343,5 +353,6 @@ public class Player extends Sprite {
     public void incrementKillCount()
     {
         killcount++;
+        sfx.enemyDeath();
     }
 }
