@@ -136,6 +136,9 @@ public class Renderer extends JPanel {
 
     private FPSCounter fpsCounter;
 
+    private int minFps=9999999;
+    private int maxFps=0;
+
 
 
 
@@ -804,15 +807,32 @@ public class Renderer extends JPanel {
         g2.drawString(Integer.toString(+player.getHealth()), window_w + 230, 40);
         player.draw(grphcs);
 
+
+        int fps=(int)fpsCounter.fps();
+        if(fps>maxFps)
+        {
+            maxFps=fps;
+            System.out.println("Maxfps: "+maxFps);
+        }
+        if(minFps>fps)
+        {
+            minFps=fps;
+            System.out.println("Minfps: "+minFps);
+        }
+        if(fps>100)
+        {
+            System.out.println(fps);
+        }
         Graphics2D g3 = (Graphics2D) grphcs;
         g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
         g3.setColor(Color.BLACK);
         Font font2 = new Font("SansSerif", Font.BOLD, 40);
         g3.setFont(font2);
-        g3.drawString(Integer.toString(+(int)fpsCounter.fps()), 0, 40);
+        g3.drawString(Integer.toString(+fps), 0, 40);
         //fpsTimer.schedule(new fpsTask(),1000);
         fpsCounter.interrupt();
+        newFrameTimer.setDelay(10);
 
 
 
@@ -1623,7 +1643,10 @@ public class Renderer extends JPanel {
             delta_time = (int) ((time - last_time) / 1000000);
             last_time = time;
              */
+
             repaint();
+
+
         }
 
         void clearAttacks() {
@@ -1669,7 +1692,7 @@ public class Renderer extends JPanel {
             while (true){//lazy me, add a condition for an finishable thread
                 lastTime = System.nanoTime();
                 try{
-                    Thread.sleep(1000); // longer than one frame
+                    Thread.sleep(10000); // longer than one frame
                 }
                 catch (InterruptedException e){
 
