@@ -77,6 +77,12 @@ public class Renderer extends JPanel {
     private Level level;
 
 
+    //for the pause menu
+    private boolean isPaused;
+    private IntWrapper volume;
+    private PauseMenu pauseMenu;
+
+
     private Sprite tiles[][];
     private Vector<Sprite> tilesVector;
     private int n;
@@ -137,12 +143,9 @@ public class Renderer extends JPanel {
     private FPSCounter fpsCounter;
 
 
-
-
-
     public Renderer(int height, int width, JFrame frame) {
         super();
-        sfx=new Sfx();
+        sfx = new Sfx();
         this.window_h = height;
         this.window_w = width;
         this.frame = frame;
@@ -167,8 +170,13 @@ public class Renderer extends JPanel {
         this.window_h = tile_size * this.m;
         this.window_w = tile_size * this.n;
 
+        isPaused = false;
+        volume = new IntWrapper(25);
+        sfx.setVolume(volume);
+        pauseMenu = new PauseMenu(volume);
+        pauseMenu.setVisible(false);
 
-        isMapOn=false;
+        isMapOn = false;
 
         tileHeight = tile_size;
         tileWidth = tile_size;
@@ -180,6 +188,7 @@ public class Renderer extends JPanel {
         initGraphics();
 
         player = new Player(450, 100, player_height, player_width, playerImages, this.window_h, this.window_w);
+        player.setSfx(sfx);
         /*for (int i = 0; i < levelDepth + 2; ++i)
         {
             enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10,10,10));
@@ -188,10 +197,9 @@ public class Renderer extends JPanel {
         initTiles();
 
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
-        fpsCounter=new FPSCounter();
+        fpsCounter = new FPSCounter();
         fpsCounter.start();
         newFrameTimer.start();
-
 
 
     }
@@ -219,7 +227,7 @@ public class Renderer extends JPanel {
         this.getActionMap().put("pressed w", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                    player.setVelY(-player.getMoveSpeed());
+                player.setVelY(-player.getMoveSpeed());
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), "released w");
@@ -234,7 +242,7 @@ public class Renderer extends JPanel {
         this.getActionMap().put("pressed a", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                    player.setVelX(-player.getMoveSpeed());
+                player.setVelX(-player.getMoveSpeed());
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), "released a");
@@ -249,7 +257,7 @@ public class Renderer extends JPanel {
         this.getActionMap().put("pressed s", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                    player.setVelY(player.getMoveSpeed());
+                player.setVelY(player.getMoveSpeed());
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, true), "released s");
@@ -264,7 +272,7 @@ public class Renderer extends JPanel {
         this.getActionMap().put("pressed d", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                    player.setVelX(player.getMoveSpeed());
+                player.setVelX(player.getMoveSpeed());
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), "released d");
@@ -492,37 +500,61 @@ public class Renderer extends JPanel {
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0, false), "pressed m");
-        this.getActionMap().put("pressed m", new AbstractAction()
-        {
+        this.getActionMap().put("pressed m", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                if(isMapOn)
-                {
+            public void actionPerformed(ActionEvent ae) {
+                if (isMapOn) {
 
                     newFrameTimer.start();
                     generateItemStatLabels();
                     addLabels();
-                    isMapOn=false;
+                    isMapOn = false;
 
-                }
-                else
-                {
-                    MapInventoryPanel mapInventoryPanel=new MapInventoryPanel(level,player,currentRoomNode);
+                } else {
+                    MapInventoryPanel mapInventoryPanel = new MapInventoryPanel(level, player, currentRoomNode);
                     for (JLabel itemStatLabel : itemStatLabels) {
                         remove(itemStatLabel);
                     }
                     remove(purchaseHint);
-                    isAdded=false;
+                    isAdded = false;
                     itemStatLabels.removeAllElements();
                     frame.getContentPane().add(mapInventoryPanel);
                     frame.setVisible(true);
                     newFrameTimer.stop();
-                    isMapOn=true;
+                    isMapOn = true;
                 }
             }
         });
-
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), "pressed escape");
+        this.getActionMap().put("pressed escape", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+               // Integer volumeBefore = Integer.valueOf(volume);
+                if (isPaused) {
+                    generateItemStatLabels();
+                    addLabels();
+                    isPaused = false;
+                    pauseMenu.setVisible(false);
+                    newFrameTimer.start();
+                }
+                else
+                {
+                    //if(volumeBefore!=volume)
+                    for (JLabel itemStatLabel : itemStatLabels) {
+                        remove(itemStatLabel);
+                    }
+                    remove(purchaseHint);
+                    isAdded = false;
+                    itemStatLabels.removeAllElements();
+                    pauseMenu = new PauseMenu(volume);
+                    pauseMenu.setVisible(true);
+                    frame.add(pauseMenu);
+                    frame.setVisible(true);
+                    newFrameTimer.stop();
+                    isPaused=true;
+                }
+            }
+        });
     }
 
     /**
@@ -601,7 +633,6 @@ public class Renderer extends JPanel {
             //player képeinek betöltése
             playerImages = getImages(300, 450, 100, 150,
                     4, 4, 100, 50, "player.png");
-
 
 
             attackImg = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
@@ -815,7 +846,6 @@ public class Renderer extends JPanel {
         fpsCounter.interrupt();
 
 
-
         collide();
 
     }
@@ -992,7 +1022,7 @@ public class Renderer extends JPanel {
                             "Name: " + tmp.getName() + "\n" +
                                     "Rangemod: " + Math.round(tmp.getRangeModifier()) + "%" + "\n" +
                                     "Damagemod: " + Math.round(tmp.getDamageModifier()) + "%" + "\n" +
-                                    "AttSpdmod: " + Math.round(tmp.getAttackSpeedModifier() )+ "%" + "\n" +
+                                    "AttSpdmod: " + Math.round(tmp.getAttackSpeedModifier()) + "%" + "\n" +
                                     "Price: " + tmp.getPrice()
                             , null, SwingConstants.LEFT);
                     if (tmp.getPrice() != 0) {
@@ -1661,25 +1691,41 @@ public class Renderer extends JPanel {
     }
 
 
-    class FPSCounter extends Thread{
+    class FPSCounter extends Thread {
         private long lastTime;
         private double fps; //could be int or long for integer values
 
-        public void run(){
-            while (true){//lazy me, add a condition for an finishable thread
+        public void run() {
+            while (true) {//lazy me, add a condition for an finishable thread
                 lastTime = System.nanoTime();
-                try{
+                try {
                     Thread.sleep(1000); // longer than one frame
-                }
-                catch (InterruptedException e){
+                } catch (InterruptedException e) {
 
                 }
                 fps = 1000000000.0 / (System.nanoTime() - lastTime); //one second(nano) divided by amount of time it takes for one frame to finish
                 lastTime = System.nanoTime();
             }
         }
-        public double fps(){
+
+        public double fps() {
             return fps;
+        }
+    }
+    public static class IntWrapper {
+        private int value;
+
+        IntWrapper(int value) {
+            this.value = value;
+        }
+
+        public IntWrapper setValue(int value) {
+            this.value = value;
+            return this;
+        }
+
+        public int getValue() {
+            return value;
         }
     }
 }
