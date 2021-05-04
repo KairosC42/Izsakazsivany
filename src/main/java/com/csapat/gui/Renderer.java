@@ -171,7 +171,7 @@ public class Renderer extends JPanel {
         this.window_w = tile_size * this.n;
 
         isPaused = false;
-        volume = new IntWrapper(25);
+        volume = new IntWrapper(85);
         sfx.setVolume(volume);
         pauseMenu = new PauseMenu(volume);
         pauseMenu.setVisible(false);
