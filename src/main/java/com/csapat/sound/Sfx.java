@@ -1,5 +1,7 @@
 package com.csapat.sound;
 
+import com.csapat.gui.Renderer;
+
 import javax.sound.sampled.*;
 import java.io.IOException;
 import java.util.Objects;
@@ -67,6 +69,8 @@ public class Sfx
         playAudioFile(weaponPickUpFileName);
     }
 
+    private Renderer.IntWrapper volume;
+
 
 
 
@@ -78,6 +82,11 @@ public class Sfx
             AudioInputStream audioInputStream= AudioSystem.getAudioInputStream(Objects.requireNonNull(this.getClass().getClassLoader().getResource(audioFolderPath + fileName)));
             clip=AudioSystem.getClip();
             clip.open(audioInputStream);
+            FloatControl gainControl =(FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float range = gainControl.getMaximum() - gainControl.getMinimum();
+            float fVolume = volume.getValue()/100f;
+            float gain = (range * fVolume) + gainControl.getMinimum();
+            gainControl.setValue(gain);
             clip.start();
         } catch (UnsupportedAudioFileException e)
         {
@@ -94,4 +103,7 @@ public class Sfx
         }
     }
 
+    public void setVolume(Renderer.IntWrapper volume) {
+        this.volume = volume;
+    }
 }
