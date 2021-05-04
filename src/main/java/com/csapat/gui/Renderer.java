@@ -1712,6 +1712,10 @@ public class Renderer extends JPanel {
             return fps;
         }
     }
+
+    /**
+     * Class created to copy ints by reference
+     */
     public static class IntWrapper {
         private int value;
 

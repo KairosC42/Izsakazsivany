@@ -7,6 +7,10 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+
+/**
+ * JPanel that appears when the game is paused, currently only contains a slider that adjusts volume level
+ */
 public class PauseMenu extends JPanel implements ChangeListener, KeyListener {
     static final int VOLUME_MIN = 0;
     static final int VOLUME_MAX = 100;
