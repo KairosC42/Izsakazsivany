@@ -30,6 +30,8 @@ jobs:
       run: mvn checkstyle:checkstyle
     - name: javadoc
       run: mvn javadoc:javadoc
+    - name: jar Build
+      run: mvn install
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
