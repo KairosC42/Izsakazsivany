@@ -1234,7 +1234,7 @@ public class Renderer extends JPanel {
         }
 
 
-        if (difference >= 100) {
+        if (difference >= 50) {
             newFrameTimer.stop();
             if (x == 0) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i - 1][currentRoomNode.getCoordinate().j];
@@ -1250,7 +1250,7 @@ public class Renderer extends JPanel {
 
             } else if (y == m - 1) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i][currentRoomNode.getCoordinate().j + 1];
-                player.stepBackAfterLeveltransition(window_h / (n * 2), player.getY());
+                player.stepBackAfterLeveltransition(window_h / n * 2, player.getY());
 
             }
 
