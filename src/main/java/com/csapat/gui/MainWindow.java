@@ -12,7 +12,7 @@ public class MainWindow
         frame = new JFrame("Izsák A Zsivány");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        this.gameRenderer = new Renderer(900,600,frame);
+        this.gameRenderer = new Renderer(1200,800,frame);
         frame.getContentPane().add(gameRenderer);
 
         Dimension window_size = gameRenderer.getWindowSize();
