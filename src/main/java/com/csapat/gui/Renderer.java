@@ -1630,7 +1630,13 @@ public class Renderer extends JPanel {
 
                         if (att != null) {
 
-                            setEnemyAttackImg(enemy.getLastNoneStillDirection());
+                            if(enemy.getDirection()==Directions.Still) {
+                                setEnemyAttackImg(enemy.getLastNoneStillDirection());
+                            }
+                            else
+                            {
+                                setEnemyAttackImg(enemy.getDirection());
+                            }
                             att.setImage(enemyAttackImg);
                             sfx.enemyAttack();
                             currentAttacks.add(att);
