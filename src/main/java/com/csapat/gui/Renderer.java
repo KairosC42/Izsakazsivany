@@ -140,7 +140,7 @@ public class Renderer extends JPanel {
     private boolean isMapOn;
 
 
-    private FPSCounter fpsCounter;
+
 
 
     public Renderer(int height, int width, JFrame frame) {
@@ -197,8 +197,6 @@ public class Renderer extends JPanel {
         initTiles();
 
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
-        fpsCounter = new FPSCounter();
-        fpsCounter.start();
         newFrameTimer.start();
 
 
@@ -834,18 +832,6 @@ public class Renderer extends JPanel {
         hearthSprite.draw(grphcs);
         g2.drawString(Integer.toString(+player.getHealth()), window_w + 230, 40);
         player.draw(grphcs);
-
-        Graphics2D g3 = (Graphics2D) grphcs;
-        g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        g3.setColor(Color.BLACK);
-        Font font2 = new Font("SansSerif", Font.BOLD, 40);
-        g3.setFont(font2);
-        g3.drawString(Double.toString(+fpsCounter.fps), 0, 40);
-        //fpsTimer.schedule(new fpsTask(),1000);
-        fpsCounter.interrupt();
-
-
         collide();
 
     }
@@ -1574,8 +1560,7 @@ public class Renderer extends JPanel {
             if (player.isDead()) {
                 //mourn
             }
-            player.moveX();
-            player.moveY();
+            player.move();
 
             if (attack_timer_down) {
                 Attack playerAttack = createPlayerAttack();
