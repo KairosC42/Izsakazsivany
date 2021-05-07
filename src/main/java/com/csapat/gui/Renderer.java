@@ -527,10 +527,10 @@ public class Renderer extends JPanel {
                 // Integer volumeBefore = Integer.valueOf(volume);
                 if (isPaused) {
                     isPaused = false;
-                    pauseMenu.setVisible(false);
                     newFrameTimer.start();
                     generateItemStatLabels();
                     addLabels();
+                    isPaused = false;
                 } else {
                     //if(volumeBefore!=volume)
                     for (JLabel itemStatLabel : itemStatLabels) {
@@ -994,7 +994,7 @@ public class Renderer extends JPanel {
 
     private void generateItemStatLabels() {
         if (itemStatLabels.size() < items.size()) {
-            int verticalGapSize = Math.round(window_w * 0.33f);
+            int verticalGapSize = Math.round(window_w * 0.20f);
             for (int i = itemStatLabels.size(); i < items.size(); ++i) {
                 Color bgColor = new Color(200, 200, 200);
                 if (items.get(i).getItemType() == ItemType.WEAPON) {
