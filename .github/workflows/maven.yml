@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, artifactTest]
   pull_request:
-    branches: [ main ]
+    branches: [ main , artifactTest]
 
 jobs:
   build:
@@ -32,10 +32,27 @@ jobs:
       run: mvn javadoc:javadoc
     - name: jar Build
       run: mvn install
-    - name: Upload artifacts
+    - name: Upload checkstyle artifact
       uses: actions/upload-artifact@v2
       with:
-        name: artifact
-        path: target
+        name: checkstyle
+        path: |
+          target/checktstyle-result.xml
+          target/site/checkstyle.html
+    - name: Upload javadoc artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: javadoc
+        path: target/site/apidocs
+    - name: Upload surefire-report artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: surefire-report
+        path: target/surefire-reports
+    - name: Upload jar artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: jar
+        path: target/izsakazsivany.jar
   
     
