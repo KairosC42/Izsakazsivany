@@ -60,7 +60,6 @@ public class Player extends Sprite {
     private Directions lastMove; //false, y-n, true- x-en
 
     public Player(int x, int y, int width, int height, Image playerImages[], int frameHeight, int frameWidth) {
-        sfx=new Sfx();
         killcount=0;
         Image weaponImage = null;
         try {
@@ -309,12 +308,13 @@ public class Player extends Sprite {
                 range -= equippedWeapon.rangeModifier;
                 attackSpeedModifier -= equippedWeapon.attackSpeedModifier;
                 damage -= equippedWeapon.damageModifier;
+                sfx.weaponPickUp();
             }
             range += weapon.rangeModifier;
             attackSpeedModifier += weapon.attackSpeedModifier;
             damage += weapon.damageModifier;
             equippedWeapon = weapon;
-            sfx.weaponPickUp();
+
 
         }
     }
@@ -388,5 +388,10 @@ public class Player extends Sprite {
     {
         killcount++;
         sfx.enemyDeath();
+    }
+
+    public void setSfx(Sfx sfx)
+    {
+        this.sfx=sfx;
     }
 }
