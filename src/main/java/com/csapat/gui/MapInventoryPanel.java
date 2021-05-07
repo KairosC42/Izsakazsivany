@@ -97,8 +97,8 @@ public class MapInventoryPanel extends JPanel
         String levelDepth="<tr><td>"+fontColor+"Level depth: "+level.getLevelDepth()+"</font></td></tr>";
         String hp="<tr><td>"+fontColor+"Health: "+player.getHealthPoints()+"\\"+player.getHealthPointsMax()+"</font></td></tr>";
         String range="<tr><td>"+fontColor+"Range: "+player.getRange()+"</font></td></tr>";
-        String attackSpeed="<tr><td>"+fontColor+"Attack speed: "+player.getAttackSpeed()+"</font><td></tr>";
-        String damage="<tr><td>"+fontColor+"Damage: "+player.getDamage()+"</font></td></tr>";
+        String attackSpeed="<tr><td>"+fontColor+"Attack speed: "+Math.round(player.getAttackSpeed())+"/s</font><td></tr>";
+        String damage="<tr><td>"+fontColor+"Damage: "+Math.round(player.getDamage())+"</font></td></tr>";
         String level="<tr><td>"+fontColor+"Level: "+player.getPlayerLevel()+"</td></tr>";
         String experience="<tr><td>"+fontColor+"Experience: "+player.getExperience()+"\\"+player.getNextLevelThreshold()+"</font></td></tr>";
         String money="<tr><td>"+fontColor+"Money: "+player.getMoney()+"</font></td></tr>";
@@ -146,7 +146,7 @@ public class MapInventoryPanel extends JPanel
         JLabel jLabel=new JLabel();
         String text="<tr><td>"+fontColor+"Weapon statistics"+"</font></td></tr>";
         String damage="<tr><td>"+fontColor+"Damage: "+String.valueOf(weapon.getDamageModifier())+"</font></td></tr>";
-        String attackSpeed="<tr><td>"+fontColor+"Attack speed: "+String.valueOf(weapon.getAttackSpeedModifier())+"</font></td></tr>";
+        String attackSpeed="<tr><td>"+fontColor+"Attack speed: "+String.valueOf(Math.round(weapon.getAttackSpeedModifier()*100f))+"/s</font></td></tr>";
         String range="<tr><td>"+fontColor+"Range: "+String.valueOf(weapon.getRangeModifier())+"</font></td></tr>";
         jLabel.setText("<html><table>"+text+range+damage+attackSpeed+"</table></html>");
         jPanelEast.add(jLabel);
