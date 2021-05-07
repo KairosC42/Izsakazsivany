@@ -37,8 +37,8 @@ jobs:
       with:
         name: checkstyle
         path: |
-        target/checktstyle-result.xml
-        target/site/checkstyle.html
+          target/checktstyle-result.xml
+          target/site/checkstyle.html
     - name: Upload javadoc artifact
       uses: actions/upload-artifact@v2
       with:
