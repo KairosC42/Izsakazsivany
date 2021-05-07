@@ -136,12 +136,6 @@ public class Renderer extends JPanel {
 
     private FPSCounter fpsCounter;
 
-    private int minFps=9999999;
-    private int maxFps=0;
-
-
-
-
 
     public Renderer(int height, int width, JFrame frame) {
         super();
@@ -809,20 +803,6 @@ public class Renderer extends JPanel {
 
 
         int fps=(int)fpsCounter.fps();
-        if(fps>maxFps)
-        {
-            maxFps=fps;
-            System.out.println("Maxfps: "+maxFps);
-        }
-        if(minFps>fps)
-        {
-            minFps=fps;
-            System.out.println("Minfps: "+minFps);
-        }
-        if(fps>100)
-        {
-            System.out.println(fps);
-        }
         Graphics2D g3 = (Graphics2D) grphcs;
         g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
@@ -833,9 +813,7 @@ public class Renderer extends JPanel {
         //fpsTimer.schedule(new fpsTask(),1000);
         fpsCounter.interrupt();
         newFrameTimer.setDelay(10);
-
-
-
+        
         collide();
 
     }
