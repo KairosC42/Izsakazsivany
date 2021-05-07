@@ -72,8 +72,14 @@ public class Enemy extends Sprite {
     public Attack attack(Player player)
     {
         Vector<Player> target = new Vector<>();
+        target.removeAllElements();
         target.add(player);
-        return new Attack(x, y, 25, attackRange,attackImage, this,target, lastMove, attackRange, damage);
+        if(moveDirection!=Directions.Still) {
+            return new Attack(x, y, 25, attackRange, attackImage, this, target, moveDirection, attackRange, damage);
+        }
+        else{
+            return new Attack(x, y, 25, attackRange, attackImage, this, target, lastNoneStillDirection, attackRange, damage);
+        }
     }
 
     public boolean isPlayerInVisionRange(int posX, int posY)
