@@ -57,7 +57,7 @@ public class Player extends Sprite {
     private int killcount;
     private Sfx sfx;
 
-    private boolean lastMove; //false, y-n, true- x-en
+    private Directions lastMove; //false, y-n, true- x-en
 
     public Player(int x, int y, int width, int height, Image playerImages[], int frameHeight, int frameWidth) {
         sfx=new Sfx();
@@ -107,29 +107,80 @@ public class Player extends Sprite {
     }
 
     public void stepBack() {
-        if (lastMove) {
-            x -= velx;
-            //System.out.println("x-en visszalép");
-        } else if (!lastMove) {
-            y -= vely;
-            //System.out.println("y-on visszalép");
+
+        switch (direction)
+        {
+            case UpLeft:
+            case UpRight:
+            case DownLeft:
+            case DownRight:
+                x-=velx;
+                y-=vely;
+                break;
+            case Left:
+            case Right:
+                x-=velx;
+                break;
+            case Up:
+            case Down:
+                y-=vely;
+                break;
         }
     }
 
-    public void moveX() {
-        if (velx > 0) {
-            //jobbra
+    public void move()
+    {
+        if(velx>0 && vely>0)
+        {
+            //jobbra-fel
+            direction = Directions.UpRight;
+            this.image = playerImages[12];
+        }
+        else if(velx<0 && vely>0)
+        {
+            //balra-fel
+            this.image = playerImages[9];
+            direction = Directions.UpLeft;
+        }
+        else if(velx > 0 && vely <0)
+        {
+            //jobra-le
+            this.image = this.image = playerImages[4];
+            direction = Directions.DownRight;
+        }
+        else if(velx<0 && vely<0)
+        {
+            //balra-le
+            this.image = this.image = playerImages[4];
+            direction = Directions.DownLeft;
+        }
+        //alap irányok
+        else if(velx>0 && vely==0)
+        {
             this.image = playerImages[12];
             direction = Directions.Right;
-            lastMove = true;
-        } else if (velx < 0) {
-            //balra
+        }
+        else if(velx<0 && vely==0)
+        {
             this.image = playerImages[9];
             direction = Directions.Left;
-            lastMove = true;
         }
-        x += velx;
+        else if(velx==0 && vely>0)
+        {
+            this.image = this.image = playerImages[0];
+            direction = Directions.Down;
+        }
+        else if(velx==0 && vely<0)
+        {
+            this.image = this.image = playerImages[4];
+            direction = Directions.Up;
+        }
+
+        x+=velx;
+        y+=vely;
     }
+
+
 
     public void giveMoney(int money) {
         this.money += money;
@@ -149,23 +200,6 @@ public class Player extends Sprite {
         healthPointsMaxModifier += 20;
         healthPoints = getHealthPointsMax();
         sfx.levelUp();
-    }
-
-    public void moveY() {
-        if (vely > 0) {
-            //előre
-            this.image = this.image = playerImages[0];
-            direction = Directions.Down;
-            lastMove = false;
-        } else if (vely < 0) {
-            //hátra
-            this.image = this.image = playerImages[4];
-            direction = Directions.Up;
-            lastMove = false;
-        }
-        y += vely;
-
-
     }
 
     public int getHealth() {

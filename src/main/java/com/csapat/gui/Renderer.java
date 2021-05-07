@@ -1526,8 +1526,7 @@ public class Renderer extends JPanel {
             if (player.isDead()) {
                 //mourn
             }
-            player.moveX();
-            player.moveY();
+            player.move();
 
             if (attack_timer_down) {
                 Attack playerAttack = createPlayerAttack();
