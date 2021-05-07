@@ -52,7 +52,7 @@ public class Renderer extends JPanel {
     private JFrame frame;
     private int window_w;
     private int window_h;
-    private int tile_size = 30;
+    private int tile_size;
     private Timer newFrameTimer;
     //private Timer animationTimer;
     private final int FPS = 240;
@@ -140,9 +140,6 @@ public class Renderer extends JPanel {
     private boolean isMapOn;
 
 
-
-
-
     public Renderer(int height, int width, JFrame frame) {
         super();
         sfx = new Sfx();
@@ -166,9 +163,10 @@ public class Renderer extends JPanel {
         this.m = level.getStartingRoom().getRoom().getM();//30széles - oszlopok száma
         roomMatrix = level.getRoomMatrix();
 
-
-        this.window_h = tile_size * this.m;
-        this.window_w = tile_size * this.n;
+        tileHeight = this.window_h / this.m;
+        tileWidth = this.window_w / this.n;
+        //this.window_h = tile_size * this.m;
+        //this.window_w = tile_size * this.n;
 
         isPaused = false;
         volume = new IntWrapper(85);
@@ -178,8 +176,8 @@ public class Renderer extends JPanel {
 
         isMapOn = false;
 
-        tileHeight = tile_size;
-        tileWidth = tile_size;
+        //tileHeight = tile_size;
+        //tileWidth = tile_size;
         player_width = tileWidth;
         player_height = tileHeight;
         this.tiles = new Sprite[this.n][this.m];
@@ -187,7 +185,7 @@ public class Renderer extends JPanel {
         currentRoomNode = level.getStartingRoom();
         initGraphics();
 
-        player = new Player(450, 100, player_height, player_width, playerImages, this.window_h, this.window_w);
+        player = new Player(window_h / 2, window_w / 2, player_height, player_width, playerImages, this.window_h, this.window_w);
         player.setSfx(sfx);
         /*for (int i = 0; i < levelDepth + 2; ++i)
         {
@@ -207,9 +205,8 @@ public class Renderer extends JPanel {
         //timer is stopped here, restarted later, to avoid any weird behaviour while a new floor is generated and loaded
         this.level = new Level(++levelDepth);
         //the rest of the things set in the constructor are still valid here
-
-        this.player.setX(n / 2 * tileHeight);
-        this.player.setY(m / 2 * tileWidth);
+        this.player.setX(window_h / 2);
+        this.player.setY(window_w / 2);
         currentRoomNode = level.getStartingRoom();
         roomMatrix = level.getRoomMatrix();
         //player starts in the middle of the room
@@ -527,16 +524,14 @@ public class Renderer extends JPanel {
         this.getActionMap().put("pressed escape", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-               // Integer volumeBefore = Integer.valueOf(volume);
+                // Integer volumeBefore = Integer.valueOf(volume);
                 if (isPaused) {
-                    generateItemStatLabels();
-                    addLabels();
                     isPaused = false;
                     pauseMenu.setVisible(false);
                     newFrameTimer.start();
-                }
-                else
-                {
+                    generateItemStatLabels();
+                    addLabels();
+                } else {
                     //if(volumeBefore!=volume)
                     for (JLabel itemStatLabel : itemStatLabels) {
                         remove(itemStatLabel);
@@ -549,7 +544,7 @@ public class Renderer extends JPanel {
                     frame.add(pauseMenu);
                     frame.setVisible(true);
                     newFrameTimer.stop();
-                    isPaused=true;
+                    isPaused = true;
                 }
             }
         });
@@ -781,7 +776,7 @@ public class Renderer extends JPanel {
     protected void paintComponent(Graphics grphcs) {
         grphcs.setColor(Color.darkGray);
         super.paintComponent(grphcs);
-        grphcs.fillRect(0, 0, 900, 600);
+        grphcs.fillRect(0, 0, window_w, window_h);
         drawRoom(grphcs);
 
         if (items != null) {
@@ -1163,6 +1158,22 @@ public class Renderer extends JPanel {
         }
     }
 
+    public void setWindow_h(int window_h) {
+        this.window_h = window_h;
+        tileHeight = this.window_h / this.n;
+        player_height = tileHeight;
+        System.out.println(tileHeight);
+        initTiles();
+    }
+
+    public void setWindow_w(int window_w) {
+        this.window_w = window_w;
+        tileWidth = this.window_w / this.m;
+        player_width = tileWidth;
+        System.out.println(tileWidth);
+        initTiles();
+    }
+
     private void setItemPositions(boolean forShop) {
 
 
@@ -1239,7 +1250,7 @@ public class Renderer extends JPanel {
 
             } else if (y == m - 1) {
                 currentRoomNode = roomMatrix[currentRoomNode.getCoordinate().i][currentRoomNode.getCoordinate().j + 1];
-                player.stepBackAfterLeveltransition(window_h / n * 2, player.getY());
+                player.stepBackAfterLeveltransition(window_h / (n * 2), player.getY());
 
             }
 
@@ -1310,6 +1321,7 @@ public class Renderer extends JPanel {
         }
 
     }
+
 
     public void drawRoom(Graphics grphcs) {
         for (int i = 0; i < n; i++) {
@@ -1448,8 +1460,19 @@ public class Renderer extends JPanel {
                 westernDoor = Tile.DOOR_CLOSED;
                 break;
         }
-
         Tile[][] roomLayout = room.getLayout();
+        for (int i = 0; i < room.getN(); ++i) {
+            for (int j = 0; j < room.getM(); ++j) {
+                if (roomLayout[i][j] == Tile.TRAPDOOR_OPEN) {
+                    roomLayout[i][j] = Tile.TRAPDOOR_CLOSED;
+                    break;
+                }
+                if (roomLayout[i][j] == Tile.TRAPDOOR_CLOSED) {
+                    roomLayout[i][j] = Tile.TRAPDOOR_OPEN;
+                    break;
+                }
+            }
+        }
         roomLayout[0][room.getM() / 2 - 1] = northernDoor;
         roomLayout[room.getN() - 1][room.getM() / 2 - 1] = southernDoor;
         roomLayout[room.getN() / 2 - 1][room.getM() - 1] = easternDoor;
