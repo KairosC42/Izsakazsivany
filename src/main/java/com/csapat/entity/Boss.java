@@ -9,7 +9,7 @@ public class Boss extends Enemy{
 
 
     public Boss(int x, int y, int width, int height, Image[] images, int damage, int visionRange, int attackRange, int healthPoints, float speed, int levelDepth) {
-        super(x, y, width, height, images, damage, visionRange, attackRange, healthPoints, speed, levelDepth);
+        super(x, y, width, height, images, damage, visionRange, attackRange, healthPoints, speed, levelDepth, true);
         this.maxHealth=healthPoints;
     }
 
