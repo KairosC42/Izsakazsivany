@@ -23,8 +23,6 @@ public class Boss extends Enemy{
         float healthPercentage=(healthPoints/maxHealth)*100;
         int nextHealth=healthPoints-damage;
         float nextHealthPercentage=(nextHealth/maxHealth)*100;
-        System.out.println(healthPercentage);
-        System.out.println(nextHealthPercentage);
 
         this.healthPoints-=dmg;
         enemyAttacked = new java.util.Timer();
