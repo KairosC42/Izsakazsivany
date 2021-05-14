@@ -53,7 +53,7 @@ public class CombatRoom extends Room
             int x_coordinate = ran.nextInt(26)+2;
             int y_coordinate = ran.nextInt(16)+2;
 
-            enemies.add(new Enemy( x_coordinate*30 ,/*getM()/2*/ y_coordinate*30  ,40,65,enemyImages,damage,visionRange,attackRange,healthPoints,moveSpeed,levelDepth));
+            enemies.add(new Enemy( x_coordinate*30 ,/*getM()/2*/ y_coordinate*30  ,40,65,enemyImages,damage,visionRange,attackRange,healthPoints,moveSpeed,levelDepth,  false));
         }
     }
 
