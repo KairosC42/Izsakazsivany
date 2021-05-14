@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class Boss extends Enemy{
 
-    private int maxHealth;
+    private float maxHealth;
     private boolean isBoosInSecondPhase = false;
     private boolean playedBoosInSecondPhase = false;
     private Sfx sfx;
@@ -18,21 +18,42 @@ public class Boss extends Enemy{
     }
 
     @Override
-    public void takeDamage(int damage)
+    public Boolean damaged(float dmg,float attack_speed)
     {
-        int healthPercantage=(healthPoints/maxHealth)*100;
+        float healthPercentage=(healthPoints/maxHealth)*100;
         int nextHealth=healthPoints-damage;
-        int nextHealthPercantage=(nextHealth/maxHealth)*100;
-        if(healthPercantage>34 && nextHealthPercantage<=34)
+        float nextHealthPercentage=(nextHealth/maxHealth)*100;
+        System.out.println(healthPercentage);
+        System.out.println(nextHealthPercentage);
+
+        this.healthPoints-=dmg;
+        enemyAttacked = new java.util.Timer();
+        enemyAttacked.schedule(new gotDamagedTask(),(int)(1000/attack_speed));
+
+        if(healthPercentage>34 && nextHealthPercentage<=34)
         {
-            isBoosInSecondPhase = true;
+            activateSecondPhase();
 
         }
-        this.healthPoints-=damage;
-
-        if(healthPoints<0)healthPoints=0;
+        if(this.healthPoints<=0)
+        {
+            //died
+            this.healthPoints=0;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
+
+    public void activateSecondPhase()
+    {
+        isBoosInSecondPhase = true;
+        this.attackRange=(int)(this.attackRange*1.5);
+        this.damage=(int)(this.damage*1.5);
+    }
 
     public boolean isBoosInSecondPhase() {
         return isBoosInSecondPhase;

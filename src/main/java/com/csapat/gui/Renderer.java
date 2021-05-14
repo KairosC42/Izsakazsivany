@@ -965,24 +965,21 @@ public class Renderer extends JPanel {
             isAdded = false;
         }
         for (Attack attack : currentAttacks) {
-            /*
-            if(enemies!=null)
-            for(int e = 0; e < enemies.size(); e++)
-            {
-                if(enemies.get(e).collides(currentAttacks.get(a))&&!((Enemy)(enemies.get(e))).getGotAttacked())
+            if (enemies != null) {
+                boolean isBoss=false;
+                Vector<Enemy> enemiesCopy = new Vector<>(enemies);
+                if(enemies.size()==1)
                 {
-                    Enemy en= ((Enemy)(enemies.get(e)));
-                    en.setGotAttacked(true);
-                    if(en.damaged(player.getDamage(), player.getAttackSpeed()))
+                    if(isBoss=enemies.get(0) instanceof Boss)
                     {
-                        //meghalt
-                        enemies.remove(en);
+                        Boss boss = (Boss)enemies.get(0);
+                        if (boss.collides(attack) && !boss.getGotAttacked() && attack.getSource() == player)
+                        {
+                            boss.setGotAttacked(true);
+                            boss.damaged(attack.getDamage(), player.getAttackSpeed());
+                        }
                     }
                 }
-            }*/
-
-            if (enemies != null) {
-                Vector<Enemy> enemiesCopy = new Vector<>(enemies);
                 for (Enemy enemy : enemies) {
                     if (enemy.collides(attack) && !enemy.getGotAttacked() && attack.getSource() == player) {
                         enemy.setGotAttacked(true);
@@ -1706,7 +1703,7 @@ public class Renderer extends JPanel {
                         }
                         if(enemy instanceof Boss)
                         {
-                            System.out.println("is boss");
+                            //System.out.println("is boss");
                             Boss boss=(Boss)enemy;
                             if(boss.isBoosInSecondPhase() && !boss.isPlayedBoosInSecondPhase())
                             {
