@@ -44,6 +44,7 @@ public class GameOverScreen extends JPanel
         StringBuilder gameOver=new StringBuilder("<html><table>");
         gameOver.append(startBig).append(gameOverColor).append("Game Over").append(fontEnd).append(end);
         gameOver.append(start).append(fontColor).append("Press enter to retry").append(fontEnd).append(end);
+        gameOver.append("</table></html>");
 
 
         jLabel.setHorizontalAlignment(JLabel.CENTER);
