@@ -25,6 +25,7 @@ import java.awt.image.BufferedImage;
 //import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Random;
 import java.util.TimerTask;
 import java.util.Vector;
 //import java.sql.Time;
@@ -1269,7 +1270,12 @@ public class Renderer extends JPanel {
             }
 
             if (currentRoomNode != null) {
-                if (!currentRoomNode.getRoom().getVisited()) enemies = currentRoomNode.getRoom().getEnemies();
+                if (!currentRoomNode.getRoom().getVisited()) {
+                    enemies = currentRoomNode.getRoom().getEnemies();
+                    if(enemies!=null){
+                        placeEnemies();
+                    }
+                }
                 for (JLabel itemStatLabel : itemStatLabels) {
                     remove(itemStatLabel);
                 }
@@ -1335,6 +1341,27 @@ public class Renderer extends JPanel {
         }
 
     }
+
+    public void placeEnemies(){
+        if(enemies.size()==1) {
+            return;
+        }
+        else{
+            int size = enemies.size();
+            for(int i=0;i<size/2;++i)
+            {
+                enemies.get(i).setX(i*70+400);
+                enemies.get(i).setY(250);
+            }
+            for(int i=size/2;i<size;++i)
+            {
+                enemies.get(i).setX(i*70+400);
+                enemies.get(i).setY(500);
+            }
+
+        }
+    }
+
 
 
     public void drawRoom(Graphics grphcs) {
