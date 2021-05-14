@@ -1704,6 +1704,17 @@ public class Renderer extends JPanel {
                             }
 
                         }
+                        if(enemy instanceof Boss)
+                        {
+                            System.out.println("is boss");
+                            Boss boss=(Boss)enemy;
+                            if(boss.isBoosInSecondPhase() && !boss.isPlayedBoosInSecondPhase())
+                            {
+                                System.out.println("Second phase");
+                                sfx.bossSecondPhase();
+                                boss.setPlayedBoosInSecondPhase(true);
+                            }
+                        }
                     }
                     generateItemStatLabels();
                     addLabels();

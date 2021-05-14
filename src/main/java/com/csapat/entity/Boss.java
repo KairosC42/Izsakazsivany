@@ -1,11 +1,15 @@
 package com.csapat.entity;
 
+import com.csapat.sound.Sfx;
+
 import java.awt.*;
 
 public class Boss extends Enemy{
 
     private int maxHealth;
     private boolean isBoosInSecondPhase = false;
+    private boolean playedBoosInSecondPhase = false;
+    private Sfx sfx;
 
 
     public Boss(int x, int y, int width, int height, Image[] images, int damage, int visionRange, int attackRange, int healthPoints, float speed, int levelDepth) {
@@ -22,6 +26,7 @@ public class Boss extends Enemy{
         if(healthPercantage>34 && nextHealthPercantage<=34)
         {
             isBoosInSecondPhase = true;
+
         }
         this.healthPoints-=damage;
 
@@ -33,7 +38,18 @@ public class Boss extends Enemy{
         return isBoosInSecondPhase;
     }
 
+
     public void setBoosInSecondPhase(boolean boosInSecondPhase) {
         isBoosInSecondPhase = boosInSecondPhase;
+    }
+
+    public void setPlayedBoosInSecondPhase(boolean playedBoosInSecondPhase)
+    {
+        this.playedBoosInSecondPhase = playedBoosInSecondPhase;
+    }
+
+    public boolean isPlayedBoosInSecondPhase()
+    {
+        return playedBoosInSecondPhase;
     }
 }
