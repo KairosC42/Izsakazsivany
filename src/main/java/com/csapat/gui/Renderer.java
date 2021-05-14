@@ -140,7 +140,6 @@ public class Renderer extends JPanel {
     private boolean isMapOn;
 
     private GameOverScreen gameOverScreen;
-    Boolean playerIsDead=false;
 
 
     public Renderer(int height, int width, JFrame frame) {
@@ -558,7 +557,7 @@ public class Renderer extends JPanel {
         this.getActionMap().put("pressed enter", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if(playerIsDead)
+                if(player.isDead())
                 {
                     startNewGame();
                 }
@@ -1601,8 +1600,8 @@ public class Renderer extends JPanel {
         level.generateLevel(levelDepth);
         roomMatrix=level.getRoomMatrix();
         currentRoomNode=level.getStartingRoom();
-        enemies.clear();
-        currentAttacks.clear();
+        enemies.removeAllElements();
+        currentAttacks.removeAllElements();
         player=new Player(window_h / 2, window_w / 2, player_height, player_width, playerImages, this.window_h, this.window_w);
         player.setSfx(sfx);
         newFrameTimer.start();
@@ -1614,7 +1613,6 @@ public class Renderer extends JPanel {
         @Override
         public void actionPerformed(ActionEvent ae) {
             if (player.isDead()) {
-                playerIsDead=true;
                 gameOverScreen=new GameOverScreen(level,player);
 
                 for (JLabel itemStatLabel : itemStatLabels) {
