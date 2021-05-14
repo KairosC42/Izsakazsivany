@@ -1,5 +1,6 @@
 package com.csapat.rooms;
 
+import com.csapat.entity.Boss;
 import com.csapat.entity.Enemy;
 import com.csapat.entity.Item;
 import com.csapat.gui.Renderer;
@@ -20,7 +21,9 @@ public class CombatRoom extends Room
 
     Random rand= new Random();
     private Image[] enemyImages;
+    private  Image[] bossImage;
     private int enemyCount;
+    private int bossCount;
 
 
     public CombatRoom(int levelDepth)
@@ -28,6 +31,9 @@ public class CombatRoom extends Room
         super(levelDepth);
         enemyCount=rand.nextInt(4)+3;
         enemies= new Vector<Enemy>();
+
+        bossCount=1;
+        Boss boss;
         this.roomSpecificGen();
         this.levelDepth=levelDepth;
     }
@@ -36,11 +42,13 @@ public class CombatRoom extends Room
     public void roomSpecificGen()
     {
         Image enemyTexture=null;
+        Image bossTexture=null;
         try
         {
             enemyImages = getImages(40,65,20,13,5,4,10,10,"enemys.png");
         }
         catch(Exception e){System.out.println("Enemy texture is missing");}
+
         for(int i=0;i<enemyCount;++i)
         {
             int healthPoints = rand.nextInt(20)+50 + (levelDepth-1)*15 ;
@@ -55,6 +63,28 @@ public class CombatRoom extends Room
 
             enemies.add(new Enemy( x_coordinate*30 ,/*getM()/2*/ y_coordinate*30  ,40,65,enemyImages,damage,visionRange,attackRange,healthPoints,moveSpeed,levelDepth));
         }
+
+
+        try
+        {
+            bossImage = getImages(40,65,20,13,5,4,10,10,"boss.png");
+        }
+        catch(Exception e){System.out.println("Boss texture is missing");}
+
+            int healthPoints = rand.nextInt(40)+50 + (levelDepth-1)*15 ;
+            float moveSpeed = 1.3f + (levelDepth-1)*0.1f ;
+            int visionRange = rand.nextInt(50)+200 + (levelDepth-1)*50; //enemies have full vision of every room from depth12
+            int attackRange = rand.nextInt(40) + 55 + (levelDepth-1)*20 ;
+            int damage = Math.round(rand.nextInt(20)+20 +(levelDepth-1)*15);
+
+            Random ran = new Random();
+            int x_coordinate = ran.nextInt(26)+2;
+            int y_coordinate = ran.nextInt(16)+2;
+
+        Boss boss = new Boss(x_coordinate * 30, y_coordinate * 30, 40, 65, enemyImages, damage, visionRange, attackRange, healthPoints, moveSpeed, levelDepth);
+
+
+
     }
 
     public Image[] getImages(int width, int height, int width_margin,

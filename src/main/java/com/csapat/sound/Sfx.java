@@ -111,4 +111,7 @@ public class Sfx
     public void setVolume(Renderer.IntWrapper volume) {
         this.volume = volume;
     }
+
+    public void bossAttack() {
+    }
 }

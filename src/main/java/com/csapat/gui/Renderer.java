@@ -1,75 +1,52 @@
 package com.csapat.gui;
 
+import com.csapat.entity.*;
+import com.csapat.levelLayoutGeneration.Level;
+import com.csapat.levelLayoutGeneration.RoomNode;
+import com.csapat.rooms.*;
+import com.csapat.sound.Sfx;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
-//import java.awt.event.KeyListener;
-//import java.io.IOException;
-//import java.sql.SQLException;
-//import java.util.ArrayList;
-//import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.*;
-//import javax.swing.ImageIcon;
-//import java.util.Scanner;
-//import java.io.*;
-//import javax.swing.*;
-//import java.awt.EventQueue;
-//import javax.swing.JLabel;
-//import java.util.Random;
-import java.awt.image.BufferedImage;
-//import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.TimerTask;
 import java.util.Vector;
-//import java.sql.Time;
-//import java.time.Duration;
-//import java.time.Instant;
-//import java.awt.Font;
-import com.csapat.entity.*;
-import com.csapat.levelLayoutGeneration.Level;
-import com.csapat.levelLayoutGeneration.RoomNode;
-import com.csapat.rooms.ItemRoom;
-import com.csapat.rooms.RoomType;
-import com.csapat.rooms.Shop;
-import com.csapat.rooms.Tile;
-import com.csapat.rooms.BossRoom;
-import com.csapat.rooms.CombatRoom;
-import com.csapat.rooms.Room;
-import com.csapat.sound.Sfx;
 
 
 public class Renderer extends JPanel {
+    //private Timer animationTimer;
+    private final int FPS = 240;
     Item selectedItem;
-    private Sfx sfx;
-
     boolean isAdded = false;
+    long last_time = System.nanoTime();
+    int delta_time = 0;
+    long time;
+    Vector<Item> items;
+    Vector<Attack> currentAttacks = new Vector<Attack>();
+    Graphics grphcs;
+    JLabel purchaseHint;
+    private Sfx sfx;
     private JFrame frame;
     private int window_w;
     private int window_h;
     private int tile_size;
     private Timer newFrameTimer;
-    //private Timer animationTimer;
-    private final int FPS = 240;
     //private Image background;
     private Player player;
     private int player_width = 40;
     private int player_height = 40;
-    long last_time = System.nanoTime();
-    int delta_time = 0;
-    long time;
     private Image attackImg;
     private Image enemyAttackImg = null;
-    Vector<Item> items;
-    Vector<Attack> currentAttacks = new Vector<Attack>();
-    Graphics grphcs;
-    JLabel purchaseHint;
-
+    private Image bossAttackImg = null;
     private Vector<JLabel> itemStatLabels;
 
     private int tileHeight;
@@ -106,13 +83,19 @@ public class Renderer extends JPanel {
     private Image playerAttackLeft;
     private Image playerAttackRight;
     private Image enemyAttackUp;
+    private Image bossAttackUp;
     private Image enemyAttackDown;
+    private Image bossAttackDown;
     private Image enemyAttackLeft;
+    private Image bossAttackLeft;
     private Image enemyAttackRight;
+    private Image bossAttackRight;
     private Image[] playerImages;
     private Image[] enemyImages;
+    private Image[] bossImages;
 
     private Vector<Enemy> enemies = new Vector<>();
+    private Boss boss;
     // ebbe töltődnek majd be az enemy-k a szoba/level betöltésénél.
 
 
@@ -190,7 +173,7 @@ public class Renderer extends JPanel {
 
         player = new Player(window_h / 2, window_w / 2, player_height, player_width, playerImages, this.window_h, this.window_w);
         player.setSfx(sfx);
-        gameOverScreen=new GameOverScreen(level,player);
+        gameOverScreen = new GameOverScreen(level, player);
         /*for (int i = 0; i < levelDepth + 2; ++i)
         {
             enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10,10,10));
@@ -361,7 +344,7 @@ public class Renderer extends JPanel {
                         enemy.takeDamage(99999);
                     }
                 }
-
+                boss.takeDamage(99999);
             }
         });
 
@@ -557,8 +540,7 @@ public class Renderer extends JPanel {
         this.getActionMap().put("pressed enter", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if(player.isDead())
-                {
+                if (player.isDead()) {
                     startNewGame();
                 }
 
@@ -934,6 +916,51 @@ public class Renderer extends JPanel {
                     }
                 }
             }
+            //boss
+
+            if (boss != null) {
+
+
+                    if (tile.collides(boss)) {
+                        if (tile.getType() == Tile.WALL) {
+                           boss.moveBack();
+                            boss.randDirection();
+                        }
+                        if (tile.getType() == Tile.DOOR_OPEN) {
+                            boss.moveBack();
+                        }
+                        if (tile.getType() == Tile.ITEMDOOR_OPEN) {
+                            boss.moveBack();
+                        }
+                        if (tile.getType() == Tile.SHOPDOOR_OPEN) {
+
+                            boss.moveBack();
+                        }
+                        if (tile.getType() == Tile.BOSSDOOR_OPEN) {
+                            boss.moveBack();
+                        }
+                        if ((tile.getType() == Tile.DOOR_CLOSED)) {
+                            boss.moveBack();
+                        }
+                        if ((tile.getType() == Tile.BOSSDOOR_CLOSED)) {
+                            boss.moveBack();
+                        }
+                        if ((tile.getType() == Tile.ITEMDOOR_CLOSED)) {
+                            boss.moveBack();
+                        }
+                        if ((tile.getType() == Tile.SHOPDOOR_CLOSED)) {
+                            boss.moveBack();
+                        }
+                        if ((tile.getType() == Tile.TRAPDOOR_OPEN)) {
+                            boss.moveBack();
+
+                        }
+
+                    }
+
+            }
+
+
         }
         boolean didCollideWithItem = false;
         if (items != null) {
@@ -992,6 +1019,15 @@ public class Renderer extends JPanel {
                 enemies = enemiesCopy;
             }
 
+            if (boss != null) {
+
+                if (boss.collides(attack) && !boss.getGotAttacked() && attack.getSource() == player) {
+                    boss.setGotAttacked(true);
+                    boss.damaged(attack.getDamage(), player.getAttackSpeed());
+                }
+
+            }
+
             if (player.collides(attack) && attack.getSource() != player) {
                 player.takeDamage(attack.getDamage());
             }
@@ -1007,6 +1043,14 @@ public class Renderer extends JPanel {
                     enemy.moveBack();
                 }
             }
+
+        if (boss != null)
+
+
+            if (boss.collides(player)) {
+                boss.moveBack();
+            }
+
     }
 
     private void generateItemStatLabels() {
@@ -1591,29 +1635,65 @@ public class Renderer extends JPanel {
                 enemyAttackImg = enemyAttackRight;
                 break;
         }
+/* Nem fut le
+        private void setBossAttackImg(Directions d) {
+            switch (d) {
+                case Up:
+                    bossAttackImg = bossAttackUp;
+                    break;
+                case Down:
+                    bossAttackImg = bossAttackDown;
+                    break;
+                case Left:
+                    bossAttackImg = bossAttackLeft;
+                    break;
+                case Right:
+                    bossAttackImg = bossAttackRight;
+                    break;
+            }
+            */
+
     }
 
-    private void startNewGame()
-    {
-        levelDepth=1;
+    private void startNewGame() {
+        levelDepth = 1;
         level.setLevelDepth(1);
         level.generateLevel(levelDepth);
-        roomMatrix=level.getRoomMatrix();
-        currentRoomNode=level.getStartingRoom();
+        roomMatrix = level.getRoomMatrix();
+        currentRoomNode = level.getStartingRoom();
         enemies.removeAllElements();
         currentAttacks.removeAllElements();
-        player=new Player(window_h / 2, window_w / 2, player_height, player_width, playerImages, this.window_h, this.window_w);
+        player = new Player(window_h / 2, window_w / 2, player_height, player_width, playerImages, this.window_h, this.window_w);
         player.setSfx(sfx);
         newFrameTimer.start();
         initTiles();
     }
 
+    /**
+     * Class created to copy ints by reference
+     */
+    public static class IntWrapper {
+        private int value;
+
+        IntWrapper(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public IntWrapper setValue(int value) {
+            this.value = value;
+            return this;
+        }
+    }
 
     class NewFrameListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent ae) {
             if (player.isDead()) {
-                gameOverScreen=new GameOverScreen(level,player);
+                gameOverScreen = new GameOverScreen(level, player);
 
                 for (JLabel itemStatLabel : itemStatLabels) {
                     remove(itemStatLabel);
@@ -1626,24 +1706,18 @@ public class Renderer extends JPanel {
                 newFrameTimer.stop();
 
 
-            }
-            else
-            {
+            } else {
                 player.move();
 
-                if (attack_timer_down)
-                {
+                if (attack_timer_down) {
                     Attack playerAttack = createPlayerAttack();
-                    if (playerAttack != null)
-                    {
+                    if (playerAttack != null) {
                         attack_timer_down = false;
                         //player attack return null if no primary direction is present, and attackImg is set then
                         //therefore attackImg is never null when used here
-                        if (isPrimaryPlayerAttackDirectionSet && isSecondaryPlayerAttackDirectionSet)
-                        {
+                        if (isPrimaryPlayerAttackDirectionSet && isSecondaryPlayerAttackDirectionSet) {
                             attacksWithRotatedImages.add(playerAttack);
-                        } else
-                        {
+                        } else {
                             playerAttack.setImage(attackImg);
                         }
                         currentAttacks.add(playerAttack);
@@ -1660,17 +1734,13 @@ public class Renderer extends JPanel {
                     attack.cast();
                 }
             }*/
-                if (enemies != null)
-                {
+                if (enemies != null) {
                     Vector<Enemy> enemiesCopy = new Vector<Enemy>(enemies);
-                    for (Enemy enemy : enemies)
-                    {
-                        if (enemy.getHealthPoints() == 0)
-                        {
+                    for (Enemy enemy : enemies) {
+                        if (enemy.getHealthPoints() == 0) {
                             player.incrementKillCount();
                             Item loot = enemy.dropLoot(player);
-                            if (loot != null)
-                            {
+                            if (loot != null) {
                                 loot.setX(enemy.getX());
                                 loot.setY(enemy.getY());
                                 currentRoomNode.getRoom().getDroppedItems().add(loot);
@@ -1679,18 +1749,15 @@ public class Renderer extends JPanel {
                             }
 
                             enemiesCopy.remove(enemy);
-                        } else
-                        {
+                            //boss.remove(boss);
+                        } else {
                             Attack att = enemy.behaviour(player);
 
-                            if (att != null)
-                            {
+                            if (att != null) {
 
-                                if (enemy.getDirection() == Directions.Still)
-                                {
+                                if (enemy.getDirection() == Directions.Still) {
                                     setEnemyAttackImg(enemy.getLastNoneStillDirection());
-                                } else
-                                {
+                                } else {
                                     setEnemyAttackImg(enemy.getDirection());
                                 }
                                 att.setImage(enemyAttackImg);
@@ -1700,19 +1767,57 @@ public class Renderer extends JPanel {
 
                         }
                     }
+
+
+                    if (boss != null) {
+                        Boss bossCopy = boss;
+
+                        if (boss.getHealthPoints() == 0) {
+                                player.incrementKillCount();
+                                Item loot = boss.dropLoot(player);
+                                if (loot != null) {
+                                    loot.setX(boss.getX());
+                                    loot.setY(boss.getY());
+                                    currentRoomNode.getRoom().getDroppedItems().add(loot);
+                                    items.add(loot);
+
+                                }
+
+                                bossCopy = null;
+
+                            } else {
+                                Attack att = boss.behaviour(player);
+
+                                if (att != null) {
+
+                                    if (boss.getDirection() == Directions.Still) {
+                                        setBossAttackImg(boss.getLastNoneStillDirection());
+                                    } else {
+                                        setBossAttackImg(boss.getDirection());
+                                    }
+                                    att.setImage(bossAttackImg);
+                                    sfx.bossAttack();
+                                    currentAttacks.add(att);
+                                }
+
+                            }
+                        }
+
                     generateItemStatLabels();
                     addLabels();
-                    enemies = enemiesCopy;
-                    if (enemies.size() == 0)
-                    {
+
+
+                    Boss bossCopy = null;
+                    boss = bossCopy;
+                    if (enemies.size() == 0) {
                         enemies = null;
                     }
-                } else
-                {
-                    if (currentRoomNode.getRoomType() == RoomType.COMBATROOM || currentRoomNode.getRoomType() == RoomType.BOSSROOM)
-                    {
-                        if (!currentRoomNode.getRoom().getVisited())
-                        {
+                   /* if (boss.getHealthPoints() == 0) {
+                       // boss = null;
+                    }*/
+                } else {
+                    if (currentRoomNode.getRoomType() == RoomType.COMBATROOM || currentRoomNode.getRoomType() == RoomType.BOSSROOM) {
+                        if (!currentRoomNode.getRoom().getVisited()) {
                             currentRoomNode.getRoom().setVisited(true);
                             changeDoors(currentRoomNode.getRoom());
                         }
@@ -1729,6 +1834,9 @@ public class Renderer extends JPanel {
              */
                 repaint();
             }
+        }
+
+        private void setBossAttackImg(Directions lastNoneStillDirection) {
         }
 
         void clearAttacks() {
@@ -1765,6 +1873,13 @@ public class Renderer extends JPanel {
         }
     }
 
+    class bossMoveTask extends TimerTask {
+
+        @Override
+        public void run() {
+            moveTimeOut = true;
+        }
+    }
 
     class FPSCounter extends Thread {
         private long lastTime;
@@ -1785,26 +1900,6 @@ public class Renderer extends JPanel {
 
         public double fps() {
             return fps;
-        }
-    }
-
-    /**
-     * Class created to copy ints by reference
-     */
-    public static class IntWrapper {
-        private int value;
-
-        IntWrapper(int value) {
-            this.value = value;
-        }
-
-        public IntWrapper setValue(int value) {
-            this.value = value;
-            return this;
-        }
-
-        public int getValue() {
-            return value;
         }
     }
 }
