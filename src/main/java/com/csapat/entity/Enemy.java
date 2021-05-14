@@ -34,7 +34,7 @@ public class Enemy extends Sprite {
 
     private Boolean gotAttacked=false;
 
-    public Enemy(int x, int y, int width, int height, Image images[], int damage, int visionRange, int attackRange, int healthPoints, float speed,int levelDepth) {
+    public Enemy(int x, int y, int width, int height, Image images[], int damage, int visionRange, int attackRange, int healthPoints, float speed,int levelDepth, boolean isBoss) {
         super(x, y, width, height, images[0]);
         this.damage = damage;
         this.visionRange=visionRange;
@@ -51,7 +51,9 @@ public class Enemy extends Sprite {
         lastNoneStillDirection = Directions.Left;
         this.enemyImages=images;
         Random randtype = new Random();
-        EnemyType = randtype.nextInt(3);
+        if(!isBoss) {
+            EnemyType = randtype.nextInt(3);
+        }
         try
         {
             attackImage = ImageIO.read(this.getClass().getClassLoader().getResource("attack.png"));
