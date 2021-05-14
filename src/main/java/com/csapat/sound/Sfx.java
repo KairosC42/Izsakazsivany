@@ -21,7 +21,7 @@ public class Sfx
     private final String usePotionFileName="usePotion.wav";
     private final String weaponPickUpFileName="weaponPickUp.wav";
     private final String gameOverFileName="gameOver.wav";
-    private final String bossSecondPhaseFileName="bossSecondPhase.wav";
+    private final String bossSecondPhaseFileName="laugh.wav";
     private final String victoryFileName="victory.wav";
     public synchronized  void playerAttack()
     {
@@ -74,10 +74,7 @@ public class Sfx
     {
         playAudioFile(gameOverFileName);
     }
-    public synchronized void bossSecondPhase()
-    {
-        playAudioFile(bossSecondPhaseFileName);
-    }
+    public synchronized void bossSecondPhase() {playAudioFile(bossSecondPhaseFileName); }
     public synchronized void victory(){playAudioFile(victoryFileName);}
 
 
