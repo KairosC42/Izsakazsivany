@@ -27,7 +27,7 @@ public class BossRoom extends CombatRoom
         Random rand = new Random();
         int hp = rand.nextInt(100)+400 + (levelDepth-1)*250;
         int damage = rand.nextInt(10)+28 +(levelDepth-1)*25;
-        int visionRange = rand.nextInt(50)+200 +(levelDepth-1)*50;
+        int visionRange = rand.nextInt(50)+400 +(levelDepth-1)*80;
         int attackRange = rand.nextInt(10)+70 +(levelDepth-1)*25;
         float speed = (float) (rand.nextInt(1) + 1.5f +(levelDepth-1)*0.3f);
         float attackSpeed = (float)(1.5f+(levelDepth-1)*0.3f);
