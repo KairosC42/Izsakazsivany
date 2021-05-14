@@ -14,6 +14,7 @@ public class Main extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1L;
     private ImageIcon image;
     private JPanel pan;
+    public boolean alreadyClicked = false;
 
     public Main() {
         super("Izsák a Zsivány");
@@ -59,9 +60,12 @@ public class Main extends JFrame implements ActionListener {
         }
         @Override
         public void mouseClicked(MouseEvent arg0) {
-            MainWindow gue = new MainWindow();
-            parent.setVisible(false);
-            //parent.dispatchEvent(new WindowEvent(parent, WindowEvent.WINDOW_CLOSING));
+            if(!alreadyClicked) {
+                alreadyClicked=true;
+                MainWindow gue = new MainWindow();
+                parent.setVisible(false);
+                //parent.dispatchEvent(new WindowEvent(parent, WindowEvent.WINDOW_CLOSING));
+            }
         }
 
         @Override
