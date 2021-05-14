@@ -84,7 +84,7 @@ public class Player extends Sprite {
     }
 
 
-    public boolean isDead() {return healthPoints>0;}
+    public boolean isDead() {return healthPoints<=0;}
 
     public void takeDamage(int damage)
     {

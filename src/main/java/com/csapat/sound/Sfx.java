@@ -20,6 +20,7 @@ public class Sfx
     private final String potionPickUpFileName="potionPickUp.wav";
     private final String usePotionFileName="usePotion.wav";
     private final String weaponPickUpFileName="weaponPickUp.wav";
+    private final String gameOverFileName="gameOver.wav";
 
     public synchronized  void playerAttack()
     {
@@ -67,6 +68,10 @@ public class Sfx
     public synchronized void weaponPickUp()
     {
         playAudioFile(weaponPickUpFileName);
+    }
+    public synchronized void gameOver()
+    {
+        playAudioFile(gameOverFileName);
     }
 
     private Renderer.IntWrapper volume;
