@@ -1624,8 +1624,8 @@ public class Renderer extends JPanel {
                 itemStatLabels.removeAllElements();
                 frame.getContentPane().add(gameOverScreen);
                 frame.setVisible(true);
+                sfx.gameOver();
                 newFrameTimer.stop();
-                System.out.println("halott");
 
 
             }
