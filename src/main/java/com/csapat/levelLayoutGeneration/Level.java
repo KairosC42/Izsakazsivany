@@ -700,4 +700,9 @@ public class Level
     {
         return levelDepth;
     }
+
+    public void setLevelDepth(int levelDepth)
+    {
+        this.levelDepth = levelDepth;
+    }
 }

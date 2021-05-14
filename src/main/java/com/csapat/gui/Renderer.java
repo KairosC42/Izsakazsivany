@@ -139,6 +139,8 @@ public class Renderer extends JPanel {
     private java.util.Timer enemyMoveTimer;
     private boolean isMapOn;
 
+    private GameOverScreen gameOverScreen;
+
 
     public Renderer(int height, int width, JFrame frame) {
         super();
@@ -185,8 +187,10 @@ public class Renderer extends JPanel {
         currentRoomNode = level.getStartingRoom();
         initGraphics();
 
+
         player = new Player(window_h / 2, window_w / 2, player_height, player_width, playerImages, this.window_h, this.window_w);
         player.setSfx(sfx);
+        gameOverScreen=new GameOverScreen(level,player);
         /*for (int i = 0; i < levelDepth + 2; ++i)
         {
             enemies.add(new Enemy(200 + 50 * i, 400 + 50 * i, 50, 50, enemyTexture,10,10,10));
@@ -548,6 +552,19 @@ public class Renderer extends JPanel {
                 }
             }
         });
+
+        this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), "pressed enter");
+        this.getActionMap().put("pressed enter", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if(player.isDead())
+                {
+                    startNewGame();
+                }
+
+            }
+        });
+
     }
 
     /**
@@ -1576,31 +1593,64 @@ public class Renderer extends JPanel {
         }
     }
 
+    private void startNewGame()
+    {
+        levelDepth=1;
+        level.setLevelDepth(1);
+        level.generateLevel(levelDepth);
+        roomMatrix=level.getRoomMatrix();
+        currentRoomNode=level.getStartingRoom();
+        enemies.removeAllElements();
+        currentAttacks.removeAllElements();
+        player=new Player(window_h / 2, window_w / 2, player_height, player_width, playerImages, this.window_h, this.window_w);
+        player.setSfx(sfx);
+        newFrameTimer.start();
+        initTiles();
+    }
+
 
     class NewFrameListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent ae) {
             if (player.isDead()) {
-                //mourn
-            }
-            player.move();
+                gameOverScreen=new GameOverScreen(level,player);
 
-            if (attack_timer_down) {
-                Attack playerAttack = createPlayerAttack();
-                if (playerAttack != null) {
-                    attack_timer_down = false;
-                    //player attack return null if no primary direction is present, and attackImg is set then
-                    //therefore attackImg is never null when used here
-                    if (isPrimaryPlayerAttackDirectionSet && isSecondaryPlayerAttackDirectionSet) {
-                        attacksWithRotatedImages.add(playerAttack);
-                    } else {
-                        playerAttack.setImage(attackImg);
-                    }
-                    currentAttacks.add(playerAttack);
-                    attack_timer = new java.util.Timer();
-                    attack_timer.schedule(new attackTask(), (int) (1000 / player.getAttackSpeed()));
+                for (JLabel itemStatLabel : itemStatLabels) {
+                    remove(itemStatLabel);
                 }
+                remove(purchaseHint);
+                itemStatLabels.removeAllElements();
+                frame.getContentPane().add(gameOverScreen);
+                frame.setVisible(true);
+                sfx.gameOver();
+                newFrameTimer.stop();
+
+
             }
+            else
+            {
+                player.move();
+
+                if (attack_timer_down)
+                {
+                    Attack playerAttack = createPlayerAttack();
+                    if (playerAttack != null)
+                    {
+                        attack_timer_down = false;
+                        //player attack return null if no primary direction is present, and attackImg is set then
+                        //therefore attackImg is never null when used here
+                        if (isPrimaryPlayerAttackDirectionSet && isSecondaryPlayerAttackDirectionSet)
+                        {
+                            attacksWithRotatedImages.add(playerAttack);
+                        } else
+                        {
+                            playerAttack.setImage(attackImg);
+                        }
+                        currentAttacks.add(playerAttack);
+                        attack_timer = new java.util.Timer();
+                        attack_timer.schedule(new attackTask(), (int) (1000 / player.getAttackSpeed()));
+                    }
+                }
 
             /*
             if(currentAttacks.size()>0)
@@ -1610,64 +1660,75 @@ public class Renderer extends JPanel {
                     attack.cast();
                 }
             }*/
-            if (enemies != null) {
-                Vector<Enemy> enemiesCopy = new Vector<Enemy>(enemies);
-                for (Enemy enemy : enemies) {
-                    if (enemy.getHealthPoints() == 0) {
-                        player.incrementKillCount();
-                        Item loot = enemy.dropLoot(player);
-                        if (loot != null) {
-                            loot.setX(enemy.getX());
-                            loot.setY(enemy.getY());
-                            currentRoomNode.getRoom().getDroppedItems().add(loot);
-                            items.add(loot);
-
-                        }
-
-                        enemiesCopy.remove(enemy);
-                    } else {
-                        Attack att = enemy.behaviour(player);
-
-                        if (att != null) {
-
-                            if(enemy.getDirection()==Directions.Still) {
-                                setEnemyAttackImg(enemy.getLastNoneStillDirection());
-                            }
-                            else
+                if (enemies != null)
+                {
+                    Vector<Enemy> enemiesCopy = new Vector<Enemy>(enemies);
+                    for (Enemy enemy : enemies)
+                    {
+                        if (enemy.getHealthPoints() == 0)
+                        {
+                            player.incrementKillCount();
+                            Item loot = enemy.dropLoot(player);
+                            if (loot != null)
                             {
-                                setEnemyAttackImg(enemy.getDirection());
+                                loot.setX(enemy.getX());
+                                loot.setY(enemy.getY());
+                                currentRoomNode.getRoom().getDroppedItems().add(loot);
+                                items.add(loot);
+
                             }
-                            att.setImage(enemyAttackImg);
-                            sfx.enemyAttack();
-                            currentAttacks.add(att);
+
+                            enemiesCopy.remove(enemy);
+                        } else
+                        {
+                            Attack att = enemy.behaviour(player);
+
+                            if (att != null)
+                            {
+
+                                if (enemy.getDirection() == Directions.Still)
+                                {
+                                    setEnemyAttackImg(enemy.getLastNoneStillDirection());
+                                } else
+                                {
+                                    setEnemyAttackImg(enemy.getDirection());
+                                }
+                                att.setImage(enemyAttackImg);
+                                sfx.enemyAttack();
+                                currentAttacks.add(att);
+                            }
+
                         }
-
+                    }
+                    generateItemStatLabels();
+                    addLabels();
+                    enemies = enemiesCopy;
+                    if (enemies.size() == 0)
+                    {
+                        enemies = null;
+                    }
+                } else
+                {
+                    if (currentRoomNode.getRoomType() == RoomType.COMBATROOM || currentRoomNode.getRoomType() == RoomType.BOSSROOM)
+                    {
+                        if (!currentRoomNode.getRoom().getVisited())
+                        {
+                            currentRoomNode.getRoom().setVisited(true);
+                            changeDoors(currentRoomNode.getRoom());
+                        }
                     }
                 }
-                generateItemStatLabels();
-                addLabels();
-                enemies = enemiesCopy;
-                if (enemies.size() == 0) {
-                    enemies = null;
-                }
-            } else {
-                if (currentRoomNode.getRoomType() == RoomType.COMBATROOM || currentRoomNode.getRoomType() == RoomType.BOSSROOM) {
-                    if (!currentRoomNode.getRoom().getVisited()) {
-                        currentRoomNode.getRoom().setVisited(true);
-                        changeDoors(currentRoomNode.getRoom());
-                    }
-                }
-            }
 
 
-            clearAttacks();
-            //TODO animilás
+                clearAttacks();
+                //TODO animilás
             /*animate(delta_time);
             time = System.nanoTime();
             delta_time = (int) ((time - last_time) / 1000000);
             last_time = time;
              */
-            repaint();
+                repaint();
+            }
         }
 
         void clearAttacks() {
