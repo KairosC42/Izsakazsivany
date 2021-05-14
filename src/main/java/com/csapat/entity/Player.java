@@ -387,7 +387,6 @@ public class Player extends Sprite {
     public void incrementKillCount()
     {
         killcount++;
-        sfx.enemyDeath();
     }
 
     public void setSfx(Sfx sfx)

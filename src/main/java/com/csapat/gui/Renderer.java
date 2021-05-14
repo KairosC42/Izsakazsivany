@@ -1668,6 +1668,7 @@ public class Renderer extends JPanel {
                         if (enemy.getHealthPoints() == 0)
                         {
                             player.incrementKillCount();
+                            sfx.enemyDeath();
                             Item loot = enemy.dropLoot(player);
                             if (loot != null)
                             {
