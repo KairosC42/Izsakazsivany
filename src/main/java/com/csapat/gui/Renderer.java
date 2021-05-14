@@ -1678,6 +1678,10 @@ public class Renderer extends JPanel {
                                 items.add(loot);
 
                             }
+                            if(currentRoomNode.getRoomType()==RoomType.BOSSROOM)
+                            {
+                                sfx.victory();
+                            }
 
                             enemiesCopy.remove(enemy);
                         } else
